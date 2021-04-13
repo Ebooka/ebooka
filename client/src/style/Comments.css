@@ -1,0 +1,9 @@
+.comment-response {
+    width: inherit;
+
+}
+
+.clickable:hover {
+    border-radius: 10px;
+    background-color: #EDEDED;
+}

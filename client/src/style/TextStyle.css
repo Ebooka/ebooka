@@ -1,0 +1,32 @@
+
+.title {
+    font-family: 'Public Sans', sans-serif;
+    font-size: 30px;
+}
+
+ul {
+    list-style-type: none;
+}
+
+.li-title,
+.sub-title {
+    font-family: 'Public Sans', sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.regular {
+    font-family: 'Public Sans', sans-serif;
+    font-size: 18px;
+}
+
+.greeting {
+    font-family: 'Public Sans', sans-serif;
+    font-size: 15px;
+}
+
+.date {
+    font-family: 'Public Sans', sans-serif;
+    font-size: 12px;
+}

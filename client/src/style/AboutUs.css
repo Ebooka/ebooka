@@ -1,0 +1,23 @@
+.row {
+    margin-top: 30px !important;
+}
+
+.about-us-img-container-left {
+    #margin-left: 0;
+    #margin-right: auto;
+    #width: max-content;
+}
+
+.about-us-img-container-right {
+    margin-left: auto;
+    margin-right: 0;
+    width: max-content;
+}
+
+.text-container {
+    text-align: justify;
+}
+
+.about-us-text {
+    font-size: 22px;
+}

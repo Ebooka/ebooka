@@ -1,0 +1,4 @@
+{
+    "postgresURI": "postgres://eocssifbpxtaqk:12f1f53093bc519b824d5588d488ad1017a68b4dd239e57c5617374d0553d2f8@ec2-52-45-73-150.compute-1.amazonaws.com:5432/d460119cdgu7sg",
+    "jwtSecret": "y7x8LHY/8xFYOMPGRBjtW682nS84G3BaLoc8QL9Uaxts3oj6GbZf8Zr9giyIAi5qRXFU+HuM4fc3o/ciD99Zvqsst4blkuYC8nUuhRlP6v0PLDwgdauiaI4FPJil0Q6TCYIdyfi0wxhIJnlPh3Wk6YaNfauJMLf8Ubb7dgmYPtuh2cS59eV4Po93sak+lzQQ4QFkvJ+zV2awKrFkpLy+kvsjXLYwhyBM13ermWKKAE4GEI3rzhQXVVgxYd9N04Lo4csx0/m/54NnImhU/6g4y8K0EJkbGC5/a452mVxvSo4PPqfy6ophKsrac9ppsP8xxZL5I0vu7pNPuuseUQDgfg=="
+}

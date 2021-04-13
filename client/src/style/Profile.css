@@ -1,0 +1,27 @@
+.col-sm {
+    word-break: break-word;
+}
+
+.img-wrapper {
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    width: 100px;
+    height: fit-content;
+    overflow: hidden;
+    border-radius: 50%;
+    border: solid 2px black;
+}
+
+.img-wrapper .btn {
+    padding: 0;
+    position: absolute;
+    top: 90%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    background-color: #555;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }

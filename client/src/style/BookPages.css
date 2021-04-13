@@ -1,0 +1,94 @@
+#full-container {
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+    vertical-align: middle;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    position: relative;
+}
+
+#open-button {
+    position: absolute;
+    left: 0;
+    background-color: inherit;
+    font-size: 35px;
+    top: -4px;
+}
+
+#buttons-container {
+    display: flex;
+    width: max-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#prev-button {
+    height: fit-content;
+}
+
+#next-button {
+    height: fit-content;
+}
+
+#book-container {
+    font-family: 'Public Sans', sans-serif;
+    width: 80%;
+    min-height: 70vh;
+    height: auto;
+    display: flex;
+    margin: 20px auto;
+}
+
+.cover {
+    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    font-family: 'Public Sans', sans-serif;
+    height: 80%;
+}
+
+.cover h4 {
+    font-size: 40px;
+    font-weight: lighter;
+}
+
+.cover h2 {
+    font-size: 60px;
+}
+
+.full-page {
+    min-height: 50vh;
+}
+
+.page-content {
+    width: 90%;
+    font-family: 'Public Sans';
+    text-align: justify;
+    margin: 15px auto;
+    height: auto;
+    font-size: 1.35rem;
+    min-height: 80%;
+    word-break: break-word;
+}
+
+.footer {
+    text-align: right;
+    padding-right: 15px;
+}
+
+#book-page {
+    cursor: pointer;
+    width: 100%;
+    border: solid 1px  rgb(175, 173, 173);
+    height: auto;
+    min-height: 80%;
+    background-color: white;
+    box-shadow: 10px 10px 5px rgb(146, 146, 146);
+}
+
+.MuiDrawer-paper {
+    top: 90px !important;
+    overflow-y: scroll !important;
+}

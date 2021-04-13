@@ -1,0 +1,25 @@
+.banner {
+    position: relative;
+    text-align: center;
+}
+
+.welcome-header {
+    font-size: 30px;
+    position: absolute;
+    top: 30%;
+    left: 10%;
+}
+
+.welcome-mid {    
+    font-size: 30px;
+    position: absolute;
+    top: 45%;
+    left: 10%;
+}
+
+.welcome-footer {
+    font-size: 30px;
+    position: absolute;
+    top: 60%;
+    left: 10%;
+}

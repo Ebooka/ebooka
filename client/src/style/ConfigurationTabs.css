@@ -1,0 +1,35 @@
+.tab {
+    overflow: hidden;
+    background-color: white;
+    border: none;
+  }
+  
+  /* Style the buttons that are used to open the tab content */
+  .tablinks {
+    text-align: left;
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 0;
+    transition: 0.3s;
+    width: 100%;
+  }
+  
+  /* Change background color of buttons on hover */
+  .tablinks:hover {
+    background-color: #ddd;
+  }
+  
+  /* Style the tab content */
+  .tabcontent {
+    display: none;
+    border-top: none;
+    animation: fadeEffect 1s;
+  }
+
+  @keyframes fadeEffect {
+      from {opacity: 0;}
+      to {opacity: 1;}
+  }

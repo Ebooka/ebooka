@@ -1,0 +1,13 @@
+.writings-clickable, .users-clickable {
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: .5rem;
+}
+
+.writings-clickable:hover, .users-clickable:hover {
+    background-color: #BABABA;
+}
+
+.filter-label {
+    margin-left: .5rem;
+}

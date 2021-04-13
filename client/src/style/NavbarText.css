@@ -1,0 +1,21 @@
+#navbar-logo {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.hover-text {
+    opacity: 0;
+    transition: all 0.5s;
+}
+
+#hover-box:hover .hover-text {
+    opacity: 1;
+}
+
+.nav-link {
+    color: black;
+}
+
+.nav-link:hover {
+    color: grey;
+}
