@@ -36,7 +36,6 @@ export default function (state = initialState, action) {
                 isAdmin: action.payload.role === 'admin'
             };
         case LOGIN_SUCCESS:
-        case REGISTER_SUCCESS:
             localStorage.setItem('token', action.payload.token);
             localStorage.setItem('username', action.payload.username);
             return {
@@ -46,6 +45,12 @@ export default function (state = initialState, action) {
                 isAuthenticated: true,
                 isLoading: false,
                 isAdmin: action.payload.role === 'admin'
+            };
+        case REGISTER_SUCCESS:
+            return {
+                ...state,
+                isAuthenticated: false,
+                isLoading: false,
             };
         case AUTH_ERROR:
         case LOGIN_FAIL:

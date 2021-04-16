@@ -28,7 +28,7 @@ router.get('/block/:id', (req, res) => {
     pool.query(query, [userId], (error, results) => {
         if(error)
             res.status(404).json({ msg: 'Error buscando escritos' });
-        res.status(200).json(results.rows);
+        res.status(200).json(results ? results.rows : []);
     });
 });
 

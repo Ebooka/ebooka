@@ -114,3 +114,4 @@ create table validation_tokens (
   password text,
   expiration_date date
 );
+alter table users alter column register_date set default now()

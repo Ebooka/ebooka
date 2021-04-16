@@ -29,7 +29,7 @@ class Validate extends Component {
 
     render() {
         return (
-            <div>
+            <div style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', height: '90%', textAlign: 'justify', width: '90%', marginLeft: 'auto', marginRight: 'auto', marginTop: 20, overflowY: 'scroll'}}>
                 Cargando...
             </div>
         );

@@ -11,7 +11,19 @@ sELECT * FROM writings WHERE genre = 'Poesia' OR genre = 'Biografia' ORDER BY ar
 select * from writings where id = 1;
 SELECT * FROM writings WHERE genre = 'Biografia' ORDER BY array_length(likes, 1) DESC NULLS LAST;
 alter table writings add foreign key (writer_id) references users(id);
+
+
+
+
+
 alter table drafts alter column last_edited set default now();
+
+
+
+
+
+
+
 SELECT * FROM writings WHERE genre = 'Biografia' ORDER BY array_length(likes, 1) DESC NULLS LAST;
 update writings set likes = array_append(likes, 25) where id = 8 returning *;
 update users set liked_posts = array_append(liked_posts, 25)
@@ -105,7 +117,14 @@ alter table users add column profile_image text
 delete from users where id >= 21
 update users set profile_image = '/assets/user.png' where id = 34
 alter table notifications add column post_id integer
+
+
+
+
 alter table notifications add constraint fk_reference_post foreign key (post_id) references writings(id)
+
+
+
 select * from notifications where user_id = 3 and sender_id != 3
 insert into notifications(message, user_id, type, sender_id, post_id) values (' empezó a seguirte', 3, 'FOLLOW', 7, null)
 alter table notifications drop column message
@@ -117,6 +136,8 @@ SELECT type, created_at, u.username, u.id, u.profile_image, post_id, me.followed
 delete from users where email = 'edamm@itba.edu.ar'
 select followed_users from users where id = 3
 delete from users where id = 20 
+
+
 alter table notifications add foreign key(sender_id) references users(id) on delete cascade
 alter table commentItem add foreign key(commenter_id) references users(id) on delete cascade
 alter table notifications drop constraint fk_reference 
@@ -229,4 +250,8 @@ SELECT w.*, u.username, u.profile_image, u.id AS writer_id, c.body as chap FROM 
 
 select pid from pg_stat_activity where usename = 'hpmmvdsprkgmwu'
 q hselect username from users where id in (select unnest(likes) from commentitem where id = 89)
-delete from users where id = 441
+delete from users where id = 441CREATE TABLE chapters (id SERIAL NOT NULL, body TEXT, writing_id INTEGER NOT NULL, PRIMARY KEY (id), CONSTRAINT chapters_writing_id_fkey FOREIGN KEY (writing_id) REFERENCES "writings" ("id") ON DELETE CASCADE);
+
+ALTER TABLE validation_tokens alter column expiration_date type timestamp
+INSERT INTO validation_tokens(token, username, password, expiration_date) VALUES('bla', 'usr', 'psw', TO_TIMESTAMP('2021-04-17 01:55:00.405', 'YYYY-MM-DD HH24:MI:SS.FFFF'));
+select t.id as tid, u.id as id, u.username, writings, role, drafts, liked_posts, followed_users, followers, profile_image, external_account from validation_tokens as t join users as u on t.username = u.username where token = '5572ba39-94c0-437a-89c1-d6484385bd3c' and now() < expiration_date

@@ -17,7 +17,7 @@ class Register extends Component {
         email: '',
         password: '',
         passwordCheck: '',
-        msg: null,
+        msg: '',
         modal: false
     }
 
@@ -47,7 +47,7 @@ class Register extends Component {
             if(error.id === 'REGISTER_FAIL')
                 this.setState({ msg: error.msg.msg });
             else
-                this.setState({ msg: null });
+                this.setState({ msg: '' });
         }
         if(this.state.modal) {
             if(isAuthenticated)
@@ -55,7 +55,7 @@ class Register extends Component {
         }
     }
 
-    onRegister = (event) => {
+    onRegister = async (event) => {
         event.preventDefault();
         this.props.clearErrors();
         const { name, username, email, password, passwordCheck } = this.state;
@@ -64,20 +64,20 @@ class Register extends Component {
         if(username.length < 6) {
             const usrInput = document.getElementById('username');
             usrInput.style.border = '1px solid red';
-            this.setState({
-                error: REGISTER_FAIL,
+            await this.setState({
                 msg: 'El nombre de usuario debe contener al menos 6 caracteres!'
             });
+            console.log(this.state.msg);
         } else if(password !== passwordCheck) {
             const pswdInput = document.getElementById('password');
             pswdInput.style.border = '1px solid red';
             const pswdChkInput = document.getElementById('passwordCheck');
             pswdChkInput.style.border = '1px solid red';
             this.setState({
-                error: REGISTER_FAIL,
                 msg: 'Las contraseñas no coinciden!'
             });
         } else {
+            console.log(this.state);
             const newUser = {
                 name,
                 username,
@@ -85,7 +85,7 @@ class Register extends Component {
                 password,
                 defaultImageURL,
                 externalAccount,
-                needsValidation: true
+                needsValidation: true,
             };
             this.props.registerUser(newUser);
         }
@@ -95,23 +95,6 @@ class Register extends Component {
         this.props.registerUser({token: response.tokenObj.id_token});
     }
 
-    facebookRegister = (response) => {
-        const name = response.name;
-        const username = response.name;
-        const email = response.email;
-        const password = response.id;
-        const defaultImageURL = response.picture.data.url;
-        const newUser = {
-            name,
-            username,
-            email,
-            password,
-            defaultImageURL,
-            needsValidation: false
-        };
-        this.props.registerUser(newUser);
-    }
-
     render() {
         return (
             <div>
@@ -119,9 +102,10 @@ class Register extends Component {
                 <Modal isOpen={this.state.modal} toggle={this.toggle} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', width: '100%', overflowY: 'scroll', maxHeight: '85%'}}>
                     <ModalHeader toggle={this.toggle}>Creá tu cuenta</ModalHeader>
                     <ModalBody>
-                        {this.state.msg ? (
+                        {
+                            this.state.msg?.length > 0 &&
                             <Alert color="secondary">{this.state.msg}</Alert>
-                        ) : null}
+                        }
                         <Form>
                             <div style={{marginLeft: 'auto', marginRight: 'auto', width: 'max-content'}}>
                                 <GoogleLogin clientId="309248232315-k2qfk2ln63stjvlj5npeb7q7rt685l3v.apps.googleusercontent.com"

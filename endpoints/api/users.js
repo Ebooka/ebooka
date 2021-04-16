@@ -26,7 +26,7 @@ router.post('/', (req, res) => {
         needsValidation = false;
     } else {
         name = req.body.name;
-        username = req.body.email.toLowerCase().split('@')[0];
+        username = req.body.username;
         email = req.body.email;
         password = req.body.password;
         defaultImageURL = req.body.defaultImageURL;
@@ -36,15 +36,19 @@ router.post('/', (req, res) => {
     if(!name || !email || !password || !username) {
         return res.status(400).json({ msg: 'Por favor ingresá todos los campos!' });
     }
+    let date = new Date();
+    date.setDate(date.getDate() + 1);
+    date = date.toISOString().split('T').join(' ').split('Z')[0];
     let newUsername = username;
     const query = `INSERT INTO users(name, username, email, password, role, profile_image, external_account, valid) VALUES($1, $2, $3, $4, 'USER', $5, $6, $7) RETURNING *;`;
-    const validationQuery = 'INSERT INTO validation_tokens(token, username, password) VALUES($1, $2, $3);';
+    const validationQuery = `INSERT INTO validation_tokens(token, username, password, expiration_date) VALUES($1, $2, $3, $4);`;
     let user = null;
     bcrypt.genSalt(10, (error, salt) => {
         bcrypt.hash(password, salt, (error, hash) => {
             if(error) throw error;
             pool.query(query, [name, newUsername, email, hash, defaultImageURL, externalAccount, !needsValidation], async (error, result) => {
                 if(error) {
+                    console.log(error);
                     if(error.code === '23505') { // duplicate email in db
                         if (error.detail.includes('username') && error.constraint === 'users_username_key') {
                             if (needsValidation) {
@@ -73,38 +77,18 @@ router.post('/', (req, res) => {
                         return res.status(400).json({msg: 'Error creando cuenta, por favor intentá más tarde!'});
                     }
                 }
+                let emailCheck = false;
                 if(needsValidation) {
-                    const token = uuid();
-                    pool.query(validationQuery, [token, newUsername, password], (error, result) => {
+                    const t = uuid();
+                    console.log(t);
+                    pool.query(validationQuery, [t, newUsername, password, date], (error, result) => {
                         if(error)
                             return res.status(400).json({ msg: 'Error en el servidor' });
-                        sendRegistrationEmail(email, needsValidation, token);
+                        sendRegistrationEmail(email, needsValidation, t, res);
                     });
                 } else {
-                    sendRegistrationEmail(email, needsValidation, null);
+                    sendRegistrationEmail(email, needsValidation, null, res);
                 }
-                jwt.sign(
-                    {id: user ? user.id : result.rows[0].id},
-                    config.get('jwtSecret'),
-                    {expiresIn: 3600 * 24},
-                    (error, token) => {
-                        if (error)
-                            throw error;
-                        res.json({
-                            token,
-                            id: user.id,
-                            username: user.username,
-                            writings: user.writings,
-                            role: user.role,
-                            drafts: user.drafts,
-                            liked_posts: user.liked_posts,
-                            followed_users: user.followed_users,
-                            followers: user.followers,
-                            profile_image: user.profile_image
-                        });
-                    }
-                );
-                return res.status(200).json({msg: 'Cuenta creada con exito'});
             });
         });
     });
@@ -293,9 +277,12 @@ router.post('/validate', (req, res) => {
     const deleteToken = 'delete from validation_tokens where id = $1;';
     const validateUser = "update users set valid = 'true' where id = $1;";
     const token = [req.body.token];
+    console.log('validate', token);
     pool.query(query, token, (error, results) => {
-        if(error || results.rows.length === 0)
-            return res.status(400).json({ msg: 'Token inválido' });
+        if(error || results.rows.length === 0) {
+            console.log(error ? error : 't invalido');
+            return res.status(400).json({msg: 'Token inválido'});
+        }
         const user = results.rows[0];
         const tokenId = user.tid;
         pool.query(deleteToken, [tokenId], (error, results) => {

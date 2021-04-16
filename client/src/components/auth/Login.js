@@ -63,22 +63,11 @@ class Login extends Component {
     };
 
     googleLogin = (response) => {
-        console.log(response);
         const user = {
             token: response.tokenObj.id_token,
         };
         this.props.login(user);
     }
-
-    /*facebookLogin = (response) => {
-        const username = response.name;
-        const password = response.id;
-        const user = {
-            username,
-            password
-        };
-        this.props.login(user);
-    }*/
 
     failure = obj => {
         console.log(obj);

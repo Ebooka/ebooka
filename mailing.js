@@ -8,27 +8,29 @@ let transporter = nodemailer.createTransport({
     }
 });
 
-const sendRegistrationEmail = (email, needsValidation, token) => {
-    const link = 'http://escritos-app.herokuapp.com/validate/' + token;
+const sendRegistrationEmail = async (email, needsValidation, token, userResponse) => {
+    console.log('send email');
+    const link = 'https://ebooka-staging.herokuapp.com/validate/' + token;
     let mailOptions = needsValidation ?
     {
         from: 'editorialwebapp@gmail.com',
         to: email,
-        subject: 'Confirmación de cuenta Bookla',
+        subject: 'Confirmación de cuenta Ebooka',
         text: '<p>Para poder confirmar tu cuenta hacé click <a href="' + link + '">acá</a>.</p>'
     } : {
         from: 'editorialwebapp@gmail.com',
         to: email,
-        subject: 'Bienvenido a Bookla',
-        text: '<p>Disfrutá de Bookla.</p>'
+        subject: 'Bienvenido a Ebooka',
+        text: '<p>Disfrutá de Ebooka.</p>'
     }
-    transporter.sendMail(mailOptions, (error, info) => {
-        if(error) {
-            console.log(error)
-            return false;
-        }
-    });
-    return true;
+    const ans = await transporter.sendMail(mailOptions)
+        .then(res => {
+            const value = res.accepted.length > 0 && res.response.includes('OK');
+            if(value)
+                return userResponse.status(200).json({msg: 'Cuenta creada con exito'});
+            return userResponse.status(402).json({ msg: 'Error enviando mail de verificacion!' });
+        })
+        .catch(err => userResponse.stat(402).json({ msg: 'Error enviando mail de verificacion!' }));
 }
 
 const sendPasswordEmail = (email, token) => {
