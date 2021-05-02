@@ -1,5 +1,17 @@
 import React, { Component } from 'react';
-import { Button, Form, FormGroup, Label, Input, Modal, NavLink, ModalHeader, ModalBody, Alert } from 'reactstrap';
+import {
+    Button,
+    Form,
+    FormGroup,
+    Label,
+    Input,
+    Modal,
+    NavLink,
+    ModalHeader,
+    ModalBody,
+    Alert,
+    Spinner
+} from 'reactstrap';
 import { clearErrors } from '../../actions/errorActions';
 import { registerUser } from '../../actions/authActions';
 import { connect } from 'react-redux';
@@ -18,7 +30,9 @@ class Register extends Component {
         password: '',
         passwordCheck: '',
         msg: '',
-        modal: false
+        modal: false,
+        loading: false,
+        googleMsg: '',
     }
 
     static propTypes = {
@@ -48,6 +62,15 @@ class Register extends Component {
                 this.setState({ msg: error.msg.msg });
             else
                 this.setState({ msg: '' });
+        } else if(prevProps.message !== this.props.message) {
+            if(this.state.username !== '') {
+                this.setState({msg: this.props.message});
+            } else {
+                this.setState({googleMsg: '¡Registración exitosa! Iniciá sesión y disfrutá de Ebooka.'});
+            }
+        }
+        if(prevProps.loading !== this.props.loading) {
+            this.setState({ loading: this.props.loading });
         }
         if(this.state.modal) {
             if(isAuthenticated)
@@ -77,7 +100,6 @@ class Register extends Component {
                 msg: 'Las contraseñas no coinciden!'
             });
         } else {
-            console.log(this.state);
             const newUser = {
                 name,
                 username,
@@ -102,11 +124,11 @@ class Register extends Component {
                 <Modal isOpen={this.state.modal} toggle={this.toggle} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', width: '100%', overflowY: 'scroll', maxHeight: '85%'}}>
                     <ModalHeader toggle={this.toggle}>Creá tu cuenta</ModalHeader>
                     <ModalBody>
-                        {
-                            this.state.msg?.length > 0 &&
-                            <Alert color="secondary">{this.state.msg}</Alert>
-                        }
                         <Form>
+                            {
+                                this.state.googleMsg.length > 0 &&
+                                <Alert color="secondary">{this.state.googleMsg}</Alert>
+                            }
                             <div style={{marginLeft: 'auto', marginRight: 'auto', width: 'max-content'}}>
                                 <GoogleLogin clientId="309248232315-k2qfk2ln63stjvlj5npeb7q7rt685l3v.apps.googleusercontent.com"
                                             onSuccess={this.googleRegister}
@@ -139,8 +161,16 @@ class Register extends Component {
                                 <Input type="password" name="passwordCheck" id="passwordCheck" placeholder="Reingresá tu contraseña" onChange={this.onChange}/>
                             </FormGroup>
                             <p style={{fontFamily: 'Public Sans'}}>Al registrarse, se dan por aceptados los  <u><a href={'/terms-and-conditions'} style={{textDecoration: 'none', color: 'darkslategray'}}>Términos y Condiciones.</a></u></p>
+                            {
+                                this.state.msg?.length > 0 &&
+                                <Alert color="secondary">{this.state.msg}</Alert>
+                            }
                             <FormGroup style={{ textAlign: 'center', marginTop: 30 }}>
-                                <Button onClick={this.onRegister} style={{marginRight: 5, backgroundColor: '#3B52A5', borderColor: '#3B52A5', color: 'white'}}>Crear cuenta</Button>
+                                <Button onClick={this.onRegister} style={{marginRight: 5, backgroundColor: '#3B52A5', borderColor: '#3B52A5', color: 'white'}}>
+                                    {
+                                        this.state.loading ? <Spinner/> : 'Crear cuenta'
+                                    }
+                                </Button>
                                 <Button onClick={this.toggle} style={{marginLeft: 5, color: '#EC1009', borderColor: '#EC1009'}} outline>Cancelar</Button>
                             </FormGroup>
                         </Form>
@@ -153,7 +183,9 @@ class Register extends Component {
 
 const mapStateToProps = state => ({
     isAuthenticated: state.auth.isAuthenticated,
-    error: state.error
+    error: state.error,
+    message: state.auth.message,
+    loading: state.auth.isLoading,
 });
 
 export default connect(mapStateToProps, { registerUser, clearErrors })(Register);

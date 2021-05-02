@@ -11,6 +11,7 @@ import {
     REGISTER_SUCCESS,
     SEND_PASSWORD_EMAIL
 } from './types';
+import {setGettingUser} from "./userActions";
 
 export const loadUser = () => (dispatch, getState) => {
     dispatch({ type: USER_LOADING });    
@@ -31,6 +32,7 @@ export const loadUser = () => (dispatch, getState) => {
 };
 
 export const registerUser = (user) => dispatch => {
+    dispatch({type: USER_LOADING});
     axios.post('/api/users', user)
         .then(res => 
             dispatch({

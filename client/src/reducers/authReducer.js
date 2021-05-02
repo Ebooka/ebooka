@@ -16,7 +16,8 @@ const initialState = {
     isAuthenticated: false,
     isLoading: false,
     isAdmin: false,
-    user: null
+    user: null,
+    message: '',
 };
 
 export default function (state = initialState, action) {
@@ -51,6 +52,7 @@ export default function (state = initialState, action) {
                 ...state,
                 isAuthenticated: false,
                 isLoading: false,
+                message: '¡Registración exitosa! Revisá tu correo para verificar la cuenta.',
             };
         case AUTH_ERROR:
         case LOGIN_FAIL:
