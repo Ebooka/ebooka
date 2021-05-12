@@ -1,10 +1,15 @@
 let nodemailer   = require('nodemailer');
 
+const credentials = {
+    email: 'ebooka.editorial@gmail.com',
+    password: 'Coniluli12'
+}
+
 let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'editorialwebapp@gmail.com',
-        pass: '3d1t0r14l2020'
+        user: credentials.email,
+        pass: credentials.password
     }
 });
 
@@ -13,15 +18,15 @@ const sendRegistrationEmail = async (email, needsValidation, token, userResponse
     const link = 'https://ebooka-staging.herokuapp.com/validate/' + token;
     let mailOptions = needsValidation ?
     {
-        from: 'editorialwebapp@gmail.com',
+        from: credentials.email,
         to: email,
         subject: 'Confirmación de cuenta Ebooka',
-        text: '<p>Para poder confirmar tu cuenta hacé click <a href="' + link + '">acá</a>.</p>'
+        html: '<p>Para poder confirmar tu cuenta hacé click <a href="' + link + '">acá</a>.</p>'
     } : {
-        from: 'editorialwebapp@gmail.com',
+        from: credentials.email,
         to: email,
         subject: 'Bienvenido a Ebooka',
-        text: '<p>Disfrutá de Ebooka.</p>'
+        html: '<p>Disfrutá de Ebooka.</p>'
     }
     const ans = await transporter.sendMail(mailOptions)
         .then(res => {
@@ -36,7 +41,7 @@ const sendRegistrationEmail = async (email, needsValidation, token, userResponse
 const sendPasswordEmail = (email, token) => {
     const link = 'http://escritos-app.herokuapp.com/password/' + token;
     let mailOptions = {
-        from: 'editorialwebapp@gmail.com',
+        from: credentials.email,
         to: email,
         subject: 'Recuperación de contraseña',
         text: 'Para modificar tu contraseña hacé click en el siguiente link: ' + link
