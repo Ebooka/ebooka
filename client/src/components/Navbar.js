@@ -116,8 +116,11 @@ class Navbar extends Component {
         const anonDropdown = (
             <>
                 <div id="hover-box" style={{display: 'flex', alignItems: 'center', cursor: 'pointer', marginRight: 3}} onClick={this.forceLogin}>
-                    <a className="nav-link hover-text" style={{color: 'black'}}>Escribí</a>
-                    <img src="/assets/compose.png" width="25" height="25" alt="Escribir"/>
+                    {/*<a className="nav-link hover-text" style={{color: 'black'}}>Escribí</a>
+                    <img src="/assets/compose.png" width="25" height="25" alt="Escribir"/>*/}
+                    <button type={'button'} data-toggle={'tooltip'} data-placement={'bottom'} title={'Escribí'} style={{backgroundColor: 'transparent', border: 'none'}}>
+                        <img src="/assets/compose.png" width="25" height="25" alt="Escribir"/>
+                    </button>
                 </div>
                 <Modal isOpen={this.state.forceLogin} toggle={this.forceLogin} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', overflowY: 'scroll', maxHeight: '85%'}}>
                     <ModalHeader>Para escribir, creá tu cuenta o ingresá!</ModalHeader>
@@ -133,7 +136,7 @@ class Navbar extends Component {
             </>
         );
         return (
-            <nav className="navbar navbar-expand-lg navbar-light bg-light fixed-top" style={{zIndex: 10000}}>
+            <nav className="navbar navbar-expand-lg navbar-light bg-light" style={{zIndex: 10000}}>
                 <a href="/" className="navbar-brand">
                     <img id={'navbar-logo'} className="navbar-brand" src="/assets/logo-complete.png" width="60" height="60"/>
                 </a>

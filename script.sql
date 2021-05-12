@@ -231,3 +231,6 @@ update validation_tokens set expiration_date = now()
 select pid from pg_stat_activity where usename = 'hpmmvdsprkgmwu'
 q hselect username from users where id in (select unnest(likes) from commentitem where id = 89)
 delete from users where id = 61
+
+alter table chapters drop constraint chapters_writing_id_fkey
+alter table chapters add constraint chapters_writing_id_fkey foreign key (writing_id) references writings(id) on delete cascade;

@@ -121,7 +121,7 @@ class Register extends Component {
         return (
             <div>
                 <NavLink onClick={this.toggle} href="#">Registrate</NavLink>
-                <Modal isOpen={this.state.modal} toggle={this.toggle} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', width: '100%', overflowY: 'scroll', maxHeight: '85%'}}>
+                <Modal isOpen={this.state.modal} toggle={this.toggle} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', width: '99%', overflowY: 'auto', maxHeight: '85%'}}>
                     <ModalHeader toggle={this.toggle}>Creá tu cuenta</ModalHeader>
                     <ModalBody>
                         <Form>
