@@ -2,16 +2,19 @@ let nodemailer   = require('nodemailer');
 
 const credentials = {
     email: 'ebooka.editorial@gmail.com',
-    password: 'Coniluli12'
+    password: 'DjkQHvVXxL3Y8taf'
 }
 
-let transporter = nodemailer.createTransport({
-    service: 'gmail',
+const options = {
+    port: 587,
+    host: 'smtp-relay.sendinblue.com',
     auth: {
         user: credentials.email,
         pass: credentials.password
     }
-});
+};
+
+let transporter = nodemailer.createTransport(options)
 
 const sendRegistrationEmail = async (email, needsValidation, token, userResponse) => {
     console.log('send email');
@@ -30,12 +33,16 @@ const sendRegistrationEmail = async (email, needsValidation, token, userResponse
     }
     const ans = await transporter.sendMail(mailOptions)
         .then(res => {
-            const value = res.accepted.length > 0 && res.response.includes('OK');
+            console.log(res);
+            const value = res.accepted.length > 0 && res.response.includes('250');
             if(value)
                 return userResponse.status(200).json({msg: 'Cuenta creada con exito'});
             return userResponse.status(402).json({ msg: 'Error enviando mail de verificacion!' });
         })
-        .catch(err => userResponse.stat(402).json({ msg: 'Error enviando mail de verificacion!' }));
+        .catch(err => {
+            console.log(err);
+            userResponse.stat(402).json({ msg: 'Error enviando mail de verificacion!' })
+        });
 }
 
 const sendPasswordEmail = (email, token) => {
