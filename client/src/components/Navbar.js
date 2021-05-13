@@ -136,7 +136,7 @@ class Navbar extends Component {
             </>
         );
         return (
-            <nav className="navbar navbar-expand-lg navbar-light bg-light" style={{zIndex: 10000}}>
+            <nav className="navbar navbar-expand-lg navbar-light bg-light fixed-top" style={{zIndex: 10000}}>
                 <a href="/" className="navbar-brand">
                     <img id={'navbar-logo'} className="navbar-brand" src="/assets/logo-complete.png" width="60" height="60"/>
                 </a>
