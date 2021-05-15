@@ -54,6 +54,7 @@ export const logout = () => dispatch => {
 };
 
 export const login = (data) => dispatch => {
+    dispatch({ type: USER_LOADING });
     axios.post('/api/auth/user', data)
         .then(res => {
             dispatch({

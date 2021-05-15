@@ -1,5 +1,17 @@
 import React, { Component } from 'react';
-import { Button, Form, FormGroup, Label, Input, Modal, NavLink, ModalHeader, ModalBody, Alert } from 'reactstrap';
+import {
+    Button,
+    Form,
+    FormGroup,
+    Label,
+    Input,
+    Modal,
+    NavLink,
+    ModalHeader,
+    ModalBody,
+    Alert,
+    Spinner
+} from 'reactstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { login } from '../../actions/authActions';
@@ -8,13 +20,29 @@ import { GoogleLogin } from 'react-google-login';
 import Register from "./Register";
 import Password from './Password';
 
+const errorTypes = {
+    LOGIN_FAIL: 'LOGIN_FAIL',
+    REQUIRED: 'REQUIRED'
+};
+
+const errorMessages = {
+    REQUIRED: 'Este campo es requerido.',
+};
+
+const errorSpan = (text) => (
+    <span style={{color: 'red', fontSize: 12}}>{text}</span>
+)
+
 class Login extends Component {
 
     state = {
         username: '',
         password: '',
+        error: null,
         msg: null,
-        modal: false
+        modal: false,
+        missingFields: [],
+        loading: false
     }
 
     static propTypes = {
@@ -38,6 +66,9 @@ class Login extends Component {
             else
                 this.setState({ msg: null });
         }
+        if(prevProps.loading !== this.props.loading) {
+            this.setState({ loading: this.props.loading });
+        }
         if(this.state.modal) {
             if(isAuthenticated) {
                 this.toggle();
@@ -52,9 +83,24 @@ class Login extends Component {
         });
     };
 
+    hasMissingFields = () => {
+        let missingFields = [];
+        if(this.state.username === '') {
+            missingFields.push('username');
+        }
+        if(this.state.password === '') {
+            missingFields.push('password');
+        }
+        this.setState({ missingFields: missingFields });
+        return missingFields.length > 0;
+    }
+
     onLogin = (event) => {
         event.preventDefault();
         const { username, password } = this.state;
+        if(this.hasMissingFields()) {
+            return;
+        }
         const user = {
             username,
             password
@@ -80,9 +126,6 @@ class Login extends Component {
                 <Modal isOpen={this.state.modal} toggle={this.toggle} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', width: '100%', overflowY: 'scroll', maxHeight: '85%'}}>
                     <ModalHeader toggle={this.toggle}>Ingresá tus datos</ModalHeader>
                     <ModalBody>
-                        {this.state.msg ? (
-                            <Alert color="secondary">{this.state.msg}</Alert>
-                        ) : null}
                         <Form>
                             <div style={{marginLeft: 'auto', marginRight: 'auto', width: 'max-content'}}>
                                 <GoogleLogin clientId="309248232315-k2qfk2ln63stjvlj5npeb7q7rt685l3v.apps.googleusercontent.com"
@@ -98,14 +141,29 @@ class Login extends Component {
                             </div>
                             <FormGroup>
                                 <Label for="name" style={{fontSize: 15}}>Nombre De Usuario</Label>
-                                <Input type="text" name="username" id="username" placeholder="Ingresá tu nombre de usuario" onChange={this.onChange} autoComplete="username"/> 
+                                <Input type="text"
+                                       name="username"
+                                       id="username"
+                                       placeholder="Ingresá tu nombre de usuario"
+                                       style={ this.state.missingFields.includes('username') ? {borderColor: 'red'} : null }
+                                       onChange={this.onChange} autoComplete="username"/>
+                                {this.state.missingFields.includes('username') && errorSpan(errorMessages.REQUIRED)}
                             </FormGroup>
                             <FormGroup>
                                 <Label for="password" style={{fontSize: 15}}>Contraseña</Label>
-                                <Input type="password" name="password" id="password" placeholder="Ingresá tu contraseña" autoComplete="new-password" onChange={this.onChange}/>
+                                <Input type="password"
+                                       name="password"
+                                       id="password"
+                                       placeholder="Ingresá tu contraseña"
+                                       style={ this.state.missingFields.includes('password') ? {borderColor: 'red'} : null }
+                                       autoComplete="new-password" onChange={this.onChange}/>
+                                {this.state.missingFields.includes('password') && errorSpan(errorMessages.REQUIRED)}
                             </FormGroup>
+                            {this.state.msg && <Alert color="secondary">{this.state.msg}</Alert>}
                             <FormGroup style={{ textAlign: 'center', marginTop: 30 }}>
-                                <Button onClick={this.onLogin} style={{marginRight: 5, backgroundColor: '#3B52A5', borderColor: '#3B52A5', color: 'white'}}>Ingresar</Button>
+                                <Button onClick={this.onLogin} style={{marginRight: 5, backgroundColor: '#3B52A5', borderColor: '#3B52A5', color: 'white'}}>
+                                    { this.state.loading ? <Spinner color={'light'} size={'sm'}/> : 'Ingresar' }
+                                </Button>
                                 <Button onClick={this.toggle} style={{marginLeft: 5, color: '#EC1009', borderColor: '#EC1009'}} outline>Cancelar</Button>
                             </FormGroup>
                         </Form>
@@ -131,7 +189,8 @@ class Login extends Component {
 
 const mapStateToProps = state => ({
     isAuthenticated: state.auth.isAuthenticated,
-    error: state.error
+    error: state.error,
+    loading: state.auth.isLoading
 });
 
 export default connect(mapStateToProps, { login, clearErrors })(Login);
