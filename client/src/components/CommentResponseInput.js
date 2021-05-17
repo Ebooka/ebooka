@@ -61,10 +61,10 @@ class CommentResponseInput extends Component {
             }
             this.setState({ response: '' });
             if(this.props.commentId) {
-                await this.props.saveResponse(this.props.writingId, responseTrimmed, this.props.commentId, this.props.auth.user.id);
+                this.props.saveResponse(this.props.writingId, responseTrimmed, this.props.commentId, this.props.auth.user.id);
                 this.props.trigger(responseTrimmed);
             } else {
-                await this.props.saveComment(this.props.writingId, responseTrimmed, this.props.auth.user.id);
+                this.props.saveComment(this.props.writingId, responseTrimmed, this.props.auth.user.id);
                 this.props.trigger(responseTrimmed);
             }
         }

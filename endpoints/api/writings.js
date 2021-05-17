@@ -6,7 +6,7 @@ const { pool } = require('../../queries');
  *  @desc: get all writings from db
  *  @access: public, no authentication is required
  */
-router.get('/page/:page', (req, res) => {
+router.get('/page/:page/', (req, res) => {
     let query = 'SELECT w.id, w.title, w.body, w.writer_id, w.genre, w.cover, w.comments, w.likes, w.description, w.viewers, w.anon_viewers, w.last_edited, u.username FROM writings as w JOIN users as u ON w.writer_id = u.id ORDER BY last_edited DESC LIMIT 4 OFFSET $1;';
     const limit = 4;
     const offset = [parseInt(req.params.page) * limit];
@@ -22,10 +22,10 @@ router.get('/page/:page', (req, res) => {
  *  @desc: get all writings from db avoiding blocked users 
  *  @access: private
  */
-router.get('/block/:id', (req, res) => {
+router.get('/block/:id/page/:page', (req, res) => {
     const userId = req.params.id;
-    let query = 'SELECT w.*, u.username, u.profile_image FROM writings as w JOIN users as u ON w.writer_id = u.id AND w.writer_id NOT IN (SELECT UNNEST(blocked_accounts) FROM users WHERE id = $1) ORDER BY last_edited DESC;';
-    pool.query(query, [userId], (error, results) => {
+    let query = 'SELECT w.*, u.username, u.profile_image FROM writings as w JOIN users as u ON w.writer_id = u.id AND w.writer_id NOT IN (SELECT UNNEST(blocked_accounts) FROM users WHERE id = $1) ORDER BY last_edited DESC LIMIT 4 OFFSET $2;';
+    pool.query(query, [userId, req.params.page], (error, results) => {
         if(error)
             res.status(404).json({ msg: 'Error buscando escritos' });
         res.status(200).json(results ? results.rows : []);
@@ -36,8 +36,9 @@ router.get('/block/:id', (req, res) => {
  *  @desc: get a specific writing from db
  *  @access: public, no authentication is required
  */
-router.get('/:id', (req, res) => {
-    pool.query('SELECT w.*, u.username, u.profile_image, u.id AS writer_id FROM writings AS w JOIN users as u ON w.writer_id = u.id AND w.id = $1;', [req.params.id.valueOf()], (error, result) => {
+router.get('/:id/', (req, res) => {
+    const query = 'SELECT w.*, u.username, u.profile_image, u.id AS writer_id FROM writings AS w JOIN users as u ON w.writer_id = u.id AND w.id = $1;';
+    pool.query(query, [req.params.id.valueOf()], (error, result) => {
         if(error)
             return res.status(404).json({ msg: 'Ese escrito no existe'});
         res.status(200).json(result.rows[0]);
@@ -48,7 +49,7 @@ router.get('/:id', (req, res) => {
  *  @desc: get a specific genre from db
  *  @access: public, no authentication is required
  */
-router.get('/genre/:genre', (req, res) => {
+router.get('/genre/:genre/', (req, res) => {
     pool.query('SELECT w.*, u.username, u.profile_image FROM writings AS w JOIN users as u ON w.writer_id = u.id AND w.genre = $1;', [req.params.genre.toString()], (error, result) => {
         if(error)
             return res.status(404).json({ msg: 'Esa categoría no existe'});
@@ -60,7 +61,7 @@ router.get('/genre/:genre', (req, res) => {
  *  @desc: get a specific subgenre from db
  *  @access: public, no authentication is required
  */
-router.get('/subgenre/:subgenre', (req, res) => {
+router.get('/subgenre/:subgenre/', (req, res) => {
     pool.query('SELECT w.*, u.username, u.profile_image FROM writings AS w JOIN users as u ON w.writer_id = u.id AND w.subgenre = $1;', [req.params.subgenre.toString()], (error, result) => {
         if(error)
             return res.status(404).json({ msg: 'Esa subcategoría no existe'});
@@ -72,7 +73,7 @@ router.get('/subgenre/:subgenre', (req, res) => {
  *  @desc: get all writings from one user
  *  @access: public, no authentication is required
  */
-router.get('/username/:username', (req, res) => {
+router.get('/username/:username/', (req, res) => {
     pool.query('SELECT w.*, u.username FROM writings AS w JOIN users as u ON w.writer_id = u.id AND u.username = $1;', [req.params.username.toString()], (error, result) => {
         if(error)
             return res.status(404).json({ msg: 'Ese género no existe'});
@@ -84,7 +85,7 @@ router.get('/username/:username', (req, res) => {
  *  @desc: get all writings preview from one author
  *  @access: public, no authentication is required
  */
-router.get('/preview/:username', (req, res) => {
+router.get('/preview/:username/', (req, res) => {
     pool.query('SELECT title, genre, body, likes, viewers, anon_viewers, comments, id FROM writings WHERE writer_id = (SELECT id FROM users WHERE username = $1);', [req.params.username.toString()], (error, result) => {
         if(error)
             return res.status(404).json({ msg: 'Ese escrito no existe'});
@@ -96,17 +97,17 @@ router.get('/preview/:username', (req, res) => {
  *  @desc: get all writings from db filtered by genre 
  *  @access: public, no authentication is required
  */
-router.get('/filter/:filters', (req, res) => {
+router.get('/filter/:filters/page/:page', (req, res) => {
     let params = req.params.filters;
-    let sortQuery = ' ORDER BY last_edited DESC;';
+    let sortQuery = ' ORDER BY last_edited DESC LIMIT 4 OFFSET $1;';
     let sortParam = params.split('sort=')[1].split('&')[0];
     let genres = [];
     let finalQuery = 'SELECT w.*, u.username, u.profile_image FROM writings as w JOIN users as u ON w.writer_id = u.id ';
     let genreQuery = '';
     if(sortParam === 'more-likes')
-        sortQuery = ' ORDER BY array_length(likes, 1) DESC NULLS LAST;';
+        sortQuery = ' ORDER BY array_length(likes, 1) DESC NULLS LAST LIMIT 4 OFFSET $1;';
     else if(sortParam === 'less-recent')
-        sortQuery = ' ORDER BY last_edited ASC;';
+        sortQuery = ' ORDER BY last_edited ASC LIMIT 4 OFFSET $1;';
     if(params.includes('genre'))
         genres = params.split('genre=')[1].split('&')[0].split(',');
     if(genres.length > 0) {
@@ -122,7 +123,7 @@ router.get('/filter/:filters', (req, res) => {
         });
     } 
     finalQuery += genreQuery + sortQuery;
-    pool.query(finalQuery, (error, results) => {
+    pool.query(finalQuery, [req.params.page], (error, results) => {
         if(error)
             return res.status(404).json({ msg: 'Error filtrando resultados' });
         res.status(200).json(results.rows);
@@ -133,18 +134,18 @@ router.get('/filter/:filters', (req, res) => {
  *  @desc: get all writings from db filtered by genre 
  *  @access: public, no authentication is required
  */
-router.get('/filter/block/:id/:filters', (req, res) => {
+router.get('/filter/block/:id/:filters/page/:page', (req, res) => {
     let params = req.params.filters;
-    let sortQuery = ' ORDER BY last_edited DESC;';
+    let sortQuery = ' ORDER BY last_edited DESC LIMIT 4 OFFSET $2;';
     let sortParam = params.split('sort=')[1].split('&')[0];
     let genres = [];
     const userId = req.params.id;
     let finalQuery = 'SELECT w.*, u.username, u.profile_image FROM writings as w JOIN users as u ON w.writer_id = u.id AND w.writer_id NOT IN (SELECT UNNEST(blocked_accounts) FROM users WHERE id = $1) ';
     let genreQuery = '';
     if(sortParam === 'more-likes')
-        sortQuery = ' ORDER BY array_length(likes, 1) DESC NULLS LAST;';
+        sortQuery = ' ORDER BY array_length(likes, 1) DESC NULLS LAST LIMIT 4 OFFSET $2;';
     else if(sortParam === 'less-recent')
-        sortQuery = ' ORDER BY last_edited ASC;';
+        sortQuery = ' ORDER BY last_edited ASC LIMIT 4 OFFSET $2;';
     if(params.includes('genre'))
         genres = params.split('genre=')[1].split('&')[0].split(',');
     if(genres.length > 0) {
@@ -160,14 +161,14 @@ router.get('/filter/block/:id/:filters', (req, res) => {
         });
     } 
     finalQuery += genreQuery + sortQuery;
-    pool.query(finalQuery, [userId], (error, results) => {
+    pool.query(finalQuery, [userId, req.params.page], (error, results) => {
         if(error)
             return res.status(404).json({ msg: 'Error filtrando resultados' });
         res.status(200).json(results.rows);
     });
 });
 
-router.post('/chapters', (req, res) => {
+router.post('/chapters/', (req, res) => {
     const insertChapter = 'INSERT INTO chapters(body, writing_id) VALUES($1, $2) RETURNING id;';
     const appendChapterToWriting = 'UPDATE writings SET chapters = array_append(chapters, $1) WHERE id = $2;';
     const values = [req.body.body, req.body.writing_id];
@@ -185,7 +186,7 @@ router.post('/chapters', (req, res) => {
     })
 });
 
-router.get('/chapters/:id', (req, res) => {
+router.get('/chapters/:id/', (req, res) => {
     const getChaptersBodyQuery = 'SELECT c.body, c.id FROM chapters AS c WHERE c.id IN (SELECT UNNEST(chapters) FROM writings AS w WHERE w.id = $1);';
     pool.query(getChaptersBodyQuery, [req.params.id], (error, results) => {
         if(error)
@@ -237,7 +238,7 @@ router.post('/',  (req, res) => {
  *  @access: so far its public, eventually it 
  *  should be accessible only for authenticated users
  */ 
-router.delete('/:id', (req, res) => {
+router.delete('/:id/', (req, res) => {
     const query = 'DELETE FROM writings WHERE id = $1';
     pool.query(query, [req.params.id.valueOf()], (error, results) => {
         if(error)
@@ -247,7 +248,7 @@ router.delete('/:id', (req, res) => {
     })
 });
 
-router.put('/viewer/:id', (req, res) => {
+router.put('/viewer/:id/', (req, res) => {
     const query = 'UPDATE writings SET viewers = array_append(viewers, $1) WHERE id = $2 RETURNING *';
     const values = [req.params.id, req.body.writingId];
     pool.query(query, values, (error, results) => {
@@ -257,7 +258,7 @@ router.put('/viewer/:id', (req, res) => {
     });
 });
 
-router.put('/anonViewer/:id', (req, res) => {
+router.put('/anonViewer/:id/', (req, res) => {
     const query = 'UPDATE writings SET anon_viewers = array_append(anon_viewers, $1) WHERE id = $2 RETURNING *';
     const values = [req.params.id, req.body.writingId];
     pool.query(query, values, (error, results) => {
@@ -267,7 +268,7 @@ router.put('/anonViewer/:id', (req, res) => {
     });
 });
 
-router.put('/comment-like', (req, res) => {
+router.put('/comment-like/', (req, res) => {
     const query = 'UPDATE commentItem SET likes = array_append(likes, $1) WHERE id = $2;';
     pool.query(query, [req.body.likerId, req.body.commentId], (error, results) => {
         if(error)
@@ -276,7 +277,7 @@ router.put('/comment-like', (req, res) => {
     });
 });
 
-router.put('/comment-unlike', (req, res) => {
+router.put('/comment-unlike/', (req, res) => {
     const query = 'UPDATE commentItem SET likes = array_remove(likes, $1) WHERE id = $2;';
     pool.query(query, [req.body.likerId, req.body.commentId], (error, results) => {
         if(error)
@@ -289,7 +290,7 @@ router.put('/comment-unlike', (req, res) => {
  *  @desc: likes a writing given its id
  *  @access: private
  */ 
-router.put('/like', (req, res) => {
+router.put('/like/', (req, res) => {
     const query = 'UPDATE writings SET likes = array_append(likes, $1) WHERE id = $2 RETURNING *';
     const queryUser = 'UPDATE users SET liked_posts = array_append(liked_posts, $1) WHERE id = $2';
     const selectQuery = 'SELECT w.*, u.username FROM writings AS w JOIN users as u ON w.writer_id = u.id AND w.id = $1;';
@@ -321,7 +322,7 @@ router.put('/like', (req, res) => {
  *  @desc: unlikes a writing given its id
  *  @access: private
  */ 
-router.put('/unlike', (req, res) => {
+router.put('/unlike/', (req, res) => {
     const query = 'UPDATE writings SET likes = array_remove(likes, $1) WHERE id = $2 RETURNING *';
     const queryUser = 'UPDATE users SET liked_posts = array_remove(liked_posts, $1) WHERE id = $2';
     const selectQuery = 'SELECT w.*, u.username FROM writings AS w JOIN users as u ON w.writer_id = u.id AND w.id = $1;';
@@ -345,17 +346,17 @@ router.put('/unlike', (req, res) => {
  *  @desc: add comment to a writing
  *  @access: only authenticated users can comment
  */
-router.post('/comment', (req, res) => {
-    const createCommentItem = 'INSERT INTO commentItem(commenter_id, writing_id, content) VALUES($1, $2, $3) RETURNING id;';
+router.post('/comment/', (req, res) => {
+    const createCommentItem = 'INSERT INTO commentItem(commenter_id, writing_id, content, is_comment) VALUES($1, $2, $3, true) RETURNING *;';
     const notificationInsertion = "INSERT INTO notifications(user_id, type, sender_id, post_id) values ($1, 'COMMENT', $2, $3);"
     const query = 'UPDATE writings SET comments = array_append(comments, $1) WHERE id = $2;';
     const selectQuery = 'SELECT w.*, u.username, u.profile_image, w.writer_id FROM writings AS w JOIN users as u ON w.writer_id = u.id AND w.id = $1;';
     pool.query(createCommentItem, [req.body.commenterId, req.body.writingId, req.body.content], (error, result) => {
         if(error)
-            //return res.status(400).json({ msg: 'Error añadiendo comentario' });
-            throw error;
-        if(result.rows[0]) {
-            const commentId = result.rows[0].id;
+            return res.status(400).json({ msg: 'Error añadiendo comentario' });
+        const commentCreated = result.rows[0];
+        if(commentCreated) {
+            const commentId = commentCreated.id;
             pool.query(query, [commentId, req.body.writingId], (error, result) => {
                 if(error)
                     res.status(400).json({ msg: 'Error añadiendo comentario al posteo' });
@@ -367,7 +368,7 @@ router.post('/comment', (req, res) => {
                     pool.query(notificationInsertion, [writerId, req.body.commenterId, req.body.writingId], (error, result) => {
                         if(error)
                             return res.status(404).json({ msg: 'Error notificando comentario' });
-                        return res.status(200).json(returnValue);
+                        return res.status(200).json(commentCreated);
                     });
                 });
             });
@@ -375,7 +376,7 @@ router.post('/comment', (req, res) => {
     })
 });
 
-router.post('/response', (req, res) => {
+router.post('/response/', (req, res) => {
     const createResponse = 'INSERT INTO commentItem(commenter_id, in_response_to, writing_id, content, is_comment) VALUES ($1, $2, $3, $4, false) RETURNING id;';
     const values = [req.body.commenterId, req.body.parentCommentId, req.body.writingId, req.body.content];
     const addToCommentResponseArray = 'UPDATE commentItem SET responses = array_append(responses, $1) WHERE id = $2';
@@ -397,7 +398,7 @@ router.post('/response', (req, res) => {
     })
 });
 
-router.get('/responses/:id', (req, res) => {
+router.get('/responses/:id/', (req, res) => {
     const getResponses = 'SELECT username, content, c.id, c.likes, c.responses, profile_image FROM commentItem AS c JOIN users AS u ON u.id = commenter_id WHERE c.in_response_to = $1';
     const id = req.params.id;
     pool.query(getResponses, [id], (error, results) => {
@@ -407,7 +408,7 @@ router.get('/responses/:id', (req, res) => {
     })
 })
 
-router.get('/old-comment/:id', (req, res) => {
+router.get('/old-comment/:id/', (req, res) => {
     const query = 'SELECT username, content, c.id, c.likes, c.responses, profile_image FROM commentItem AS c JOIN users AS u ON u.id = commenter_id WHERE c.id IN (SELECT unnest(comments) FROM writings AS w WHERE w.id = $1 ORDER BY unnest DESC LIMIT 3) AND c.is_comment = true;';
     pool.query(query, [req.params.id], (error, result) => {
         if(error)
@@ -416,17 +417,16 @@ router.get('/old-comment/:id', (req, res) => {
     });
 })
 
-router.get('/all-comments/:id', (req, res) => {
+router.get('/all-comments/:id/', (req, res) => {
     const query = 'SELECT username, content, c.id, c.likes, c.responses, profile_image FROM commentItem AS c JOIN users AS u ON u.id = commenter_id WHERE c.id IN (SELECT unnest(comments) FROM writings AS w WHERE w.id = $1 ORDER BY unnest DESC) AND c.is_comment = true;';
     pool.query(query, [req.params.id], (error, result) => {
         if(error)
-            //return res.status(400).json({ msg: 'Error buscando último comentario' });
-            console.log(error);
+            return res.status(400).json({ msg: 'Error buscando último comentario' });
         res.status(200).json(result.rows);
     });
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id/', (req, res) => {
     const query = 'UPDATE writings SET title = $1, description = $2, genre = $3, tags = $4, completed = $5, body = $6, chapters = $7, last_edited = now(), subgenre = $8 WHERE id = $9;';
     console.log(req.body)
     const params = [req.body.title, req.body.description, req.body.genre, req.body.tags, req.body.completed, req.body.body, req.body.chapters, req.params.subgenre, req.params.id];
@@ -437,7 +437,7 @@ router.put('/:id', (req, res) => {
     });
 });
 
-router.put('/chapter/:id', (req, res) => {
+router.put('/chapter/:id/', (req, res) => {
    const query = 'UPDATE chapters SET body = $1 WHERE id = $2';
    const params = [req.body.body, req.params.id];
    pool.query(query, params, (error, result) => {
@@ -447,7 +447,7 @@ router.put('/chapter/:id', (req, res) => {
    })
 });
 
-router.get('/compose-data/:id', (req, res) => {
+router.get('/compose-data/:id/', (req, res) => {
     const query = 'SELECT body, chapters, genre, description, title, id, subgenre, tags, completed, cover FROM writings WHERE id = $1;';
     pool.query(query, [req.params.id], (error, result) => {
         if(error)
@@ -457,12 +457,24 @@ router.get('/compose-data/:id', (req, res) => {
 })
 
 
-router.get('/comment/likers/:id', (req, res) => {
+router.get('/comment/likers/:id/', (req, res) => {
     const query = 'SELECT username, profile_image FROM users WHERE id IN (SELECT unnest(likes) FROM commentitem WHERE id = $1);';
     pool.query(query, [req.params.id], (error, result) => {
         if(error) return res.status(402).json({msg: 'Error buscando likes del comentario'});
         return res.status(200).json(result.rows);
     });
 })
+
+router.delete('/comment/:id/writing/:wid/', (req, res) => {
+   const query = 'DELETE FROM commentItem WHERE id = $1';
+   const deleteFromWritingComments = 'UPDATE writings SET comments = array_remove(comments, $1) WHERE id = $2';
+   pool.query(query, [req.params.id], (error, result) => {
+      if(error) return res.status(402).json({ msg: 'Error eliminando el comentario' });
+      pool.query(deleteFromWritingComments, [req.params.id, req.params.wid], (error, result) => {
+          if(error) return res.status(402).json({ msg: 'Error eliminando el comentario' });
+          return res.status(200).json({ msg: 'Comentario eliminado con éxito' });
+      });
+   });
+});
 
 module.exports = router;

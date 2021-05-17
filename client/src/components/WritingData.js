@@ -88,10 +88,19 @@ class WritingData extends Component {
 
             <div id={`toggle-comment-area${this.props.data.id}`} style={{display: 'none', textAlign: 'left', margin: 5}}>
                 {
-                    this.state.lastComments && this.state.lastComments.length > 0 ?
-                    this.state.lastComments.map((comment, idx) => {
-                        return <Comment parent={null} commentId={comment.id} username={comment.username} image={comment.profile_image} content={comment.content} writingId={this.props.data.id} idx={idx} likes={this.state.lastCommentsLikes && this.state.lastCommentsLikes[idx] ? this.state.lastCommentsLikes[idx] : []} responses={this.state.lastCommentsResponses && this.state.lastCommentsResponses[idx] ? this.state.lastCommentsResponses[idx] : []} />
-                    }) : null
+                    this.state.lastComments && this.state.lastComments.length > 0 &&
+                    this.state.lastComments.map((comment, idx) =>
+                        <Comment parent={null}
+                                 commentId={comment.id}
+                                 username={comment.username}
+                                 image={comment.profile_image}
+                                 content={comment.content}
+                                 writingId={this.props.data.id}
+                                 idx={idx}
+                                 onDelete={this.handleDelete}
+                                 likes={this.state.lastCommentsLikes && this.state.lastCommentsLikes[idx] ? this.state.lastCommentsLikes[idx] : []}
+                                 responses={this.state.lastCommentsResponses && this.state.lastCommentsResponses[idx] ? this.state.lastCommentsResponses[idx] : []} />
+                    )
                 }
                 <div id={`new-comment${this.props.data.id}`} style={{display: 'none', marginLeft: 'auto', marginRight: 'auto', margin: 5, zIndex: 10}}>
                     <img id={`new-commenter-profile-image${this.props.data.id}`} src="" width="35" height="35" style={{border: '1px solid black', borderRadius: '50%'}}/>
@@ -219,6 +228,10 @@ class WritingData extends Component {
         return viewersCount + anonViewersCount;
     }
 
+    handleDelete = () => {
+        this.getAllComments(this.props.current.id);
+    }
+
     render() {
         const data = this.props.data;
         if(data) {
@@ -235,7 +248,7 @@ class WritingData extends Component {
                                  image={comment.profile_image}
                                  username={comment.username}
                                  depth={0}
-
+                                 onDelete={this.handleDelete}
                         />
                     )): <p>¡No hay comentarios todavía! Sé el primero en añadir uno.</p> : null}
                 </div>

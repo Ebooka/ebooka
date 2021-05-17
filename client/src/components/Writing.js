@@ -70,9 +70,27 @@ class Writing extends Component {
             .catch(err => console.log(err));
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if(prevProps.newCommentLoading !== this.props.newCommentLoading &&
+            !this.props.newCommentLoading &&
+            !this.props.newCommentError) {
+            // username, content, c.id, c.likes, c.responses, profile_image
+            console.log(this.props.auth);
+            const newCommentComplete = {
+                ...this.props.newComment,
+                username: this.props.auth.user.username,
+                profile_image: this.props.auth.user.profile_image,
+            }
+            if(this.state.lastComments) {
+                this.setState({lastComments: [...this.state.lastComments, newCommentComplete]});
+            } else {
+                this.setState({lastComments: [newCommentComplete]});
+            }
+        }
+    }
 
     getAllComments = (writingId) => {
-        axios.get(`/api/writings/all-comments/${writingId}`)
+        axios.get(`/api/writings/all-comments/${writingId}/`)
             .then(res => {
                 let likesPerComment = [];
                 let responsesPerComment = [];
@@ -102,15 +120,15 @@ class Writing extends Component {
         event.stopPropagation();
         let commentTrimmed = this.state.commentContent.trim();    
         if(commentTrimmed.length > 0) {
-            let oldComment = document.getElementById(`old-comment-empty${this.props.current.id}`);
-            if(oldComment && oldComment.innerText && oldComment.innerText === 'No hay comentarios aún, se el primero!')
-                oldComment.style.display = 'none'
-            let commentAmount = document.getElementById(`comments-amount${this.props.current.id}`);
-            commentAmount.innerHTML = parseInt(commentAmount.innerHTML) + 1;
-            document.getElementById(`new-comment${this.props.current.id}`).style.display = 'flex';
-            let commentUsername = document.getElementById(`new-commenter-username${this.props.current.id}`);
+            //let oldComment = document.getElementById(`old-comment-empty${this.props.current.id}`);
+            //if(oldComment && oldComment.innerText && oldComment.innerText === 'No hay comentarios aún, se el primero!')
+            //    oldComment.style.display = 'none'
+            //let commentAmount = document.getElementById(`comments-amount${this.props.current.id}`);
+            //commentAmount.innerHTML = parseInt(commentAmount.innerHTML) + 1;
+            //document.getElementById(`new-comment${this.props.current.id}`).style.display = 'flex';
+            /*let commentUsername = document.getElementById(`new-commenter-username${this.props.current.id}`);
             commentUsername.innerHTML = this.props.auth.user.username;
-            commentUsername.href = `/user/${this.props.auth.user.username}`;
+            commentUsername.href = `/user/${this.props.auth.user.username}`;*/
             if(commentTrimmed.includes('@')) {
                 let indexes = [], trueTaggedAccountsIndexes = [];
                 let accounts = [];
@@ -148,14 +166,10 @@ class Writing extends Component {
                     }   
                 }
             }
-            document.getElementById(`new-comment-content${this.props.current.id}`).innerHTML = commentTrimmed;
-            document.getElementById(`new-commenter-profile-image${this.props.current.id}`).src = this.props.auth.user.profile_image;
             this.setState({ commentContent: '' });
-            document.getElementById(`comment${this.props.current.id}`).value = '';
             this.props.saveComment(this.props.current.id, commentTrimmed, this.props.auth.user.id);
-            let prevCommentMsg = document.getElementById(`old-comment-empty${this.props.current.id}`);
-            if(prevCommentMsg)
-                prevCommentMsg.style.display = 'none';
+            /*if(prevCommentMsg)
+                prevCommentMsg.style.display = 'none';*/
         }
     }
 
@@ -173,7 +187,6 @@ class Writing extends Component {
                 commentToggled: !this.state.commentToggled,
             });
             this.getAllComments(this.props.current.id);
-            //document.getElementById(`toggle-comment-area${this.props.current.id}`).style.display = '';
         }
     }
 
@@ -192,30 +205,6 @@ class Writing extends Component {
             likeButton.src = `${iconPath}like-empty.png`;
             likeAmountString.innerHTML = parseInt(likeAmountString.innerHTML) - 1;
             this.props.unlikeWriting(current.id, this.props.auth.user.id);
-        }
-    }
-
-    seeAllComments = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-    }
-
-    getLastComment = () => {
-        if(this.state.lastComments === null)
-            return (<img src={'/assets/logo.png'} alt={'Loading'} height={50} width={50}/>);
-        else if(this.state.lastComments.length === 0) 
-            return (<div id={`old-comment-empty${this.props.current.id}`} style={{display: 'flex'}}>
-                        <p id={`old-comment-content-empty${this.props.current.id}`} style={{fontFamily: 'Public Sans'}}>No hay comentarios aún, se el primero!</p>
-                    </div>);
-        else if(!this.props.auth.user) {
-            for(let i = 0 ; i < this.state.lastComments.length ; i++) {
-                document.getElementById(`old-comment${i}${this.props.current.id}`).setAttribute('class', `old-comment${i}${this.props.current.id}-${this.state.lastComments[i].id}`);
-                document.getElementById(`old-comment${i}${this.props.current.id}`).style.display = 'flex';
-                document.getElementById(`old-commenter-username${i}${this.props.current.id}`).href = `/user/${this.state.lastComments[i].username}`;
-                document.getElementById(`old-commenter-username${i}${this.props.current.id}`).innerText = this.state.lastComments[i].username;
-                document.getElementById(`old-comment-content${i}${this.props.current.id}`).innerHTML = this.state.lastComments[i].content;
-                document.getElementById(`old-comment-image${i}${this.props.current.id}`).src = this.state.lastComments[i].profile_image;
-            }
         }
     }
 
@@ -249,7 +238,6 @@ class Writing extends Component {
         this.toggleShareModal(event);
     }
 
-
     interactionButtons = (id, likes) => (
         <div style={{textAlign: 'center', zIndex: 1000}} id="interactions">
             <hr className="my-2"></hr>
@@ -271,27 +259,6 @@ class Writing extends Component {
                 </button>
             </ButtonGroup>
             <hr className="my-2"></hr>
-
-            <div id={`toggle-comment-area${this.props.current.id}`} style={{display: 'none', textAlign: 'left', margin: 5}}>
-                {
-                    this.state.lastComments && this.state.lastComments.length > 0 ?
-                    this.state.lastComments.map((comment, idx) => {
-                        return <Comment parent={null} commentId={comment.id} username={comment.username} image={comment.profile_image} content={comment.content} writingId={this.props.current.id} idx={idx} likes={this.state.lastCommentsLikes && this.state.lastCommentsLikes[idx] ? this.state.lastCommentsLikes[idx] : []} responses={this.state.lastCommentsResponses && this.state.lastCommentsResponses[idx] ? this.state.lastCommentsResponses[idx] : []} />
-                    }) : null
-                }
-                <div id={`new-comment${this.props.current.id}`} style={{display: 'none', marginLeft: 'auto', marginRight: 'auto', margin: 5, zIndex: 10}}>
-                    <img id={`new-commenter-profile-image${this.props.current.id}`} src="" width="35" height="35" style={{border: '1px solid black', borderRadius: '50%'}}/>
-                    <div id="comment-bubble" style={{marginLeft: 10, backgroundColor: '#E9ECEF', border: 'solid 1px #E0ECEF', borderRadius: 5, width: '100%'}}>
-                        <a href="#" id={`new-commenter-username${this.props.current.id}`} style={{fontFamily: 'Public Sans'}}></a>
-                        <p id={`new-comment-content${this.props.current.id}`} style={{marginBottom: 0, fontFamily: 'Public Sans'}}></p>
-                    </div>
-                </div>
-                <Form id={`comment-form${this.props.current.id}`} onSubmit={this.preventEnter}>
-                    <FormGroup>
-                        <Input type="text" name={`comment${this.props.current.id}`} id={`comment${this.props.current.id}`} placeholder="Dejá tu comentario aquí" onChange={this.commentTyped} />
-                    </FormGroup>
-                </Form>
-            </div>
         </div>
     );
 
@@ -326,29 +293,6 @@ class Writing extends Component {
                     <img src="/assets/share.png" alt="Share" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>
                 </button>
             </ButtonGroup>
-            <div id={`toggle-comment-area${this.props.current.id}`} style={{display: 'none', textAlign: 'left', margin: 5}}>
-                <div style={{display: 'none', margin: 5}} id={`old-comment0${this.props.current.id}`}>
-                <img id={`old-comment-image0${this.props.current.id}`} src="" width="35" height="35" style={{border: '1px solid black', borderRadius: '50%'}}/>
-                        <div id={`old-comment0${this.props.current.id}`} style={{marginLeft: 10, border: 'solid 1px #E9ECEF', borderRadius: 5, width: '100%', backgroundColor: '#E9ECEF'}}>
-                            <a href="" id={`old-commenter-username0${this.props.current.id}`} style={{fontFamily: 'Public Sans'}}></a>
-                            <p id={`old-comment-content0${this.props.current.id}`} style={{marginBottom: 0, fontFamily: 'Public Sans'}}></p>
-                        </div>
-                 </div>
-                 <div style={{display: 'none', margin: 5}} id={`old-comment1${this.props.current.id}`}>
-                 <img id={`old-comment-image1${this.props.current.id}`} src="" width="35" height="35" style={{border: '1px solid black', borderRadius: '50%'}}/>
-                        <div id={`old-comment1${this.props.current.id}`} style={{marginLeft: 10, border: 'solid 1px #E9ECEF', borderRadius: 5, width: '100%', backgroundColor: '#E9ECEF'}}>
-                            <a href="" id={`old-commenter-username1${this.props.current.id}`} style={{fontFamily: 'Public Sans'}}></a>
-                            <p id={`old-comment-content1${this.props.current.id}`} style={{marginBottom: 0, fontFamily: 'Public Sans'}}></p>
-                        </div>
-                 </div>
-                 <div style={{display: 'none', margin: 5}} id={`old-comment2${this.props.current.id}`}>
-                 <img id={`old-comment-image2${this.props.current.id}`} src="" width="35" height="35" style={{border: '1px solid black', borderRadius: '50%'}}/>
-                        <div id={`old-comment2${this.props.current.id}`} style={{marginLeft: 10, border: 'solid 1px #E9ECEF', borderRadius: 5, width: '100%', backgroundColor: '#E9ECEF'}}>
-                            <a href="" id={`old-commenter-username2${this.props.current.id}`} style={{fontFamily: 'Public Sans'}}></a>
-                            <p id={`old-comment-content2${this.props.current.id}`} style={{marginBottom: 0, fontFamily: 'Public Sans'}}></p>
-                        </div>
-                 </div>
-            </div>
             <Modal isOpen={this.state.forceLogin} toggle={this.forceLogin} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', overflowY: 'scroll', maxHeight: '85%'}}>
                     <ModalHeader>{`Para ${this.state.type}, creá tu cuenta o ingresá!`}</ModalHeader>
                     <ModalBody>¡Iniciá sesión para seguir descubriendo contenido!</ModalBody>
@@ -368,7 +312,6 @@ class Writing extends Component {
     }
 
     toggle = () => {
-        console.log('toggled');
         this.setState({toggle: !this.state.toggle});
     }
 
@@ -554,6 +497,10 @@ class Writing extends Component {
             return `${day} de ${months[month - 1]}`;
     }
 
+    handleDelete = () => {
+        this.getAllComments(this.props.current.id);
+    }
+
     render() {
         const { isAuthenticated, user, isAdmin } = this.props.auth;
         let current = this.props.current;
@@ -676,7 +623,8 @@ class Writing extends Component {
                             <p style={{fontFamily: 'Public Sans', fontSize: 12}}>{this.parseDate()}</p>
                         </div>
                         { isAuthenticated && !isAdmin ? this.interactionButtons(user.id, current.likes) : this.dummyButtons() }
-                        { this.state.lastComments ? this.state.lastComments.length > 0 ? this.state.lastComments.map(comment => (
+                        { this.state.lastComments ? this.state.lastComments.length > 0 ?
+                            this.state.lastComments.map(comment => (
                             <Comment responses={comment.responses ? comment.responses : []}
                                      likes={comment.likes ? comment.likes : []}
                                      writingId={current.id}
@@ -686,24 +634,16 @@ class Writing extends Component {
                                      username={comment.username}
                                      content={comment.content}
                                      depth={0}
+                                     onDelete={this.handleDelete}
                             />
                         )) : <p style={{fontFamily: 'Public Sans'}}>¡No hay comentarios todavía! Sé el primero en añadir uno.</p> : null}
-                        { this.state.newCommentTriggered ? <Comment responses={[]}
-                                                                    likes={[]}
-                                                                    writingId={current.id}
-                                                                    commentId={0}
-                                                                    image={this.props.auth.user.profile_image}
-                                                                    auth={this.props.auth}
-                                                                    username={this.props.auth.user.username}
-                                                                    content={this.state.newCommentContent}
-                                                                    depth={0}/> : null }
-                        { this.state.commentToggled ? <CommentResponseInput writingId={current.id}
-                                                                       commentId={null}
-                                                                       depth={0}
-                                                                       trigger={this.triggerNewComment}
-                                                                       auth={this.props.auth}
-                                                />
-                        : null }
+                        { this.state.commentToggled &&
+                            <CommentResponseInput  writingId={current.id}
+                                                   commentId={null}
+                                                   depth={0}
+                                                   trigger={this.triggerNewComment}
+                                                   auth={this.props.auth}/>
+                        }
                     </div>
                 </Jumbotron>
                 <Modal isOpen={this.state.toggleReadMore} toggle={this.toggleReadMore} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', width: '50%'}}>
@@ -771,6 +711,9 @@ class Writing extends Component {
 
 const mapStateToProps = state => ({
     auth: state.auth,
+    newComment: state.writing.newComment,
+    newCommentLoading: state.writing.commentedWritingLoading,
+    newCommentError: state.writing.newCommentError,
 });
 
 export default connect(mapStateToProps, { likeWriting, unlikeWriting, saveComment, follow, unfollow, deleteWriting, block, createTagNotification, addToFavourites, removeFromFavourites })(Writing);

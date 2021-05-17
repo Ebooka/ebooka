@@ -232,5 +232,9 @@ select pid from pg_stat_activity where usename = 'hpmmvdsprkgmwu'
 q hselect username from users where id in (select unnest(likes) from commentitem where id = 89)
 delete from users where id = 61
 
-alter table chapters drop constraint chapters_writing_id_fkey
-alter table chapters add constraint chapters_writing_id_fkey foreign key (writing_id) references writings(id) on delete cascade;
+alter table commentItem drop constraint chapters_writing_id_fkey
+alter table commentitem add constraint in_response_to_id_fkey foreign key (in_response_to) references commentitem(id) on delete cascade;
+
+SELECT username, content, c.id, c.likes, c.responses, profile_image FROM commentItem AS c JOIN users AS u ON u.id = commenter_id WHERE c.id IN (SELECT unnest(comments) FROM writings AS w WHERE w.id = 3 ORDER BY unnest DESC) AND c.is_comment = true;
+delete from commentitem where id = 1
+UPDATE writings SET comments = array_remove(comments, 1) WHERE id = 3

@@ -1,4 +1,4 @@
-import { 
+import {
     GET_WRITINGS,
     ADD_WRITING,
     WRITINGS_LOADING,
@@ -11,17 +11,33 @@ import {
     DELETE_DRAFT,
     ADD_VIEWER,
     ADD_ANON_VIEWER,
-    RESPONDED_COMMENT
+    RESPONDED_COMMENT,
+    DELETE_COMMENT_SUCCESS,
+    DELETE_COMMENT,
+    DELETE_COMMENT_ERROR, COMMENTED_WRITING_SUCCESS, COMMENTED_WRITING_ERROR
 } from '../actions/types'
 
 const initialState = {
     writings: null,
-    loading: false
+    loading: false,
+    deleteCommentLoading: false,
+    msg: '',
+    error: false,
+    commentedWritingLoading: false,
+    newComment: null
 }
 
 export default function(state = initialState, action) {
     switch(action.type) {
         case GET_WRITINGS:
+            if(action.payload) {
+                console.log(action.payload);
+            }
+            return {
+                ...state,
+                writings: action.payload ? state.writings ? [...state.writings, ...action.payload] : [...action.payload] : state.writings,
+                loading: false
+            }
         case GET_WRITING:
         case GET_WRITINGS_PREVIEW:
         case GET_WRITINGS_BY_USERNAME:
@@ -29,6 +45,7 @@ export default function(state = initialState, action) {
         case ADD_VIEWER:
         case ADD_ANON_VIEWER:
             let newWritings = [];
+            console.log('reducer', action.type, action.payload);
             if(state.writings) {
                 if(Array.isArray(state.writings))
                     newWritings.push(...state.writings);
@@ -48,7 +65,6 @@ export default function(state = initialState, action) {
             }
         case LIKED_WRITING:
         case UNLIKED_WRITING:
-        case COMMENTED_WRITING:
         case RESPONDED_COMMENT:
             let { writings } = state;
             let updatedWriting = action.payload;
@@ -61,7 +77,27 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 writings: writings,
-                loading: false
+                loading: false,
+                commentedWritingLoading: false,
+                error: false,
+            }
+        case COMMENTED_WRITING:
+            return {
+                ...state,
+                commentedWritingLoading: true
+            }
+        case COMMENTED_WRITING_SUCCESS:
+            return {
+                ...state,
+                newComment: action.payload,
+                commentedWritingLoading: false,
+                error: false
+            }
+        case COMMENTED_WRITING_ERROR:
+            return {
+                ...state,
+                commentedWritingLoading: false,
+                error: true
             }
         case ADD_WRITING:
             return {
@@ -73,6 +109,27 @@ export default function(state = initialState, action) {
                 ...state,
                 loading: true
             };
+        case DELETE_COMMENT:
+            return {
+                ...state,
+                deleteCommentLoading: true
+            };
+        case DELETE_COMMENT_SUCCESS: {
+            return {
+                ...state,
+                deleteCommentLoading: false,
+                msg: action.payload,
+                error: false,
+            };
+        }
+        case DELETE_COMMENT_ERROR: {
+            return {
+                ...state,
+                deleteCommentLoading: false,
+                msg: action.payload,
+                error: true
+            };
+        }
         default:
             return state;
     };
