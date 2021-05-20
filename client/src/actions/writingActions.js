@@ -19,7 +19,7 @@ import {
     DELETE_COMMENT_SUCCESS,
     DELETE_COMMENT_ERROR,
     COMMENTED_WRITING_SUCCESS,
-    COMMENTED_WRITING_ERROR
+    COMMENTED_WRITING_ERROR, RESPONDED_COMMENT_REQUEST, RESPONDED_COMMENT_SUCCESS, RESPONDED_COMMENT_ERROR
 } from './types';
 import axios from 'axios';
 import { returnErrors } from './errorActions';
@@ -185,18 +185,20 @@ export const saveComment = (writingId, content, commenterId) => dispatch => {
 }
 
 export const saveResponse = (writingId, content, parentCommentId, commenterId) => async dispatch => {
-    dispatch(setWritingsLoading());
+    dispatch({type: RESPONDED_COMMENT_REQUEST});
     axios.post('/api/writings/response/', {
             writingId: writingId,
             content: content,
             parentCommentId: parentCommentId,
             commenterId: commenterId
         })
-        .then(async res => dispatch({
-            type: RESPONDED_COMMENT,
+        .then(res => dispatch({
+            type: RESPONDED_COMMENT_SUCCESS,
             payload: res.data
         }))
-        .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+        .catch(error => dispatch({
+            type: RESPONDED_COMMENT_ERROR,
+        }));
 }
 
 export const addWriting = (writing, id, chaptersArray) => async dispatch => {

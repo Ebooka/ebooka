@@ -21,6 +21,7 @@ class Comment extends Component {
         deleteCommentLoading: false,
         openedResponses: false,
         loading: false,
+        newCommentLoading: false
     }
 
     componentDidMount() {
@@ -37,6 +38,9 @@ class Comment extends Component {
             !this.props.deleteCommentLoading && !this.props.deletionError) {
             this.setState({ optionsModalIsOpen: false });
             if(typeof this.props.onDelete === 'function') this.props.onDelete();
+        }
+        if(prevProps.respondedCommentLoading !== this.props.respondedCommentLoading) {
+            this.setState({ newCommentLoading: this.props.respondedCommentLoading });
         }
     }
 
@@ -115,42 +119,6 @@ class Comment extends Component {
                     }   
                 }
             }
-            const targetComment = document.getElementById(`comment-div-${this.props.commentId}`);
-            const newComment = document.createElement('div');
-            const newCommentBubble = document.createElement('div');
-            const newCommentUserImage = document.createElement('img');
-            const newCommentInner = document.createElement('div');
-            const newCommentUserA = document.createElement('a');
-            const newCommentContent = document.createElement('p');
-            newComment.style.width = '96%';
-            newComment.style.marginLeft = '2.5rem';
-            newComment.style.marginTop = '1rem';
-            newComment.style.marginBottom = '1rem';
-            newComment.style.borderRadius = '5px';
-            newCommentBubble.style.display = 'flex';
-            newCommentUserImage.src = this.props.auth.user.profile_image;
-            newCommentUserImage.width = '35';
-            newCommentUserImage.height = '35';
-            newCommentUserImage.style.border = '1px solid black';
-            newCommentUserImage.style.borderRadius = '50%';
-            newCommentInner.style.marginLeft = '10px';
-            newCommentInner.style.border = '1px solid #E9ECEF';
-            newCommentInner.style.borderRadius = '5px';
-            newCommentInner.style.width = '100%';
-            newCommentInner.style.backgroundColor = '#E9ECEF';
-            newCommentUserA.style.fontFamily = 'Public Sans';
-            newCommentUserA.innerText = this.props.auth.user.username;
-            newCommentUserA.href = `/user/${this.props.auth.user.username}`;
-            newCommentContent.innerText = commentTrimmed;
-            newCommentContent.style.marginBottom = '0px';
-            newCommentContent.style.fontFamily = 'Public Sans';
-            newCommentInner.appendChild(newCommentUserA);
-            newCommentInner.appendChild(newCommentContent);
-            newCommentBubble.appendChild(newCommentUserImage);
-            newCommentBubble.appendChild(newCommentInner);
-            newComment.appendChild(newCommentBubble);
-            targetComment.removeChild(document.getElementById(`new-response-${this.props.writingId}-${this.props.commentId}`));
-            targetComment.appendChild(newComment);
             this.setState({ commentContent: '' });   
             this.props.saveResponse(this.props.writingId, commentTrimmed, this.props.commentId, this.props.auth.user.id, null);
         
@@ -160,7 +128,8 @@ class Comment extends Component {
     triggerNewResponse = (content) => {
         this.setState({
             newCommentContent: content,
-            newCommentId: this.props.commentId
+            newCommentId: this.props.commentId,
+            wantsToRespond: false,
         });
     }
 
@@ -219,20 +188,32 @@ class Comment extends Component {
                         }
                     </div>
                 </div>
-                { /*this.state.newCommentContent &&
-                    <Comment  likeComment={this.props.likeComment}
-                              saveResponse={this.props.saveResponse}
-                              username={user.username}
-                              auth={this.props.auth}
-                              writingId={this.props.writingId}
-                              commentId={this.state.newCommentId}
-                              content={this.state.newCommentContent}
-                              image={user.profile_image}
-                              likes={[]}
-                              responses={[]}
-                              depth={0}/>
-                */}
-                { this.state.wantsToRespond &&
+                {
+                    this.state.newCommentContent &&
+                    this.state.newCommentLoading &&
+                    <div style={{marginLeft: 'auto', marginRight: 'auto', textAlign: 'center'}}>
+                        <Spinner color={'dark'} size={'sm'}/>
+                    </div>
+                }
+                {   this.state.newCommentContent  &&
+                    !this.state.newCommentLoading &&
+                    this.props.newCommentResponse &&
+                    !this.props.error   &&
+                        <Comment  likeComment={this.props.likeComment}
+                                  saveResponse={this.props.saveResponse}
+                                  username={user.username}
+                                  auth={this.props.auth}
+                                  writingId={this.props.newCommentResponse.writingId}
+                                  commentId={this.props.newCommentResponse.commentId}
+                                  content={this.props.newCommentResponse.content}
+                                  image={user.profile_image}
+                                  likes={[]}
+                                  responses={[]}
+                                  onDelete={this.props.onDelete}
+                                  deleteComment={this.props.deleteComment}
+                                  depth={this.props.depth ? this.props.depth + 1 : 1}/>
+                }
+                {   this.state.wantsToRespond &&
                     <CommentResponseInput writingId={this.props.writingId}
                                           auth={this.props.auth}
                                           commentId={this.props.commentId}
@@ -240,14 +221,17 @@ class Comment extends Component {
                                           depth={this.props.depth ? this.props.depth : 0}/>
                 }
                 {
-                    this.state.openedResponses && this.state.loading &&
-                        <div style={{marginLeft: 'auto', marginRight: 'auto', textAlign: 'center'}}>
-                            <Spinner color={'dark'} size={'sm'}/>
-                        </div>
+                    this.state.openedResponses &&
+                    this.state.loading &&
+                    <div style={{marginLeft: 'auto', marginRight: 'auto', textAlign: 'center'}}>
+                        <Spinner color={'dark'} size={'sm'}/>
+                    </div>
                 }
                 {
-                    this.state.responses && this.state.responses.length > 0 &&
-                    this.state.openedResponses && !this.state.loading &&
+                    this.state.responses &&
+                    this.state.responses.length > 0 &&
+                    this.state.openedResponses &&
+                    !this.state.loading &&
                     this.state.responses.map((response, idx) => {
                         return <Comment likeComment={this.props.likeComment}
                                         saveResponse={this.props.saveResponse}
@@ -307,6 +291,8 @@ const mapStateToProps = state => ({
     deleteCommentLoading: state.writing.deleteCommentLoading,
     deletionMessage: state.writing.msg,
     deletionError: state.writing.error,
+    respondedCommentLoading: state.writing.respondedCommentLoading,
+    newCommentResponse: state.writing.newCommentResponse
 });
 
 export default connect(mapStateToProps, {likeComment, saveResponse, saveComment, unlikeComment, deleteComment})(Comment);

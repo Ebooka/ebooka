@@ -347,16 +347,20 @@ router.put('/unlike/', (req, res) => {
  *  @access: only authenticated users can comment
  */
 router.post('/comment/', (req, res) => {
-    const createCommentItem = 'INSERT INTO commentItem(commenter_id, writing_id, content, is_comment) VALUES($1, $2, $3, true) RETURNING *;';
+    const createCommentItem = 'INSERT INTO commentItem(commenter_id, writing_id, content, is_comment) VALUES($1, $2, $3, true) RETURNING id, writing_id, content;';
     const notificationInsertion = "INSERT INTO notifications(user_id, type, sender_id, post_id) values ($1, 'COMMENT', $2, $3);"
     const query = 'UPDATE writings SET comments = array_append(comments, $1) WHERE id = $2;';
     const selectQuery = 'SELECT w.*, u.username, u.profile_image, w.writer_id FROM writings AS w JOIN users as u ON w.writer_id = u.id AND w.id = $1;';
     pool.query(createCommentItem, [req.body.commenterId, req.body.writingId, req.body.content], (error, result) => {
         if(error)
             return res.status(400).json({ msg: 'Error añadiendo comentario' });
-        const commentCreated = result.rows[0];
+        const commentCreated = {
+            commentId: result.rows[0].id,
+            writingId: result.rows[0].writing_id,
+            content: result.rows[0].content
+        };
         if(commentCreated) {
-            const commentId = commentCreated.id;
+            const commentId = commentCreated.commentId;
             pool.query(query, [commentId, req.body.writingId], (error, result) => {
                 if(error)
                     res.status(400).json({ msg: 'Error añadiendo comentario al posteo' });
@@ -377,22 +381,26 @@ router.post('/comment/', (req, res) => {
 });
 
 router.post('/response/', (req, res) => {
-    const createResponse = 'INSERT INTO commentItem(commenter_id, in_response_to, writing_id, content, is_comment) VALUES ($1, $2, $3, $4, false) RETURNING id;';
+    const createResponse = 'INSERT INTO commentItem(commenter_id, in_response_to, writing_id, content, is_comment) VALUES ($1, $2, $3, $4, false) RETURNING id, writing_id, content;';
     const values = [req.body.commenterId, req.body.parentCommentId, req.body.writingId, req.body.content];
     const addToCommentResponseArray = 'UPDATE commentItem SET responses = array_append(responses, $1) WHERE id = $2';
     const addToCommentsWritingArray = 'UPDATE writings SET comments = array_append(comments, $1) WHERE id = $2';
     pool.query(createResponse, values, (error, results) => {
         if(error)
             throw error;
-        const responseId = results.rows[0].id;
-        console.log('response id: ', responseId);
-        pool.query(addToCommentResponseArray, [responseId, req.body.parentCommentId], (error, results) => {
+        const response = {
+            commentId: results.rows[0].id,
+            writingId: results.rows[0].writing_id,
+            content: results.rows[0].content
+        };
+        console.log('response: ', response);
+        pool.query(addToCommentResponseArray, [response.commentId, req.body.parentCommentId], (error, results) => {
             if(error)
                 throw error;
-            pool.query(addToCommentsWritingArray, [responseId, req.body.writingId], (error, results) => {
+            pool.query(addToCommentsWritingArray, [response.commentId, req.body.writingId], (error, results) => {
                 if(error)
                     throw error;
-                return res.status(200).json({ msg: 'Respuesta añadida exitosamente!' }); 
+                return res.status(200).json(response);
             });
         });
     })
@@ -466,12 +474,26 @@ router.get('/comment/likers/:id/', (req, res) => {
 })
 
 router.delete('/comment/:id/writing/:wid/', (req, res) => {
-   const query = 'DELETE FROM commentItem WHERE id = $1';
+   const query = 'DELETE FROM commentItem WHERE id = $1 RETURNING in_response_to, responses';
    const deleteFromWritingComments = 'UPDATE writings SET comments = array_remove(comments, $1) WHERE id = $2';
+   const deleteFromParentComment = 'UPDATE commentItem SET responses = array_remove(responses, $1) WHERE id = $2;';
+   let idsToDeleteFromWriting = [];
    pool.query(query, [req.params.id], (error, result) => {
       if(error) return res.status(402).json({ msg: 'Error eliminando el comentario' });
+      const parentCommentId = result.rows[0].in_response_to;
+      const responses = result.rows[0].responses;
       pool.query(deleteFromWritingComments, [req.params.id, req.params.wid], (error, result) => {
           if(error) return res.status(402).json({ msg: 'Error eliminando el comentario' });
+          if(parentCommentId) {
+              pool.query(deleteFromParentComment, [req.params.id, parentCommentId], (error, result) => {
+                  if (error) return res.status(402).json({msg: 'Error eliminando referencia del comentario'});
+              });
+          }
+          if(!responses || responses.length === 0) return res.status(200).json({ msg: 'Comentario eliminado con éxito' });
+          responses.forEach(responseId => {
+              pool.query(deleteFromParentComment, [responseId, req.params.wid]);
+              pool.query(deleteFromWritingComments, [responseId, req.params.wid]);
+          });
           return res.status(200).json({ msg: 'Comentario eliminado con éxito' });
       });
    });

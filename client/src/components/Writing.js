@@ -56,7 +56,8 @@ class Writing extends Component {
         shareModalIsOpen: false,
         type: '',
         newCommentTriggered: false,
-        newCommentContent: ''
+        newCommentContent: '',
+        loading: false
     }
 
     componentDidMount() {
@@ -90,6 +91,7 @@ class Writing extends Component {
     }
 
     getAllComments = (writingId) => {
+        this.setState({ loading: true });
         axios.get(`/api/writings/all-comments/${writingId}/`)
             .then(res => {
                 let likesPerComment = [];
@@ -100,6 +102,7 @@ class Writing extends Component {
                     responsesPerComment.push(comments[i].responses);
                 }
                 this.setState({
+                    loading: false,
                     lastComments: res.data,
                     lastCommentsLikes: likesPerComment,
                     lastCommentsResponses: responsesPerComment
@@ -107,7 +110,8 @@ class Writing extends Component {
 
             })
             .catch(error => this.setState({
-                lastComments: []
+                lastComments: [],
+                loading: false
             }));
     }
 
@@ -623,6 +627,11 @@ class Writing extends Component {
                             <p style={{fontFamily: 'Public Sans', fontSize: 12}}>{this.parseDate()}</p>
                         </div>
                         { isAuthenticated && !isAdmin ? this.interactionButtons(user.id, current.likes) : this.dummyButtons() }
+                        { this.state.loading &&
+                            <div style={{marginLeft: 'auto', marginRight: 'auto', textAlign: 'center'}}>
+                                <Spinner size={'sm'}/>
+                            </div>
+                        }
                         { this.state.lastComments ? this.state.lastComments.length > 0 ?
                             this.state.lastComments.map(comment => (
                             <Comment responses={comment.responses ? comment.responses : []}

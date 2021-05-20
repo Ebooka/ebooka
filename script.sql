@@ -238,3 +238,4 @@ alter table commentitem add constraint in_response_to_id_fkey foreign key (in_re
 SELECT username, content, c.id, c.likes, c.responses, profile_image FROM commentItem AS c JOIN users AS u ON u.id = commenter_id WHERE c.id IN (SELECT unnest(comments) FROM writings AS w WHERE w.id = 3 ORDER BY unnest DESC) AND c.is_comment = true;
 delete from commentitem where id = 1
 UPDATE writings SET comments = array_remove(comments, 1) WHERE id = 3
+delete from commentitem where id = 16 returning in_response_to

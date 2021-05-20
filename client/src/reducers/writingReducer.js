@@ -11,10 +11,14 @@ import {
     DELETE_DRAFT,
     ADD_VIEWER,
     ADD_ANON_VIEWER,
-    RESPONDED_COMMENT,
+    RESPONDED_COMMENT_REQUEST,
+    RESPONDED_COMMENT_SUCCESS,
+    RESPONDED_COMMENT_ERROR,
     DELETE_COMMENT_SUCCESS,
     DELETE_COMMENT,
-    DELETE_COMMENT_ERROR, COMMENTED_WRITING_SUCCESS, COMMENTED_WRITING_ERROR
+    DELETE_COMMENT_ERROR,
+    COMMENTED_WRITING_SUCCESS,
+    COMMENTED_WRITING_ERROR,
 } from '../actions/types'
 
 const initialState = {
@@ -24,7 +28,9 @@ const initialState = {
     msg: '',
     error: false,
     commentedWritingLoading: false,
-    newComment: null
+    newComment: null,
+    respondedCommentLoading: false,
+    newCommentResponse: null
 }
 
 export default function(state = initialState, action) {
@@ -65,7 +71,6 @@ export default function(state = initialState, action) {
             }
         case LIKED_WRITING:
         case UNLIKED_WRITING:
-        case RESPONDED_COMMENT:
             let { writings } = state;
             let updatedWriting = action.payload;
             let index = -1;
@@ -80,6 +85,23 @@ export default function(state = initialState, action) {
                 loading: false,
                 commentedWritingLoading: false,
                 error: false,
+            }
+        case RESPONDED_COMMENT_REQUEST:
+            return {
+                ...state,
+                respondedCommentLoading: true
+            }
+        case RESPONDED_COMMENT_SUCCESS:
+            return {
+                ...state,
+                newCommentResponse: action.payload,
+                respondedCommentLoading: false
+            }
+        case RESPONDED_COMMENT_ERROR:
+            return {
+                ...state,
+                error: true,
+                respondedCommentLoading: false
             }
         case COMMENTED_WRITING:
             return {
