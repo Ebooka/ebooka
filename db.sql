@@ -37,8 +37,8 @@ CREATE TABLE writings (
     completed bool,
     cover text,
     description text,
-    viewers integer[],
-    anon_viewers integer[],
+    viewers TEXT[],
+    anon_viewers TEXT[],
     chapters integer[],
     foreign key(writer_id) references users(id)
 );
@@ -114,4 +114,4 @@ create table validation_tokens (
   password text,
   expiration_date date
 );
-alter table users alter column register_date set default now()
+

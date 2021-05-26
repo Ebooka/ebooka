@@ -13,6 +13,7 @@ import {
     ModalFooter
 } from 'reactstrap';
 import { connect } from 'react-redux';
+import {Chip} from '@material-ui/core';
 
 const stuff = require('../static/genres');
 let genres = stuff.genres;
@@ -102,10 +103,8 @@ class PreComposeData extends Component {
         if(event.key === 'Enter' && input) {
             if(this.state.tags.find(tag => tag.toLowerCase() === input.toLowerCase()))
                 return;
-            const oldTags = this.state.tags;
-            oldTags.push(input);
             this.setState({
-                tags: oldTags
+                tags: [...this.state.tags, input]
             });
             event.target.value = '';
         } else if(event.key === 'Backspace' && !input) {
@@ -137,7 +136,6 @@ class PreComposeData extends Component {
             emptyInputs.push('Descripción');
         if(this.state.tags.length === 0)
             emptyInputs.push('Tags');
-        console.log(emptyInputs);
         if(emptyInputs.length !== 0) {
             console.log(emptyInputs);
             this.setState({ emptyInputs: emptyInputs });
@@ -168,7 +166,6 @@ class PreComposeData extends Component {
     }
 
     render() {
-        let tags = this.state.tags;
         return (
             <div id="full-container-compose" style={{marginBottom: 50, height: '85%', overflowY: 'scroll', display: 'flex', left: '50%', transform: 'translate(-50%, 0)', width: 'max-content', maxWidth: '90%', position: 'fixed', top: 90}}>
                 <div id="book-cover-container" style={{width: '40vw', overflow: 'none', display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
@@ -177,7 +174,7 @@ class PreComposeData extends Component {
                     </div>
                     <Form style={{marginTop: 10}}>
                         <FormGroup>
-                            <label class="btn btn-outline-info" for="cover-input" style={{fontFamily: 'Public Sans', fontSize: 15}}>Subir Tapa</label>
+                            <label className={'btn'} for="cover-input" style={{backgroundColor: 'transparent', color: '#3B52A5', borderColor: '#3B52A5', fontFamily: 'Public Sans', fontSize: 15}}>Subir Tapa</label>
                             <input type="file" id="cover-input" name="cover-input" onChange={this.uploadCover} style={{display: 'none'}}/>
                         </FormGroup>
                     </Form>
@@ -209,20 +206,13 @@ class PreComposeData extends Component {
                             </Input>
                         </FormGroup>
                         <FormGroup>
-                            <Label for="tags">Elegí tus tags</Label>
-                            <div className="input-tag-div" style={{overflowY: 'scroll', height: '200px'}}>
-                                <ul className="input-tag-tags" style={{height: '40px'}}>
-                                    { tags.map((tag, i) => (
-                                        <li key={tag}>
-                                            {tag}
-                                            <button type="button" onClick={() => { this.removeTag(i); }}>x</button>
-                                        </li>
-                                    ))}
-                                    <li className="input-tag-tags-input">
-                                        <Input id="main-input" type="text" onKeyDown={this.readTags} style={{backgroundColor: 'white', height: '50%'}}/>
-                                    </li>
-                                </ul>
-                            </div>                        
+                            <Label for="tags">Agregá tus tags</Label>
+                            <Input id="main-input" type="text" onKeyDown={this.readTags} style={{backgroundColor: 'white', height: '50%'}} placeholder={'Escribí el nombre de tus tags'}/>
+                            <span>Tags:</span>
+                            <div className={'tag-box'}
+                                 style={{minHeight: 40, maxHeight: 120, overflowY: 'auto', width: '100%', backgroundColor: 'white', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', padding: 5}}>
+                                {this.state.tags.map((tag, i) => <Chip label={tag} onDelete={() => this.removeTag(i)} style={{marginBottom: 3}}/>)}
+                            </div>
                         </FormGroup>
                         <FormGroup>
                             <CustomInput type="switch" id="completed-switch" name="completed" label="Terminado" onClick={this.completed} onChange={this.completed} checked={!this.state.completed}/>

@@ -263,7 +263,7 @@ router.put('/anonViewer/:id/', (req, res) => {
     const values = [req.params.id, req.body.writingId];
     pool.query(query, values, (error, results) => {
         if(error)
-            throw error;
+            return res.status(400).json({msg: 'Error adding viewer'});
         return res.status(200).json(results.rows[0]);
     });
 });
@@ -498,5 +498,15 @@ router.delete('/comment/:id/writing/:wid/', (req, res) => {
       });
    });
 });
+
+router.get('/:id/likers/', (req, res) => {
+    const query = 'SELECT username, profile_image FROM users WHERE id IN (SELECT unnest(likes) FROM writings WHERE id = $1);';
+    pool.query(query, [req.params.id], (error, result) => {
+        if(error)
+            return res.status(400).json({msg: 'Error buscando likers'});
+        return res.status(200).json(result.rows);
+    });
+
+})
 
 module.exports = router;

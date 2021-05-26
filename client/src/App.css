@@ -10,3 +10,13 @@
 .row {
     width: 100%;
 }
+
+.my-modal {
+    position: fixed !important;
+    top: 90px !important;
+    left: 50% !important;
+    transform: translate(-50%, 0) !important;
+    width: 500px !important;
+    max-height: 500px !important;
+    overflow-y: auto !important;
+}

@@ -5,6 +5,7 @@ import axios from 'axios';
 import CommentResponseInput from "./CommentResponseInput";
 import {Modal, ModalHeader, ModalBody, Spinner} from 'reactstrap';
 import '../style/Comments.css';
+import LikeRow from "./LikeRow";
 
 class Comment extends Component {
 
@@ -253,13 +254,7 @@ class Comment extends Component {
                     <ModalBody>
                         {   
                             this.state.likes.length > 0 &&
-                            this.state.likes.map(like => {
-                                return (
-                                    <div>
-                                        {like.username}
-                                    </div>
-                                );
-                            })
+                            this.state.likes.map(like => <LikeRow like={like}/>)
                         }
                         {
                             this.state.likes.length === 0 &&

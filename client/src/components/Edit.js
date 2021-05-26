@@ -7,6 +7,7 @@ import { editDraft, getDraft } from '../actions/draftActions';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import axios from 'axios';
+import {Chip} from "@material-ui/core";
 const stuff = require('../static/genres');
 
 let genres = stuff.genres;
@@ -245,7 +246,6 @@ class Compose extends Component {
     }
 
     allowedComponents = () => {
-        let tags = this.state.tags;
         return (
             <div id="full-container-compose" style={{marginBottom: 50, height: '90%', display: 'flex', left: '50%', transform: 'translate(-50%, 0)', width: 'max-content', maxWidth: '50%', position: 'fixed', top: 90, overflowY: 'scroll'}}>
                 <div id="book-cover-container" style={{width: '30vw', overflow: 'none', display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
@@ -288,11 +288,8 @@ class Compose extends Component {
                             <Label for="tags">Elegí tus tags</Label>
                             <div className="input-tag-div" style={{overflowY: 'scroll', height: '200px'}}>
                                 <ul className="input-tag-tags" style={{height: '40px'}}>
-                                    { tags.map((tag, i) => (
-                                        <li key={tag}>
-                                            {tag}
-                                            <button type="button" onClick={() => { this.removeTag(i); }}>x</button>
-                                        </li>
+                                    { this.state.tags.map((tag, i) => (
+                                        <Chip label={tag} onDelete={() => this.removeTag(i)}/>
                                     ))}
                                     <li className="input-tag-tags-input">
                                         <Input id="main-input" type="text" onKeyDown={this.readTags} style={{backgroundColor: 'white', height: '50%'}}/>

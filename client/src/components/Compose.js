@@ -177,7 +177,7 @@ class Compose extends Component {
                 <div className="alert" role="alert" style={{display: 'none', backgroundColor: '#3B52A5', borderColor: '#3B52A5', color: 'white'}} id="draft-alert">
                     ¡Borrador guardado con éxito!
                 </div>
-                <Button type="button" className="btn" id="publish" onClick={this.saveWriting} style={{backgroundColor: '#3B52A5', borderColor: '#3B52A5', color: 'white'}}>Publicar!</Button>
+                <Button type="button" className="btn" id="publish" onClick={this.saveWriting} style={{backgroundColor: '#3B52A5', borderColor: '#3B52A5', color: 'white'}}>Publicar</Button>
                 <Button type="button" className="btn" id="draft" onClick={this.saveDraft} style={{backgroundColor: 'white', borderColor: '#3B52A5', color: '#3B52A5'}}>Guardar borrador</Button>
                 <Button type="button" className="btn" id="delete" onClick={this.delete} style={{backgroundColor: '#EC1009', borderColor: '#EC1009', color: 'white'}}>Descartar</Button>
 

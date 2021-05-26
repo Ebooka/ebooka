@@ -46,7 +46,7 @@ class Genre extends Component {
                 break;
             case 'Inspirados':
                 const hashtagRandomIndex = Math.floor(Math.random() * hashtags.length);
-                phrase = `No estoy inspirado… inspirame… ${hashtags[hashtagRandomIndex]}` ;
+                phrase = `No estoy inspirado… inspírame… ${hashtags[hashtagRandomIndex]}` ;
                 break;
             default:
                 break;

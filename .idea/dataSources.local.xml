@@ -1,7 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="dataSourceStorageLocal" created-in="WS-211.7142.46">
+  <component name="dataSourceStorageLocal">
     <data-source name="Escritos-Prod" uuid="9e4a6976-d0c4-4943-ab0f-996e023d42af">
+      <database-info product="PostgreSQL" version="13.2 (Ubuntu 13.2-1.pgdg20.04+1)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.5" dbms="POSTGRES" exact-version="13.2" exact-driver-version="42.2">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>eocssifbpxtaqk</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="database" qname="@">
+            <node kind="schema" qname="@" />
+          </node>
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+    <data-source name="Ebooka Prod" uuid="f014f8f7-c89a-4ba2-93c1-0b9896b50ce1">
       <database-info product="PostgreSQL" version="13.2 (Ubuntu 13.2-1.pgdg20.04+1)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.5" dbms="POSTGRES" exact-version="13.2" exact-driver-version="42.2">
         <identifier-quote-string>&quot;</identifier-quote-string>
       </database-info>

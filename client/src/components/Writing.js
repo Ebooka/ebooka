@@ -18,7 +18,7 @@ import { Jumbotron,
 import { genres } from '../static/genres';
 import '../style/Writing.css'
 import { connect } from 'react-redux';
-import { likeWriting, unlikeWriting, saveComment, deleteWriting } from '../actions/writingActions';
+import {likeWriting, unlikeWriting, saveComment, deleteWriting, getWritingLikers} from '../actions/writingActions';
 import { follow, unfollow, block, addToFavourites, removeFromFavourites } from '../actions/userActions';
 import { createTagNotification } from '../actions/notificationActions';
 import axios from 'axios';
@@ -27,6 +27,8 @@ import Register from './auth/Register';
 import { FacebookShareButton, TwitterShareButton, WhatsappShareButton } from "react-share";
 import Comment from './Comment';
 import CommentResponseInput from "./CommentResponseInput";
+import {Card} from "@material-ui/core";
+import LikersModal from "./LikersModal";
 
 const iconPath = process.env.PUBLIC_URL + '/assets/';
 const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -57,7 +59,8 @@ class Writing extends Component {
         type: '',
         newCommentTriggered: false,
         newCommentContent: '',
-        loading: false
+        loading: false,
+        likersModalIsOpen: false,
     }
 
     componentDidMount() {
@@ -242,13 +245,26 @@ class Writing extends Component {
         this.toggleShareModal(event);
     }
 
+    getWritingLikers = id => {
+        this.props.getWritingLikers(id);
+        this.setState({ likersModalIsOpen: true });
+    }
+
     interactionButtons = (id, likes) => (
         <div style={{textAlign: 'center', zIndex: 1000}} id="interactions">
             <hr className="my-2"></hr>
             <ButtonGroup size="sm" style={{width: '100%'}}>
-                <button className="btn" type="button" id="like-button" style={{border: 'none'}} onClick={this.likePressed}>
-                    <span style={{color: '#5D5C5C', fontSize: '0.9rem'}} id={`like-amount${this.props.current.id}`}>{this.props.current.likes ? this.props.current.likes.length : 0}</span>
-                    <img id={`like-icon${this.props.current.id}`} src={`${iconPath}${likes && likes.includes(id) ? 'like-full.png' : 'like-empty.png'}`} alt="Like" style={{ height: 23, width: 23, margin: '0 0.3rem'}}/>
+                <button className="btn" type="button" id="like-button" style={{border: 'none'}}>
+                    <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}
+                          onClick={() => this.getWritingLikers(this.props.current.id)}
+                          id={`like-amount${this.props.current.id}`}>
+                        {`${this.props.current.likes ? this.props.current.likes.length : 0} me gusta`}
+                    </span>
+                    <img id={`like-icon${this.props.current.id}`}
+                         src={`${iconPath}${likes && likes.includes(id) ? 'like-full.png' : 'like-empty.png'}`}
+                         alt="Like"
+                         style={{ height: 23, width: 23, margin: '0 0.3rem'}}
+                         onClick={this.likePressed}/>
                 </button>
                 <button className="btn" type="button" id="comment-button" style={{border: 'none'}} onClick={this.commentPressed}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}} id={`comments-amount${this.props.current.id}`}>{this.props.current.comments ? this.props.current.comments.length : 0}</span>
@@ -454,9 +470,9 @@ class Writing extends Component {
         if(!current.description || current.description === '') {
             let strippedBody = this.stripHTML(current.body);
             const needsPreview = !modal ? (strippedBody.length > this.state.previewLimit ? true : false) : (strippedBody.length > this.state.previewLimitModal ? true : false);
-            return needsPreview ? <a color="primary" href={`/read/${current.id}`}><strong>Leer todo</strong></a> : <br/>
+            return needsPreview ? <a href={`/read/${current.id}`} style={{color: '#3B52A5'}}><strong>Leer todo</strong></a> : <br/>
         } else {
-            return <a color="primary" href={`/read/${current.id}`}><strong>Leer todo</strong></a>;
+            return <a color="#3B52A5" href={`/read/${current.id}`} style={{color: '#3B52A5'}}><strong>Leer todo</strong></a>;
         }
     }
 
@@ -485,6 +501,12 @@ class Writing extends Component {
         event.preventDefault();
         event.stopPropagation();
         this.setState({ shareModalIsOpen: !this.state.shareModalIsOpen })
+    }
+
+    toggleLikersModal = event => {
+        event.preventDefault();
+        event.stopPropagation();
+        this.setState({ likersModalIsOpen: !this.state.likersModalIsOpen })
     }
 
     parseDate = () => {
@@ -517,9 +539,9 @@ class Writing extends Component {
             });
             return (
                 <div id={`main${this.props.current.id}`}>
-                <Jumbotron style={{padding: 10, borderRadius: 5, backgroundColor: 'white', cursor: 'pointer'}}>
+                <Card style={{padding: 10, marginBottom: 10, backgroundColor: 'white', cursor: 'pointer'}}>
                     <div id="top-bar" style={{display: 'flex'}}>
-                        <div id="text-content" style={this.props.current.cover && this.props.expanded ? {display: 'flex', flexDirection: 'column', marginLeft: 15, width: '73%'} : {display: 'flex', flexDirection: 'column', width: '100%'}}>
+                        <div id="text-content" style={this.props.current.cover && this.props.expanded ? {display: 'flex', flexDirection: 'column', marginLeft: 15, width: '100%'} : {display: 'flex', flexDirection: 'column', width: '100%'}}>
                             <div id="header" style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
                                 <h2 className="display-5">{current.title}</h2>
                                 <Dropdown isOpen={this.state.toggle} toggle={this.toggle}>
@@ -596,7 +618,7 @@ class Writing extends Component {
                                             this.props.auth.user && this.props.auth.user.username === current.username ? 
                                                 <DropdownItem id="delete-dropdown-item" onClick={this.deleteToggle}>
                                                     <div id="delete-option" className="writing-item">
-                                                        <img src="/assets/bin.png" width="25" height="25"/>  
+                                                        <img src="/assets/bin.png" width="25" height="25" alt={'bin'}/>  
                                                         <p>Eliminar</p>
                                                     </div>
                                                 </DropdownItem> :
@@ -654,7 +676,7 @@ class Writing extends Component {
                                                    auth={this.props.auth}/>
                         }
                     </div>
-                </Jumbotron>
+                </Card>
                 <Modal isOpen={this.state.toggleReadMore} toggle={this.toggleReadMore} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', width: '50%'}}>
                     <ModalHeader toggle={this.toggleReadMore}>{current.title}</ModalHeader>
                     <ModalBody>
@@ -710,6 +732,10 @@ class Writing extends Component {
                         </div>
                     </ModalBody>
                 </Modal>
+                <LikersModal isOpen={this.state.likersModalIsOpen}
+                             likes={this.props.likers}
+                             loading={this.props.loadingLikers}
+                             toggle={this.toggleLikersModal}/>
                 </div>
             );
         } else {
@@ -723,6 +749,8 @@ const mapStateToProps = state => ({
     newComment: state.writing.newComment,
     newCommentLoading: state.writing.commentedWritingLoading,
     newCommentError: state.writing.newCommentError,
+    loadingLikers: state.writing.loadingLikers,
+    likers: state.writing.likers
 });
 
-export default connect(mapStateToProps, { likeWriting, unlikeWriting, saveComment, follow, unfollow, deleteWriting, block, createTagNotification, addToFavourites, removeFromFavourites })(Writing);
+export default connect(mapStateToProps, { likeWriting, unlikeWriting, saveComment, follow, unfollow, deleteWriting, block, createTagNotification, addToFavourites, removeFromFavourites, getWritingLikers })(Writing);

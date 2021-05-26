@@ -19,7 +19,13 @@ import {
     DELETE_COMMENT_SUCCESS,
     DELETE_COMMENT_ERROR,
     COMMENTED_WRITING_SUCCESS,
-    COMMENTED_WRITING_ERROR, RESPONDED_COMMENT_REQUEST, RESPONDED_COMMENT_SUCCESS, RESPONDED_COMMENT_ERROR
+    COMMENTED_WRITING_ERROR,
+    RESPONDED_COMMENT_REQUEST,
+    RESPONDED_COMMENT_SUCCESS,
+    RESPONDED_COMMENT_ERROR,
+    GETTING_WRITING_LIKERS,
+    GETTING_WRITING_LIKERS_SUCCESS,
+    GETTING_WRITING_LIKERS_ERROR
 } from './types';
 import axios from 'axios';
 import { returnErrors } from './errorActions';
@@ -284,4 +290,16 @@ export const deleteComment = (id, wid) => dispatch => {
         .catch(err => dispatch({
             type: DELETE_COMMENT_ERROR,
         }));
+}
+
+export const getWritingLikers = id => dispatch => {
+    dispatch({type: GETTING_WRITING_LIKERS});
+    axios.get(`/api/writings/${id}/likers/`)
+        .then(res => dispatch({
+            type: GETTING_WRITING_LIKERS_SUCCESS,
+            payload: res.data
+        }))
+        .catch(err => dispatch({
+            type: GETTING_WRITING_LIKERS_ERROR,
+        }))
 }

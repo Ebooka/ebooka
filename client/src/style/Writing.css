@@ -4,7 +4,6 @@
     border-radius: 5px;
 }
 
-#like-button:hover,
 #comment-button:hover,
 #share-button:hover {
     background-color: #E8E8E8;
@@ -39,8 +38,8 @@
 }
 
 #delete-dropdown-item:hover {
-    background-color: #EC1009;
-    color: white;
+    color: #EC1009;
+    font-weight: bold;
 }
 
 #modal-share-body {

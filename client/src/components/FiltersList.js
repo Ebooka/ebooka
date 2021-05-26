@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ListGroup, ListGroupItem, Badge, CustomInput, Button } from 'reactstrap';
+import { ListGroup, ListGroupItem, Button } from 'reactstrap';
 const stuff = require('../static/genres');
 let genres = stuff.genres;
 

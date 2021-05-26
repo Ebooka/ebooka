@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:postgresql://ec2-52-45-73-150.compute-1.amazonaws.com:5432/d460119cdgu7sg</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="Ebooka Prod" uuid="f014f8f7-c89a-4ba2-93c1-0b9896b50ce1">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://ec2-52-45-73-150.compute-1.amazonaws.com:5432/d460119cdgu7sg</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

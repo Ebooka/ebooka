@@ -238,7 +238,9 @@ class Register extends Component {
                                 {this.state.missingFields.includes('passwordCheck') && errorSpan(errorMessages.REQUIRED)}
                                 {this.state.error && this.state.error === errorTypes.PASSWORDS_DONT_MATCH && errorSpan(this.state.msg)}
                             </FormGroup>
-                            <p style={{fontFamily: 'Public Sans'}}>Al registrarse, se dan por aceptados los  <u><a href={'/terms-and-conditions'} style={{textDecoration: 'none', color: 'darkslategray'}}>Términos y Condiciones.</a></u></p>
+                            <p style={{fontFamily: 'Public Sans'}}>
+                                Al registrarse, se dan por aceptados los <u><a href={'/terms-and-conditions'} style={{textDecoration: 'none', color: 'darkslategray'}}>Términos y Condiciones</a></u> y la <u><a href={'/cookies'} style={{textDecoration: 'none', color: 'darkslategray'}}>Política de Cookies</a></u>
+                            </p>
                             {
                                 this.state.alert?.length > 0 &&
                                 <Alert color="secondary">{this.state.alert}</Alert>

@@ -19,6 +19,9 @@ import {
     DELETE_COMMENT_ERROR,
     COMMENTED_WRITING_SUCCESS,
     COMMENTED_WRITING_ERROR,
+    GETTING_WRITING_LIKERS,
+    GETTING_WRITING_LIKERS_SUCCESS,
+    GETTING_WRITING_LIKERS_ERROR
 } from '../actions/types'
 
 const initialState = {
@@ -30,7 +33,9 @@ const initialState = {
     commentedWritingLoading: false,
     newComment: null,
     respondedCommentLoading: false,
-    newCommentResponse: null
+    newCommentResponse: null,
+    loadingLikers: false,
+    likers: []
 }
 
 export default function(state = initialState, action) {
@@ -152,6 +157,24 @@ export default function(state = initialState, action) {
                 error: true
             };
         }
+        case GETTING_WRITING_LIKERS:
+            return {
+                ...state,
+                loadingLikers: true
+            };
+        case GETTING_WRITING_LIKERS_SUCCESS:
+            return {
+                ...state,
+                loadingLikers: false,
+                likers: action.payload
+            };
+        case GETTING_WRITING_LIKERS_ERROR:
+            return {
+                ...state,
+                loadingLikers: false,
+                msg: action.payload,
+                error: true
+            };
         default:
             return state;
     };
