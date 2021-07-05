@@ -29,6 +29,15 @@ import Comment from './Comment';
 import CommentResponseInput from "./CommentResponseInput";
 import {Card} from "@material-ui/core";
 import LikersModal from "./LikersModal";
+import {
+    AddCircleOutlineOutlined, BlockOutlined,
+    BookmarkBorderOutlined,
+    CommentOutlined, DeleteOutlineOutlined,
+    ExpandMoreOutlined,
+    ForwardOutlined, OutlinedFlagOutlined, PersonAddOutlined,
+    Visibility,
+    VisibilityOutlined
+} from "@material-ui/icons";
 
 const iconPath = process.env.PUBLIC_URL + '/assets/';
 const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -268,14 +277,17 @@ class Writing extends Component {
                 </button>
                 <button className="btn" type="button" id="comment-button" style={{border: 'none'}} onClick={this.commentPressed}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}} id={`comments-amount${this.props.current.id}`}>{this.props.current.comments ? this.props.current.comments.length : 0}</span>
-                    <img src={`${iconPath}comment.png`} alt="Comments" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>
+                    {/*<img src={`${iconPath}comment.png`} alt="Comments" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>*/}
+                    <CommentOutlined />
                 </button>
                 <button className="btn" type="button" id="views-button" style={{border: 'none', cursor: 'default'}}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}>{this.viewsCount()}</span>
-                    <img src={`${iconPath}views.png`} alt="Views" style={{ height: 23, width: 23, margin: '0 0.3rem'}}/>
+                    {/*<img src={`${iconPath}views.png`} alt=".png" style={{ height: 23, width: 23, margin: '0 0.3rem'}}/>*/}
+                    <VisibilityOutlined />
                 </button>
                 <button className="btn" type="button" id="share-button" style={{border: 'none'}} onClick={this.toggleShareModal}>
-                    <img src={`${iconPath}share.png`} alt="Like" style={{ height: 20, width: 20}}/>
+                    {/*<img src={`${iconPath}share.png`} alt="Like" style={{ height: 20, width: 20}}/>*/}
+                    <ForwardOutlined />
                 </button>
             </ButtonGroup>
             <hr className="my-2"></hr>
@@ -303,14 +315,17 @@ class Writing extends Component {
                 </button>
                 <button className="btn" id="comment-button" type="button" style={{border: 'none'}} onClick={this.commentPressed}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}>{this.props.current.comments ? this.props.current.comments.length : 0}</span>
-                    <img src="/assets/comment.png" alt="Comment" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>
+                    {/*<img src="/assets/comment.png" alt="Comment" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>*/}
+                    <CommentOutlined />
                 </button>
                 <button className="btn" id="views-button" type="button" style={{border: 'none', cursor: 'default'}}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}>{this.viewsCount()}</span>
-                    <img src={`${iconPath}views.png`} alt="Views" style={{ height: 23, width: 23, margin: '0 0.3rem'}}/>
+                    {/*<img src={`${iconPath}views.png`} alt="Views" style={{ height: 23, width: 23, margin: '0 0.3rem'}}/>*/}
+                    <VisibilityOutlined />
                 </button>
                 <button className="btn" id="share-button" type="button" style={{border: 'none'}} onClick={event => this.forceLogin(event, 'share')}>
-                    <img src="/assets/share.png" alt="Share" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>
+                    {/*<img src="/assets/share.png" alt="Share" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>*/}
+                    <ForwardOutlined />
                 </button>
             </ButtonGroup>
             <Modal isOpen={this.state.forceLogin} toggle={this.forceLogin} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', overflowY: 'scroll', maxHeight: '85%'}}>
@@ -344,9 +359,9 @@ class Writing extends Component {
         event.preventDefault();
         event.stopPropagation();
         const current = this.props.current;
-        let copy = this.state.followedUsers;
+        let copy = this.state.followedUsers ?? [];
         let followText = document.getElementById(`follow-p${current.id}`);
-        if(this.state.followedUsers.includes(current.writer_id)) {
+        if(this.state.followedUsers?.includes(current.writer_id)) {
             const index = this.state.followedUsers.indexOf(current.writer_id);
             copy.splice(index, 1);
             followText.innerText = `Seguir a ${current.username}`;
@@ -546,14 +561,16 @@ class Writing extends Component {
                                 <h2 className="display-5">{current.title}</h2>
                                 <Dropdown isOpen={this.state.toggle} toggle={this.toggle}>
                                     <DropdownToggle nav>
-                                        <img src="/assets/expand.png" width="20" height="20"/>
+                                        {/*<img src="/assets/expand.png" width="20" height="20"/>*/}
+                                        <ExpandMoreOutlined />
                                     </DropdownToggle>
                                     <DropdownMenu right className={'my-dropdown-menu'}>
                                         {
                                             this.props.auth.user && this.props.auth.user.username !== current.username ? 
                                                 <DropdownItem onClick={this.follow}>
                                                     <div id="follow-option" className="writing-item">
-                                                        <img src="/assets/follow.png" width="25" height="25"/>
+                                                        {/*<img src="/assets/follow.png" width="25" height="25"/>*/}
+                                                        <PersonAddOutlined />
                                                         <p id={`follow-p${current.id}`}>{this.state.followText}</p>
                                                     </div>
                                                 </DropdownItem> :
@@ -562,7 +579,8 @@ class Writing extends Component {
                                         { this.props.auth.user ?
                                             <DropdownItem onClick={this.save}>
                                                 <div id="save-option" className="writing-item">
-                                                    <img src="/assets/bookmark.png" width="25" height="25"/>                                        
+                                                    {/*<img src="/assets/bookmark.png" width="25" height="25"/>*/}
+                                                    <BookmarkBorderOutlined />
                                                     <p id={`save-p${current.id}`}>{this.state.saveText}</p>
                                                 </div>
                                             </DropdownItem>
@@ -570,7 +588,8 @@ class Writing extends Component {
                                         }
                                         <DropdownItem onClick={this.readMore}>
                                             <div id="expand-option" className="writing-item">
-                                                <img src="/assets/more.png" width="25" height="25"/>  
+                                                {/*<img src="/assets/more.png" width="25" height="25"/>*/}
+                                                <AddCircleOutlineOutlined />
                                                 <p>Ver más</p>
                                             </div>
                                         </DropdownItem>
@@ -578,7 +597,8 @@ class Writing extends Component {
                                             this.props.auth.user && this.props.auth.user.username !== current.username ?
                                             <DropdownItem onClick={this.report}>
                                                 <div id="report-option" className="writing-item">
-                                                    <img src="/assets/white-flag.png" width="25" height="25"/>  
+                                                    {/*<img src="/assets/white-flag.png" width="25" height="25"/>*/}
+                                                    <OutlinedFlagOutlined />
                                                     <p>Reportar</p>
                                                 </div>
                                             </DropdownItem>
@@ -589,7 +609,8 @@ class Writing extends Component {
                                             <>
                                                 <DropdownItem onClick={this.toggleConfirmBlockModal}>
                                                     <div id="block-option" className="writing-item">
-                                                        <img src="/assets/block.png" width="25" height="25"/>  
+                                                        {/*<img src="/assets/block.png" width="25" height="25"/>*/}
+                                                        <BlockOutlined />
                                                         <p>{`Bloquear a ${current.username}`}</p>
                                                     </div>
                                                 </DropdownItem>
@@ -618,7 +639,8 @@ class Writing extends Component {
                                             this.props.auth.user && this.props.auth.user.username === current.username ? 
                                                 <DropdownItem id="delete-dropdown-item" onClick={this.deleteToggle}>
                                                     <div id="delete-option" className="writing-item">
-                                                        <img src="/assets/bin.png" width="25" height="25" alt={'bin'}/>  
+                                                        {/*<img src="/assets/bin.png" width="25" height="25" alt={'bin'}/>*/}
+                                                        <DeleteOutlineOutlined />
                                                         <p>Eliminar</p>
                                                     </div>
                                                 </DropdownItem> :

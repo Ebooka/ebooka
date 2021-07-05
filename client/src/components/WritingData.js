@@ -6,6 +6,7 @@ import Comment from './Comment';
 import { connect } from 'react-redux';
 import Spinner from 'reactstrap/lib/Spinner';
 import axios from 'axios';
+import {CommentOutlined, ForwardOutlined, Visibility, VisibilityOutlined} from '@material-ui/icons';
 
 class WritingData extends Component {
 
@@ -74,14 +75,17 @@ class WritingData extends Component {
                 </button>
                 <button className="btn" type="button" id="comment-button" style={{border: 'none'}} onClick={this.commentPressed}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}} id={`comments-amount${this.props.data.id}`}>{this.props.data.comments ? this.props.data.comments.length : 0}</span>
-                    <img src={`/assets/comment.png`} alt="Comments" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>
+                    {/*<img src={`/assets/comment.png`} alt="Comments" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>*/}
+                    <CommentOutlined />
                 </button>
                 <button className="btn" type="button" id="views-button" style={{border: 'none', cursor: 'default'}}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}>{this.viewsCount()}</span>
-                    <img src={`/assets/views.png`} alt="Views" style={{ height: 23, width: 23, margin: '0 0.3rem'}}/>
+                    {/*<img src={`/assets/views.png`} alt="Views" style={{ height: 23, width: 23, margin: '0 0.3rem'}}/>*/}
+                    <VisibilityOutlined />
                 </button>
                 <button className="btn" type="button" id="share-button" style={{border: 'none'}} onClick={this.toggleShareModal}>
-                    <img src={`/assets/share.png`} alt="Like" style={{ height: 20, width: 20}}/>
+                    {/*<img src={`/assets/share.png`} alt="Like" style={{ height: 20, width: 20}}/>*/}
+                    <ForwardOutlined size={'lg'}/>
                 </button>
             </ButtonGroup>
             <hr className="my-2"></hr>
@@ -128,14 +132,17 @@ class WritingData extends Component {
                 </button>
                 <button className="btn" id="comment-button" type="button" style={{border: 'none'}} onClick={this.commentPressed}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}>{this.props.data.comments ? this.props.data.comments.length : 0}</span>
-                    <img src="/assets/comment.png" alt="Comment" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>
+                    {/*<img src="/assets/comment.png" alt="Comment" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>*/}
+                    <CommentOutlined />
                 </button>
                 <button className="btn" id="views-button" type="button" style={{border: 'none', cursor: 'default'}}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}>{this.viewsCount()}</span>
-                    <img src={`/assets/views.png`} alt="Views" style={{ height: 23, width: 23, margin: '0 0.3rem'}}/>
+                    {/*<img src={`/assets/views.png`} alt="Views" style={{ height: 23, width: 23, margin: '0 0.3rem'}}/>*/}
+                    <VisibilityOutlined />
                 </button>
                 <button className="btn" id="share-button" type="button" style={{border: 'none'}} onClick={event => this.forceLogin(event, 'share')}>
-                    <img src="/assets/share.png" alt="Share" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>
+                    {/*<img src="/assets/share.png" alt="Share" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>*/}
+                    <ForwardOutlined />
                 </button>
             </ButtonGroup>
             <div id={`toggle-comment-area${this.props.data.id}`} style={{display: 'none', textAlign: 'left', margin: 5}}>

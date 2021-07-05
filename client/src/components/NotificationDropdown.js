@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import Notification from './Notification';
 import { connect } from 'react-redux';
-import axios from 'axios';
+import {Notifications, NotificationsOutlined} from "@material-ui/icons";
+import axios from "axios";
 
-const toggleStyle = {
-    padding: '5px',
-    backgroundColor: 'transparent',
-    border: 'none',
+const notifStyle = {
+    cursor: 'pointer',
+    marginTop: 7
 }
 
 class NotificationDropdown extends Component {
@@ -36,11 +36,12 @@ class NotificationDropdown extends Component {
 
     toggle = () => {
         if(!this.state.opened) {
-            let icon = document.getElementById('notification-image');
-            icon.src = '/assets/notification-empty.png';
-            axios.post(`/api/notifications/${this.props.auth.user.id}`);
-            this.setState({opened: true});
-            document.title = 'Escritos';
+            /*let icon = document.getElementById('notification-image');
+            icon.src = '/assets/notification-empty.png';*/
+            axios.post(`/api/notifications/${this.props.auth.user.id}`).then(res => {
+                this.setState({opened: true});
+                document.title = 'Escritos';
+            });
         }
         this.setState({
             toggle: !this.state.toggle
@@ -48,7 +49,7 @@ class NotificationDropdown extends Component {
     }
 
     allRead = () => {
-        var allRead = true;
+        let allRead = true;
         for(let i = 0 ; i < this.props.notifications.length && allRead ; i++) {
             if(!this.props.notifications[i].read)
                 allRead = false;
@@ -59,9 +60,14 @@ class NotificationDropdown extends Component {
     render() {
         return (
             <Dropdown isOpen={this.state.toggle} toggle={this.toggle} style={{marginRight: 10}}>
-                <DropdownToggle style={toggleStyle}>
-                    <img id="notification-image" width="25" src={this.props.notifications.length > 0 && !this.allRead() ? '/assets/notification-full.png' : '/assets/notification-empty.png'} alt="notifications"/>
-                </DropdownToggle>
+                {/*<DropdownToggle style={toggleStyle}>*/}
+                    {/*<img id="notification-image" width="25" src={this.props.notifications.length > 0 && !this.allRead() ? '/assets/notification-full.png' : '/assets/notification-empty.png'} alt="notifications"/>*/}
+                    {
+                        this.props.notifications.length > 0 && !this.allRead() ?
+                            <Notifications color={'black'} style={notifStyle} onClick={this.toggle}/> :
+                            <NotificationsOutlined color={'black'} style={notifStyle} onClick={this.toggle}/>
+                    }
+                {/*}</DropdownToggle>*/}
                 <DropdownMenu right style={{maxHeight: 300, height: 'auto', overflowX: 'hidden', right: 0}}>
                     {this.props.notifications.length > 0 ? 
                         this.props.notifications.map(notification => (

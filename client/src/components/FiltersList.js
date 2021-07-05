@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { ListGroup, ListGroupItem, Button } from 'reactstrap';
+import { ListGroup, ListGroupItem } from 'reactstrap';
+import {Button} from "@material-ui/core";
 const stuff = require('../static/genres');
 let genres = stuff.genres;
 
@@ -90,7 +91,7 @@ class FiltersList extends Component {
                         <option className="options-sort" id="more-likes" value="more-likes">Más Likes</option>
                     </select>
                 </ListGroup>
-                <Button type="button" className="btn btn-primary mt-3" onClick={this.onFilter}>Filtrar</Button>
+                <Button className="mt-3" onClick={this.onFilter}>Filtrar</Button>
             </div>
         )
     }

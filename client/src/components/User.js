@@ -8,6 +8,7 @@ import { getUser, follow, unfollow, block } from '../actions/userActions';
 import { Container, Spinner, Button, Modal, ModalHeader, ModalBody } from 'reactstrap';
 import axios from 'axios';
 import ModalFooter from 'reactstrap/lib/ModalFooter';
+import {MoreHorizOutlined} from "@material-ui/icons";
 
 const iconPath = process.env.PUBLIC_URL + '/assets/';
 
@@ -77,7 +78,10 @@ class User extends Component {
     blockButton = () => {
         return ( 
             <>
-                <Button style={{marginBottom: 20, marginLeft: 10, backgroundColor: 'transparent', padding: 0}} onClick={this.toggleBlockModal}><img src="/assets/more-dots.png" width="30" height="30"/></Button>
+                <Button style={{marginBottom: 20, marginLeft: 10, backgroundColor: 'transparent', padding: 0}} onClick={this.toggleBlockModal}>
+                    {/*<img src="/assets/more-dots.png" width="30" height="30"/>*/}
+                    <MoreHorizOutlined />
+                </Button>
                 <Modal isOpen={this.state.isBlockModalOpen} toggle={this.toggleBlockModal} style={{position: 'fixed', top: '25%', left: '50%', transform: 'translate(-50%, 0)', width: 400}}>
                     <ModalBody style={{textAlign: 'center'}}>
                         <a href="#" onClick={this.toggleConfirmBlockModal} style={{color: 'red'}}><strong>{`Bloquear a ${this.props.user.username}`}</strong></a>

@@ -16,12 +16,13 @@ import { Nav,
          Modal,
          ModalHeader,
          ModalBody,
-         ModalFooter,
-         Button
+         ModalFooter
 } from 'reactstrap';
+import { Button } from '@material-ui/core';
 import Searchbar from './Searchbar';
 import '../style/CircularImage.css';
 import '../style/NavbarText.css';
+import {AccountCircleOutlined, BorderColorOutlined, SettingsOutlined} from "@material-ui/icons";
 
 class Navbar extends Component {
 
@@ -72,7 +73,8 @@ class Navbar extends Component {
             { isAdmin ? null : (
                                     <div id="hover-box" style={{display: 'flex', alignItems:'center', cursor: 'pointer', marginRight: 15}} onClick={this.goToCompose}>
                                         <a className="nav-link hover-text" href="/pre-compose" style={{color: 'black'}}>Escribí</a>
-                                        <img src="/assets/compose.png" width="25" height="25"/>
+                                        {/*<img src="/assets/compose.png" width="25" height="25"/>*/}
+                                        <BorderColorOutlined />
                                     </div>
                                 )
             }
@@ -93,14 +95,16 @@ class Navbar extends Component {
                     <hr style={{margin: 0}}/>
                     <DropdownItem>
                         <NavLink href={ user ? `/profile/${user.username}` : null} style={{color: 'black', display: 'flex'}}>
-                            <img src={'/assets/user-option.png'} width={30} height={30} alt={'user'}/>
+                            {/*<img src={'/assets/user-option.png'} width={30} height={30} alt={'user'}/>*/}
+                            <AccountCircleOutlined />
                             <p style={{fontFamily: 'Public Sans', marginTop: 0, marginBottom: 0}}>Mi perfil</p>
                         </NavLink>
                     </DropdownItem>
                     <hr style={{margin: 0}}/>
                     <DropdownItem>
                         <NavLink href={ user ? `/profile/${user.username}/configuration/` : null} style={{color: 'black', display: 'flex'}}>
-                            <img src={'/assets/settings-option.png'} width={30} height={30} alt={'settings'}/>
+                            {/*<img src={'/assets/settings-option.png'} width={30} height={30} alt={'settings'}/>*/}
+                            <SettingsOutlined />
                             <p style={{fontFamily: 'Public Sans', marginTop: 0, marginBottom: 0}}>Configuración</p>
                         </NavLink>
                     </DropdownItem>
@@ -119,7 +123,8 @@ class Navbar extends Component {
                     {/*<a className="nav-link hover-text" style={{color: 'black'}}>Escribí</a>
                     <img src="/assets/compose.png" width="25" height="25" alt="Escribir"/>*/}
                     <button type={'button'} data-toggle={'tooltip'} data-placement={'bottom'} title={'Escribí'} style={{backgroundColor: 'transparent', border: 'none'}}>
-                        <img src="/assets/compose.png" width="25" height="25" alt="Escribir"/>
+                        {/*<img src="/assets/compose.png" width="25" height="25" alt="Escribir"/>*/}
+                        <BorderColorOutlined />
                     </button>
                 </div>
                 <Modal isOpen={this.state.forceLogin} toggle={this.forceLogin} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', overflowY: 'scroll', maxHeight: '85%'}}>
@@ -173,4 +178,3 @@ const mapStateToProps = (state) => ({
 });
 
 export default connect(mapStateToProps, { getNotifications })(Navbar);
- 

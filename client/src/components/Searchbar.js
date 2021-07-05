@@ -3,6 +3,7 @@ import '../style/Searchbar.css'
 import { autoComplete } from '../static/autoComplete';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import {SearchOutlined} from "@material-ui/icons";
 const iconPath = process.env.PUBLIC_URL + '/assets/';
 
 class Searchbar extends Component {
@@ -55,7 +56,8 @@ class Searchbar extends Component {
                         value={this.state.search}
                         onKeyDown={this.preventEnter}
                         style={{border: 'none', paddingRight: 0, marginRight: 0, width: '88%'}}/>
-                    <FontAwesomeIcon icon={faSearch}/>
+                    {/*<FontAwesomeIcon icon={faSearch}/>*/}
+                    <SearchOutlined />
                 </div>
                 {/*<button class="btn btn-outline-light my-2 my-sm-0" type="button" onClick={this.search}>
                     <img src={`${iconPath}search.png`} alt="search" height="20" width="20"/>

@@ -12,6 +12,13 @@ import { Jumbotron,
          Modal} from 'reactstrap';
 import { genres } from '../static/genres';
 import '../style/Writing.css'
+import {
+    AddCircleOutline,
+    AddCircleOutlineOutlined,
+    DeleteOutlineOutlined,
+    ExpandMore,
+    ExpandMoreOutlined
+} from "@material-ui/icons";
 
 const iconPath = process.env.PUBLIC_URL + '/assets/';
 
@@ -94,12 +101,14 @@ class Draft extends Component {
                                 <h2 className="display-5">{current.title}</h2>
                                 <Dropdown isOpen={this.state.toggle} toggle={this.toggle}>
                                     <DropdownToggle nav >
-                                        <img src="/assets/expand.png" width="20" height="20"/>
+                                        {/*<img src="/assets/expand.png" width="20" height="20"/>*/}
+                                        <ExpandMoreOutlined />
                                     </DropdownToggle>
                                     <DropdownMenu right>
                                         <DropdownItem onClick={this.readMore}>
                                             <div id="expand-option" className="writing-item">
-                                                <img src="/assets/more.png" width="25" height="25"/>  
+                                                {/*<img src="/assets/more.png" width="25" height="25"/>*/}
+                                                <AddCircleOutlineOutlined />
                                                 <p>Ver más</p>
                                             </div>
                                         </DropdownItem>
@@ -111,7 +120,8 @@ class Draft extends Component {
                                         </DropdownItem> 
                                         <DropdownItem id="delete-dropdown-item" onClick={this.deleteToggle}>
                                             <div id="delete-option" className="writing-item">
-                                                <img src="/assets/bin.png" width="25" height="25" id={'delete-icon'}/>
+                                                {/*<img src="/assets/bin.png" width="25" height="25" id={'delete-icon'}/>*/}
+                                                <DeleteOutlineOutlined />
                                                 <p>Eliminar</p>
                                             </div>
                                         </DropdownItem>
