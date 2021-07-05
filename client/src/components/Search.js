@@ -41,7 +41,6 @@ class Search extends Component {
             if(current > similarity) {
                 similarity = current;
                 bestGenre = genres[i].genre;
-                console.log('mejoro ', similarity, ' con ', bestGenre);
             }
         }
         if(similarity > 0.69) { // elegido a ojo, testeando con qué palabras quería que entraran como coincidentes
@@ -67,7 +66,9 @@ class Search extends Component {
             return (
                 <Container style={{width: '80%'}}>
                     <div style={{marginTop: 20}}>
-                        <SearchResultList results={this.props.search} term={this.state.term} filter={this.state.filter}/>
+                        <SearchResultList results={this.props.search}
+                                          term={this.state.term}
+                                          filter={this.state.filter}/>
                     </div>
                 </Container>
             );

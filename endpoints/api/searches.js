@@ -8,17 +8,17 @@ const { pool } = require('../../queries');
  */
 router.get('/:term', (req, res) => {
     const term = [req.params.term.toString()];
-    const writingsQuery = 'SELECT w.id, title, description, body, comments, genre, likes, viewers, anon_viewers, u.username, u.profile_image FROM writings AS w JOIN users AS u ON w.writer_id = u.id WHERE similarity(metaphone(title, 10), metaphone($1, 10)) > 0.1 ORDER BY similarity(metaphone(title, 10), metaphone($1, 10)) DESC LIMIT 5;';
+    const writingsQuery = 'SELECT w.*, u.username, u.profile_image FROM writings AS w JOIN users AS u ON w.writer_id = u.id WHERE similarity(metaphone(title, 10), metaphone($1, 10)) > 0.1 ORDER BY similarity(metaphone(title, 10), metaphone($1, 10)) DESC LIMIT 5;';
     const usersQuery = 'SELECT username, followers, writings FROM users WHERE similarity(metaphone(username, 10), metaphone($1, 10)) > 0.1 ORDER BY similarity(metaphone(username, 10), metaphone($1, 10)) LIMIT 5;';
     let finalResults = [];
     pool.query(writingsQuery, term , (error, results) => {
         if(error)
-            res.status(400).json({ msg: 'Error buscando en la base de datos' });
+            return res.status(400).json({ msg: 'Error buscando en la base de datos' });
         if(results)
             finalResults.push(results.rows);
         pool.query(usersQuery, term, (error, results) => {
             if(error)
-                res.status(400).json({ msg: 'Error buscando en la base de datos' });
+              return res.status(400).json({ msg: 'Error buscando en la base de datos' });
             if(results)
                 finalResults.push(results.rows);
             return res.status(200).json(finalResults);

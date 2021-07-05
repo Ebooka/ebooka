@@ -155,7 +155,6 @@ class Register extends Component {
     }
 
     render() {
-        console.log(this.state.error, errorTypes.USERNAME_TOO_SHORT, this.state.error && this.state.error === errorTypes.USERNAME_TOO_SHORT, this.state.msg)
         return (
             <div>
                 <NavLink onClick={this.toggle} href="#">Registrate</NavLink>

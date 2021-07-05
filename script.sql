@@ -152,6 +152,7 @@ alter table drafts add column
 SELECT w.*, u.username, u.profile_image, u.id AS writer_id FROM writings AS w JOIN users as u ON w.writer_id = u.id AND w.id = 55;
 select body from chapters where id in (SELECT unnest(chapters) from writings where id = 55)
 CREATE EXTENSION fuzzystrmatch;
+CREATE EXTENSION pg_trgm;
 SELECT w.id, title, genre, likes, viewers, anon_viewers FROM writings AS w JOIN users AS u ON w.writer_id = u.id WHERE soundex(title) = soundex('euge') OR soundex(genre) = soundex('euge');
 select username, similarity(metaphone(username, 10), metaphone('euge', 10)) from users where similarity(metaphone(username, 10), metaphone('euge', 10)) > 0.25
 SELECT greatest(similarity(metaphone(genre, 10), metaphone('test', 10)), similarity(metaphone(title, 10), metaphone('test', 10))), title FROM writings AS w JOIN users AS u ON w.writer_id = u.id WHERE similarity(metaphone(title, 10), metaphone('test', 10)) > 0.1 OR similarity(metaphone(genre, 10), metaphone('test', 10)) > 0.1 order by greatest(similarity(metaphone(genre, 10), metaphone('test', 10)), similarity(metaphone(title, 10), metaphone('test', 10))) desc limit 3;
