@@ -477,9 +477,8 @@ router.delete('/comment/:id/writing/:wid/', (req, res) => {
    const query = 'DELETE FROM commentItem WHERE id = $1 RETURNING in_response_to, responses';
    const deleteFromWritingComments = 'UPDATE writings SET comments = array_remove(comments, $1) WHERE id = $2';
    const deleteFromParentComment = 'UPDATE commentItem SET responses = array_remove(responses, $1) WHERE id = $2;';
-   let idsToDeleteFromWriting = [];
    pool.query(query, [req.params.id], (error, result) => {
-      if(error) return res.status(402).json({ msg: 'Error eliminando el comentario' });
+      if(error || result.rows.length === 0) return res.status(402).json({ msg: 'Error eliminando el comentario' });
       const parentCommentId = result.rows[0].in_response_to;
       const responses = result.rows[0].responses;
       pool.query(deleteFromWritingComments, [req.params.id, req.params.wid], (error, result) => {
