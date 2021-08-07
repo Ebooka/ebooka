@@ -10,7 +10,7 @@ class LikersModal extends Component {
             <Modal className={'my-modal'}
                    isOpen={this.props.isOpen}
                    toggle={this.props.toggle}>
-                <ModalHeader>Likes</ModalHeader>
+                <ModalHeader>Me gusta</ModalHeader>
                 <ModalBody>
                 {
                     !this.props.loading &&

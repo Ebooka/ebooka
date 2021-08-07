@@ -7,6 +7,7 @@ import FormGroup from 'reactstrap/lib/FormGroup';
 import Input from 'reactstrap/lib/Input';
 import Label from 'reactstrap/lib/Label';
 import { PASSWORD_FAIL } from '../../actions/types';
+import {Spinner} from "reactstrap";
 
 class PasswordChange extends Component {
 
@@ -14,7 +15,16 @@ class PasswordChange extends Component {
         password: '',
         passwordCheck: '',
         msg: null,
-        error: ''
+        error: '',
+        loading: false,
+        passwordChangeError: false,
+        passwordChangeSuccess: false
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if(prevState.loading && !this.state.loading && !this.state.passwordChangeError) {
+            this.setState({passwordChangeSuccess: true});
+        }
     }
 
     changePassword = () => {
@@ -33,11 +43,17 @@ class PasswordChange extends Component {
                 msg: 'Las contraseñas no coinciden!'
             });
         } else {
+            this.setState({loading: true});
             axios.post('/api/auth/user/change-password', {
                 password: this.state.password,
                 token: window.location.href.split('/password/')[1]
             })
-            .then(res => this.setState({ msg: res.data.msg }));
+                .then(res => {
+                    this.setState({ msg: res.data.msg, loading: false })
+                })
+                .catch(err => {
+                    this.setState({ loading: false, passwordChangeError: true })
+                });
         }
     }
 
@@ -51,22 +67,29 @@ class PasswordChange extends Component {
         return (
             <div style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)'}}>
                 <h3>Cambiá tu contraseña</h3>
-                {this.state.msg ? (
-                    <Alert color="danger">{this.state.msg}</Alert>
-                ) : null}
-                <Form>
-                    <FormGroup>
-                        <Label for="password">Ingresá la nueva contraseña</Label>
-                        <Input type="password" id="password" name="password" placeholder="Nueva contraseña" onChange={this.onChange}/>
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="passwordCheck">Reingresá la nueva contraseña</Label>
-                        <Input type="password" id="passwordCheck" name="passwordCheck" placeholder="Nueva contraseña" onChange={this.onChange}/>
-                    </FormGroup>
-                    <FormGroup>
-                        <Button onClick={this.changePassword}>Cambiar contraseña</Button>
-                    </FormGroup>
-                </Form>
+                <Label for="password">Ingresá la nueva contraseña</Label>
+                <Input type="password" id="password" name="password" placeholder="Nueva contraseña" onChange={this.onChange}/>
+                <Label for="passwordCheck">Reingresá la nueva contraseña</Label>
+                <Input type="password" id="passwordCheck" name="passwordCheck" placeholder="Nueva contraseña" onChange={this.onChange}/>
+                {
+                    this.state.passwordChangeError &&
+                    <div className="alert alert-success" role="alert">
+                        Error modificando su contraseña. Intente de nuevo más tarde.
+                    </div>
+                }
+                {
+                    this.state.passwordChangeSuccess &&
+                    <div className="alert alert-success" role="alert">
+                        Contraseña modificada con éxito.
+                    </div>
+                }
+                <Button onClick={this.changePassword}>
+                    {
+                        this.state.loading ?
+                            <Spinner size={'sm'} color={'light'}>{''}</Spinner> :
+                            'Cambiar contraseña'
+                    }
+                </Button>
             </div>
         )
     }

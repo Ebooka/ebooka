@@ -38,6 +38,7 @@ import {
     Visibility,
     VisibilityOutlined
 } from "@material-ui/icons";
+import ShareModal from "./ShareModal";
 
 const iconPath = process.env.PUBLIC_URL + '/assets/';
 const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -184,8 +185,6 @@ class Writing extends Component {
             }
             this.setState({ commentContent: '' });
             this.props.saveComment(this.props.current.id, commentTrimmed, this.props.auth.user.id);
-            /*if(prevCommentMsg)
-                prevCommentMsg.style.display = 'none';*/
         }
     }
 
@@ -277,16 +276,13 @@ class Writing extends Component {
                 </button>
                 <button className="btn" type="button" id="comment-button" style={{border: 'none'}} onClick={this.commentPressed}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}} id={`comments-amount${this.props.current.id}`}>{this.props.current.comments ? this.props.current.comments.length : 0}</span>
-                    {/*<img src={`${iconPath}comment.png`} alt="Comments" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>*/}
                     <CommentOutlined />
                 </button>
                 <button className="btn" type="button" id="views-button" style={{border: 'none', cursor: 'default'}}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}>{this.viewsCount()}</span>
-                    {/*<img src={`${iconPath}views.png`} alt=".png" style={{ height: 23, width: 23, margin: '0 0.3rem'}}/>*/}
                     <VisibilityOutlined />
                 </button>
                 <button className="btn" type="button" id="share-button" style={{border: 'none'}} onClick={this.toggleShareModal}>
-                    {/*<img src={`${iconPath}share.png`} alt="Like" style={{ height: 20, width: 20}}/>*/}
                     <ForwardOutlined />
                 </button>
             </ButtonGroup>
@@ -307,7 +303,7 @@ class Writing extends Component {
 
     dummyButtons = () => (
         <div style={{textAlign: 'center', zIndex: 1000}} id="interactions">
-            <hr className="my-2"></hr>
+            <hr className="my-2"/>
             <ButtonGroup size="sm"style={{width: '100%'}}>
                 <button className="btn" id="like-button" type="button" style={{border: 'none'}} onClick={event => this.forceLogin(event, 'like')}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}>{this.props.current.likes ? this.props.current.likes.length : 0}</span>
@@ -315,21 +311,18 @@ class Writing extends Component {
                 </button>
                 <button className="btn" id="comment-button" type="button" style={{border: 'none'}} onClick={this.commentPressed}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}>{this.props.current.comments ? this.props.current.comments.length : 0}</span>
-                    {/*<img src="/assets/comment.png" alt="Comment" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>*/}
                     <CommentOutlined />
                 </button>
                 <button className="btn" id="views-button" type="button" style={{border: 'none', cursor: 'default'}}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}>{this.viewsCount()}</span>
-                    {/*<img src={`${iconPath}views.png`} alt="Views" style={{ height: 23, width: 23, margin: '0 0.3rem'}}/>*/}
                     <VisibilityOutlined />
                 </button>
                 <button className="btn" id="share-button" type="button" style={{border: 'none'}} onClick={event => this.forceLogin(event, 'share')}>
-                    {/*<img src="/assets/share.png" alt="Share" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>*/}
                     <ForwardOutlined />
                 </button>
             </ButtonGroup>
             <Modal isOpen={this.state.forceLogin} toggle={this.forceLogin} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', overflowY: 'scroll', maxHeight: '85%'}}>
-                    <ModalHeader>{`Para ${this.state.type}, creá tu cuenta o ingresá!`}</ModalHeader>
+                    <ModalHeader>{`Para ${this.state.type}, creá tu cuenta o ingresá`}</ModalHeader>
                     <ModalBody>¡Iniciá sesión para seguir descubriendo contenido!</ModalBody>
                     <ModalFooter>
                         <Button className="btn btn-light btn-outline-dark" style={{padding: 0}}><Login/></Button>
@@ -390,7 +383,7 @@ class Writing extends Component {
 
     save = (event) => {
         event.preventDefault();
-        const favs = this.props.auth.user.favourites;
+        const favs = this.props.auth.user.favourites ?? [];
         if(favs.includes(this.props.current.id)) {
             this.setState({ saveText: 'Guardar en biblioteca' });
             this.props.removeFromFavourites(this.props.auth.user.id, this.props.current.id);        
@@ -472,10 +465,10 @@ class Writing extends Component {
         let current = this.props.current;
         if(!current.description || current.description === '') {
             let strippedBody = this.stripHTML(current.body);
-            const needsPreview = !modal ? (strippedBody.length > this.state.previewLimit ? true : false) : (strippedBody.length > this.state.previewLimitModal ? true : false);
+            const needsPreview = !modal ? strippedBody.length > this.state.previewLimit : strippedBody.length > this.state.previewLimitModal;
             return needsPreview ? <a color="primary" id="read-more" onClick={this.toggleReadMore}><strong>Leer más</strong></a> : <br/>
         } else {
-            const needsPreview = !modal ? (current.description.length > this.state.previewLimit ? true : false) : (current.description.length > this.state.previewLimitModal ? true : false);
+            const needsPreview = !modal ? current.description.length > this.state.previewLimit : current.description.length > this.state.previewLimitModal;
             return needsPreview ? <a color="primary" id="read-more" onClick={this.toggleReadMore}><strong>Leer más</strong></a> : <br/>
         }   
     }
@@ -561,7 +554,6 @@ class Writing extends Component {
                                 <h2 className="display-5">{current.title}</h2>
                                 <Dropdown isOpen={this.state.toggle} toggle={this.toggle}>
                                     <DropdownToggle nav>
-                                        {/*<img src="/assets/expand.png" width="20" height="20"/>*/}
                                         <ExpandMoreOutlined />
                                     </DropdownToggle>
                                     <DropdownMenu right className={'my-dropdown-menu'}>
@@ -569,7 +561,6 @@ class Writing extends Component {
                                             this.props.auth.user && this.props.auth.user.username !== current.username ? 
                                                 <DropdownItem onClick={this.follow}>
                                                     <div id="follow-option" className="writing-item">
-                                                        {/*<img src="/assets/follow.png" width="25" height="25"/>*/}
                                                         <PersonAddOutlined />
                                                         <p id={`follow-p${current.id}`}>{this.state.followText}</p>
                                                     </div>
@@ -579,7 +570,6 @@ class Writing extends Component {
                                         { this.props.auth.user ?
                                             <DropdownItem onClick={this.save}>
                                                 <div id="save-option" className="writing-item">
-                                                    {/*<img src="/assets/bookmark.png" width="25" height="25"/>*/}
                                                     <BookmarkBorderOutlined />
                                                     <p id={`save-p${current.id}`}>{this.state.saveText}</p>
                                                 </div>
@@ -588,7 +578,6 @@ class Writing extends Component {
                                         }
                                         <DropdownItem onClick={this.readMore}>
                                             <div id="expand-option" className="writing-item">
-                                                {/*<img src="/assets/more.png" width="25" height="25"/>*/}
                                                 <AddCircleOutlineOutlined />
                                                 <p>Ver más</p>
                                             </div>
@@ -673,7 +662,7 @@ class Writing extends Component {
                         { isAuthenticated && !isAdmin ? this.interactionButtons(user.id, current.likes) : this.dummyButtons() }
                         { this.state.loading &&
                             <div style={{marginLeft: 'auto', marginRight: 'auto', textAlign: 'center'}}>
-                                <Spinner size={'sm'}/>
+                                <Spinner size={'sm'}>{''}</Spinner>
                             </div>
                         }
                         { this.state.lastComments ? this.state.lastComments.length > 0 ?
@@ -705,7 +694,7 @@ class Writing extends Component {
                         <div style={{display: 'flex', flexDirection: 'row'}}>
                             { this.props.current.cover ? 
                                 <div id="optional-cover" style={{height: 'auto', width: '45%', border: '1px solid #D3D3D3'}}>
-                                    <img src={this.props.current.cover} style={{height: '100%', width: '100%'}}/> 
+                                    <img src={this.props.current.cover} style={{height: '100%', width: '100%'}} alt={'cover'}/>
                                 </div> 
                                 : null
                             }
@@ -737,23 +726,10 @@ class Writing extends Component {
                         </div>
                     </ModalBody>
                 </Modal>
-                <Modal isOpen={this.state.shareModalIsOpen} toggle={this.toggleShareModal}>
-                    <ModalHeader toggle={this.toggleShareModal}>Compartir escrito</ModalHeader>
-                    <ModalBody id="modal-share-body">
-                        <FacebookShareButton url={'http://escritos-app.herokuapp.com/read/' + this.props.current.id}>
-                             <p className="fa fa-facebook" style={{fontSize: 25}}></p>
-                        </FacebookShareButton>
-                        <TwitterShareButton url={'http://escritos-app.herokuapp.com/read/' + this.props.current.id}>
-                            <p className="fa fa-twitter" style={{fontSize: 25}}></p>
-                        </TwitterShareButton>
-                        <WhatsappShareButton url={'http://escritos-app.herokuapp.com/read/' + this.props.current.id}>
-                            <p className="fa fa-whatsapp" style={{fontSize: 24}}></p>
-                        </WhatsappShareButton>
-                        <div onClick={this.copyLinkToClipboard} id="copy-link">
-                            <p className="fa fa-link"></p>
-                        </div>
-                    </ModalBody>
-                </Modal>
+                <ShareModal isOpen={this.state.shareModalIsOpen}
+                            toggleShareModal={this.toggleShareModal}
+                            currentId={this.props.current.id}
+                />
                 <LikersModal isOpen={this.state.likersModalIsOpen}
                              likes={this.props.likers}
                              loading={this.props.loadingLikers}

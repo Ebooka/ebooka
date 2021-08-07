@@ -18,6 +18,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { REGISTER_FAIL } from '../../actions/types';
 import { GoogleLogin } from 'react-google-login';
+import '../../style/Register.css';
 
 const iconPath = process.env.PUBLIC_URL + '/assets/';
 
@@ -158,9 +159,11 @@ class Register extends Component {
         return (
             <div>
                 <NavLink onClick={this.toggle} href="#">Registrate</NavLink>
-                <Modal isOpen={this.state.modal} toggle={this.toggle} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', width: '99%', overflowY: 'auto', maxHeight: '85%'}}>
+                <Modal isOpen={this.state.modal}
+                       toggle={this.toggle}
+                       style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', width: '99%', overflowY: 'auto', maxHeight: '85%'}}>
                     <ModalHeader toggle={this.toggle}>Creá tu cuenta</ModalHeader>
-                    <ModalBody>
+                    <ModalBody className={'modal-body'}>
                         <Form>
                             {
                                 this.state.googleMsg.length > 0 &&

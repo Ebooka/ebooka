@@ -12,7 +12,7 @@ import {
     BLOCKED_USER,
     UNBLOCKED_USER,
     ADD_TO_FAVOURITE,
-    REMOVE_FROM_FAVOURITES
+    REMOVE_FROM_FAVOURITES, UPDATE_USER_SUCCESS, UPDATE_USER_ERROR, UPDATE_USER
 } from './types';
 
 export const getUser = (username) => dispatch => {
@@ -28,15 +28,15 @@ export const getUser = (username) => dispatch => {
 };
 
 export const updateUser = (data, id) => dispatch => {
-    dispatch(setGettingUser());
+    dispatch({type: UPDATE_USER})
     axios.put(`/api/users/update/${id}`, data)
         .then(res => {
             dispatch({
-                type: UPDATED_USER,
+                type: UPDATE_USER_SUCCESS,
                 payload: res.data
             });
         })
-        .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+        .catch(error => dispatch(({type: UPDATE_USER_ERROR})));
 }
 
 export const follow = (username, followerId) => dispatch => {

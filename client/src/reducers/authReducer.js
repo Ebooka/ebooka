@@ -7,7 +7,10 @@ import {
     LOGOUT_SUCCESS,
     REGISTER_SUCCESS,
     REGISTER_FAIL,
-    UPDATED_USER
+    UPDATED_USER,
+    SEND_PASSWORD_EMAIL,
+    SEND_PASSWORD_EMAIL_SUCCESS,
+    SEND_PASSWORD_EMAIL_ERROR
 } from '../actions/types';
 
 const initialState = {
@@ -18,6 +21,7 @@ const initialState = {
     isAdmin: false,
     user: null,
     message: '',
+    sendingEmailError: false
 };
 
 export default function (state = initialState, action) {
@@ -69,6 +73,22 @@ export default function (state = initialState, action) {
                 isAdmin: false,
                 user: null
             };
+        case SEND_PASSWORD_EMAIL:
+            return {
+                ...state,
+                isLoading: true,
+            }
+        case SEND_PASSWORD_EMAIL_SUCCESS:
+            return {
+                ...state,
+                isLoading: false,
+            }
+        case SEND_PASSWORD_EMAIL_ERROR:
+            return {
+                ...state,
+                isLoading: false,
+                sendingEmailError: true
+            }
         default:
             return state;
     }

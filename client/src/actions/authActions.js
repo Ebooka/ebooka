@@ -9,7 +9,7 @@ import {
     LOGOUT_SUCCESS,
     REGISTER_FAIL,
     REGISTER_SUCCESS,
-    SEND_PASSWORD_EMAIL
+    SEND_PASSWORD_EMAIL, SEND_PASSWORD_EMAIL_SUCCESS, SEND_PASSWORD_EMAIL_ERROR
 } from './types';
 import {setGettingUser} from "./userActions";
 
@@ -73,16 +73,11 @@ export const login = (data) => dispatch => {
 
 
 export const sendPasswordEmail = email => dispatch => {
-    const body = {
-        email: email
-    };
-    axios.post('/api/auth/user/password', body)
-        .then(res => {
-            dispatch({
-                type: SEND_PASSWORD_EMAIL,
-                payload: res.data
-            })
-        });
+    dispatch({type: SEND_PASSWORD_EMAIL})
+    axios.post('/api/auth/user/password', {email})
+        .then(res => dispatch({type: SEND_PASSWORD_EMAIL_SUCCESS, payload: res.data}))
+        .catch(err => dispatch({type: SEND_PASSWORD_EMAIL_ERROR}))
+    ;
 }
 
 export const tokenConfig = getState => {

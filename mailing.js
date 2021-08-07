@@ -18,7 +18,7 @@ let transporter = nodemailer.createTransport(options)
 
 const sendRegistrationEmail = async (email, needsValidation, token, userResponse) => {
     console.log('send email');
-    const link = 'https://ebooka-staging.herokuapp.com/validate/' + token;
+    const link = 'https://somosebooka.com/validate/' + token;
     let mailOptions = needsValidation ?
     {
         from: credentials.email,
@@ -46,7 +46,7 @@ const sendRegistrationEmail = async (email, needsValidation, token, userResponse
 }
 
 const sendPasswordEmail = (email, token) => {
-    const link = 'http://escritos-app.herokuapp.com/password/' + token;
+    const link = 'http://somosebooka.com/password/' + token;
     let mailOptions = {
         from: credentials.email,
         to: email,

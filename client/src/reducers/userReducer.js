@@ -10,7 +10,9 @@ import {
     BLOCKED_USER,
     UNBLOCKED_USER,
     ADD_TO_FAVOURITE,
-    REMOVE_FROM_FAVOURITES
+    REMOVE_FROM_FAVOURITES,
+    UPDATE_USER_SUCCESS,
+    UPDATE_USER_ERROR, UPDATE_USER
 } from '../actions/types';
 
 const initialState = {
@@ -31,7 +33,6 @@ export default function (state = initialState, action) {
         case FOLLOWED_USER:
         case UNFOLLOWED_USER:
         case GOT_USER:
-        case BLOCKED_USER:
         case BLOCKED_USER:
         case ADD_TO_FAVOURITE:
         case REMOVE_FROM_FAVOURITES:
@@ -55,7 +56,27 @@ export default function (state = initialState, action) {
                 loading: false,
                 accounts: null,
                 posts: action.payload
-            }
+            };
+        case UPDATE_USER:
+            return {
+                ...state,
+                loading: true,
+            };
+        case UPDATE_USER_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                user: {
+                    ...state.user,
+                    ...action.payload
+                },
+            };
+        case UPDATE_USER_ERROR:
+            return {
+                ...state,
+                loading: false,
+                updateUserError: true,
+            };
         default:
             return state;
     }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { Container, Form, FormGroup, Label, Input, Button, Spinner } from 'reactstrap';
+import {Container, Form, FormGroup, Label, Input, Button, Spinner, Alert} from 'reactstrap';
 import { updateUser } from '../actions/userActions';
 import '../style/ConfigurationTabs.css';
 import BlockedAccountsList from './BlockedAccountsList';
@@ -14,7 +14,9 @@ class Configuration extends Component {
         username: '',
         email: '',
         password: '',
-        biography: ''
+        biography: '',
+        updateSuccess: false,
+        updateError: false,
     }
 
     componentDidMount() {
@@ -31,8 +33,20 @@ class Configuration extends Component {
                 name: this.props.auth.user.name,
                 username: this.props.auth.user.username,
                 email: this.props.auth.user.email,
-                biography: this.props.auth.user.biography ? this.props.auth.user.biography : '',
+                biography: this.props.auth.user.biography ?? '',
             });
+        }
+        if(this.props.loading && !prevProps.loading) {
+            this.setState({
+                updateSuccess: false,
+                updateError: false,
+            });
+        }
+        if(prevProps.loading && !this.props.loading && !this.props.updateUserError) {
+            this.setState({updateSuccess: true});
+        }
+        if(prevProps.loading && !this.props.loading && this.props.updateUserError) {
+            this.setState({updateError: true});
         }
     }
 
@@ -93,8 +107,8 @@ class Configuration extends Component {
                                 <button className="tablinks" onClick={event => this.switchContent(event, 'blocked')}>Cuentas bloqueadas</button>
                             </div>
                         </div>
-                        <div className="col-9 tabcontent" id="info" style={{border: 'solid 1px #DADADA', display: 'block'}}>
-                            <div className="row" style={{width: '80%', marginLeft: 'auto', marginRight: 'auto'}}>
+                        <div className="col-9 tabcontent" id="info" style={{display: 'block'}}>
+                            <div className="row inner" style={{width: '80%', marginLeft: 'auto', marginRight: 'auto'}}>
                                 <Form>
                                     <div className="row mt-3 mb-3" style={{display: 'flex', alignItems: 'center'}}>
                                         <div className="col-4" style={{display: 'flex', flexDirection: 'column', textAlign: 'right'}}>
@@ -175,15 +189,33 @@ class Configuration extends Component {
                                     </div>
                                 </Form>
                             </div>
+                            {
+                                this.state.updateSuccess &&
+                                    <div className="alert alert-success" role="alert">
+                                        Usuario editado con éxito
+                                    </div>
+                            }
+                            {
+                                this.state.updateError &&
+                                <div className="alert alert-error" role="alert">
+                                    Error editando usuario
+                                </div>
+                            }
                             <div style={{textAlign: 'center', marginTop: 15, marginBottom: 10}}>
-                                <Button className="btn btn-success mr-1" type="submit" onClick={this.onSubmit}>Guardar cambios</Button>
+                                <Button className="btn btn-success mr-1" type="submit" onClick={this.onSubmit}>
+                                    {
+                                        this.props.loading ?
+                                            <Spinner size={'sm'} color={'light'}>{''}</Spinner> :
+                                            'Guardar cambios'
+                                    }
+                                </Button>
                             </div>
                         </div>
                         <div className="col-9 tabcontent" id="notifications">
                             <h3>Notificaciones</h3>
                             <NotificationsList id={this.props.auth.user.id}/>
                         </div>
-                        <div className="col-9 tabcontent" id="blocked" style={{border: 'solid 1px #DADADA', textAlign: 'center'}}>
+                        <div className="col-9 tabcontent" id="blocked" style={{textAlign: 'center'}}>
                             <h3>Cuentas bloqueadas</h3>
                             <BlockedAccountsList id={this.props.auth.user.id}/>
                         </div>
@@ -201,7 +233,9 @@ class Configuration extends Component {
 }
 
 const mapStateToProps = state => ({
-    auth: state.auth
+    auth: state.auth,
+    loading: state.user.loading,
+    updateUserError: state.user.updateUserError,
 });
 
 export default connect(mapStateToProps, { updateUser })(Configuration);

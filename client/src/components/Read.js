@@ -26,7 +26,9 @@ class Read extends Component {
         currentChapter: 1,
         chapterStartPage: [],
         counted: false,
-        sidebarOpen: false
+        sidebarOpen: false,
+        fetched: false,
+        addedView: false,
     }
 
     static propTypes = {
@@ -40,7 +42,7 @@ class Read extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if(this.props.writing.writings !== prevProps.writing.writings) {
+        if(this.props.writing.writings !== prevProps.writing.writings && !this.state.addedView) {
             if (this.props.auth.user) {
                 const viewers = this.props.writing.writings[0].viewers;
                 if (this.props.auth.user.id !== this.props.writing.writings[0].writer_id && (!viewers || !viewers.includes(this.props.auth.user.id))) {
@@ -54,8 +56,10 @@ class Read extends Component {
                     this.props.addAnonViewer(anonId, this.props.writing.writings[0].id);
                 }
             }
+            this.setState({addedView: true});
         }
-        if(this.props.writing.writings && this.props.writing.writings[0].genre === 'Novela' && !this.state.chapters) {
+        if(this.props.writing.writings && this.props.writing.writings[0].genre === 'Novela' &&
+            !this.state.chapters && !this.state.fetched) {
             const id = this.props.writing.writings[0].id;
             axios.get(`/api/writings/chapters/${id}`)
                 .then(res => {
@@ -63,9 +67,9 @@ class Read extends Component {
                     res.data.map(object => {
                         chaptersContent.push(object.body);
                     });
-                    console.log(chaptersContent);
                     this.setState({
                         chapters: chaptersContent,
+                        fetched: true,
                     });
                 })
         }
@@ -214,12 +218,10 @@ class Read extends Component {
             let parsed = new DOMParser().parseFromString(unparsed, 'text/html');
             this.setState({text: parsed.childNodes[0].childNodes[1]});
             const body = parsed.childNodes[0].childNodes[1].innerText;
-            console.log(body);
             let count = 0;
             let pageNumber = 1;
             let wordsPerPage = [];
             let incremented = false;
-            console.log(WORDS_PER_PAGE, body.length);
             for (let i = 0; i < body.length; i++) {
                 if (count % WORDS_PER_PAGE === (WORDS_PER_PAGE - 1) && !incremented) {
                     pageNumber++;
@@ -234,7 +236,6 @@ class Read extends Component {
                     count++;
             }
             count++;
-            console.log(count);
             this.setState({
                 wordsPerPage: wordsPerPage,
                 wordCount: count,
@@ -335,7 +336,7 @@ class Read extends Component {
                     fontFamily: 'Public Sans'
                 }}>
                     {writings && this.state.chapters ? this.loadedComponents() : this.loadingComponent()}
-                    <WritingData data={this.props.writing.writings[0]}/>
+                    <WritingData data={writings[0]}/>
                 </div>
             );
         } else {

@@ -128,7 +128,7 @@ class Navbar extends Component {
                     </button>
                 </div>
                 <Modal isOpen={this.state.forceLogin} toggle={this.forceLogin} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', overflowY: 'scroll', maxHeight: '85%'}}>
-                    <ModalHeader>Para escribir, creá tu cuenta o ingresá!</ModalHeader>
+                    <ModalHeader>Para escribir, creá tu cuenta o ingresá</ModalHeader>
                     <ModalBody>¡Iniciá sesión para seguir descubriendo contenido!</ModalBody>
                     <ModalFooter>
                         <Button className="btn btn-light btn-outline-dark" style={{padding: 0}}><Login/></Button>

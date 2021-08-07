@@ -7,6 +7,12 @@ import { connect } from 'react-redux';
 import Spinner from 'reactstrap/lib/Spinner';
 import axios from 'axios';
 import {CommentOutlined, ForwardOutlined, Visibility, VisibilityOutlined} from '@material-ui/icons';
+import CommentResponseInput from "./CommentResponseInput";
+import {getWritingLikers, likeWriting, saveComment, unlikeWriting} from "../actions/writingActions";
+import LikersModal from "./LikersModal";
+import ShareModal from "./ShareModal";
+
+const iconPath = process.env.PUBLIC_URL + '/assets/';
 
 class WritingData extends Component {
 
@@ -27,7 +33,9 @@ class WritingData extends Component {
         confirmBlockModalIsOpen: false,
         oldCommentTagged: '',
         shareModalIsOpen: false,
-        type: ''
+        type: '',
+        commentsLoading: false,
+        likersModalIsOpen: false,
     }
 
     componentDidUpdate(prevProps) {
@@ -44,6 +52,7 @@ class WritingData extends Component {
     }
 
     getAllComments = (writingId) => {
+        this.setState({commentsLoading: true});
         axios.get(`/api/writings/all-comments/${writingId}`)
             .then(res => {
                 let likesPerComment = [];
@@ -56,7 +65,8 @@ class WritingData extends Component {
                 this.setState({
                     lastComments: res.data,
                     lastCommentsLikes: likesPerComment,
-                    lastCommentsResponses: responsesPerComment
+                    lastCommentsResponses: responsesPerComment,
+                    commentsLoading: false,
                 });
 
             })
@@ -65,30 +75,58 @@ class WritingData extends Component {
             }));
     }
 
+    getWritingLikers = id => {
+        this.props.getWritingLikers(id);
+        this.setState({ likersModalIsOpen: true });
+    }
+
+    likePressed = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        let current = this.props.data;
+        let likeButton = document.getElementById(`like-icon${current.id}`);
+        let likeAmountString = document.getElementById(`like-amount${current.id}`);
+        let id = this.props.auth.user.id;
+        if(!current.likes || !current.likes.includes(id)) {
+            likeButton.src = `${iconPath}like-full.png`;
+            likeAmountString.innerHTML = parseInt(likeAmountString.innerHTML) + 1;
+            this.props.likeWriting(current.id, id);
+        } else if(current.likes && current.likes.includes(id)){
+            likeButton.src = `${iconPath}like-empty.png`;
+            likeAmountString.innerHTML = parseInt(likeAmountString.innerHTML) - 1;
+            this.props.unlikeWriting(current.id, id);
+        }
+    }
+
     interactionButtons = (id) => (
         <div style={{textAlign: 'center', zIndex: 1000}} id="interactions">
-            <hr className="my-2"></hr>
+            <hr className="my-2"/>
             <ButtonGroup size="sm" style={{width: '100%'}}>
-                <button className="btn" type="button" id="like-button" style={{border: 'none'}} onClick={this.likePressed}>
-                    <span style={{color: '#5D5C5C', fontSize: '0.9rem'}} id={`like-amount${this.props.data.id}`}>{this.props.data.likes ? this.props.data.likes.length : 0}</span>
-                    <img id={`like-icon${this.props.data.id}`} src={`/assets/${this.props.data.likes && this.props.data.likes.includes(id) ? 'like-full.png' : 'like-empty.png'}`} alt="Like" style={{ height: 23, width: 23, margin: '0 0.3rem'}}/>
+                <button className="btn" type="button" id="like-button" style={{border: 'none'}}>
+                    <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}
+                          onClick={() => this.getWritingLikers(this.props.data.id)}
+                          id={`like-amount${this.props.data.id}`}>
+                        {`${this.props.data.likes ? this.props.data.likes.length : 0} me gusta`}
+                    </span>
+                    <img id={`like-icon${this.props.data.id}`}
+                         src={`${iconPath}${this.props.data.likes && this.props.data.likes.includes(id) ? 'like-full.png' : 'like-empty.png'}`}
+                         alt="Like"
+                         style={{ height: 23, width: 23, margin: '0 0.3rem'}}
+                         onClick={this.likePressed}/>
                 </button>
                 <button className="btn" type="button" id="comment-button" style={{border: 'none'}} onClick={this.commentPressed}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}} id={`comments-amount${this.props.data.id}`}>{this.props.data.comments ? this.props.data.comments.length : 0}</span>
-                    {/*<img src={`/assets/comment.png`} alt="Comments" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>*/}
                     <CommentOutlined />
                 </button>
                 <button className="btn" type="button" id="views-button" style={{border: 'none', cursor: 'default'}}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}>{this.viewsCount()}</span>
-                    {/*<img src={`/assets/views.png`} alt="Views" style={{ height: 23, width: 23, margin: '0 0.3rem'}}/>*/}
                     <VisibilityOutlined />
                 </button>
                 <button className="btn" type="button" id="share-button" style={{border: 'none'}} onClick={this.toggleShareModal}>
-                    {/*<img src={`/assets/share.png`} alt="Like" style={{ height: 20, width: 20}}/>*/}
                     <ForwardOutlined size={'lg'}/>
                 </button>
             </ButtonGroup>
-            <hr className="my-2"></hr>
+            <hr className="my-2"/>
 
             <div id={`toggle-comment-area${this.props.data.id}`} style={{display: 'none', textAlign: 'left', margin: 5}}>
                 {
@@ -107,10 +145,10 @@ class WritingData extends Component {
                     )
                 }
                 <div id={`new-comment${this.props.data.id}`} style={{display: 'none', marginLeft: 'auto', marginRight: 'auto', margin: 5, zIndex: 10}}>
-                    <img id={`new-commenter-profile-image${this.props.data.id}`} src="" width="35" height="35" style={{border: '1px solid black', borderRadius: '50%'}}/>
+                    <img id={`new-commenter-profile-image${this.props.data.id}`} src="" width="35" height="35" style={{border: '1px solid black', borderRadius: '50%'}} alt={'alt'}/>
                     <div id="comment-bubble" style={{marginLeft: 10, backgroundColor: '#E9ECEF', border: 'solid 1px #E0ECEF', borderRadius: 5, width: '100%'}}>
-                        <a href="#" id={`new-commenter-username${this.props.data.id}`} style={{fontFamily: 'Public Sans'}}></a>
-                        <p id={`new-comment-content${this.props.data.id}`} style={{marginBottom: 0, fontFamily: 'Public Sans'}}></p>
+                        <a href="#" id={`new-commenter-username${this.props.data.id}`} style={{fontFamily: 'Public Sans'}}/>
+                        <p id={`new-comment-content${this.props.data.id}`} style={{marginBottom: 0, fontFamily: 'Public Sans'}}/>
                     </div>
                 </div>
                 <Form id={`comment-form${this.props.data.id}`} onSubmit={this.preventEnter}>
@@ -124,7 +162,7 @@ class WritingData extends Component {
 
     dummyButtons = () => (
         <div style={{textAlign: 'center', zIndex: 1000}} id="interactions">
-            <hr className="my-2"></hr>
+            <hr className="my-2"/>
             <ButtonGroup size="sm"style={{width: '100%'}}>
                 <button className="btn" id="like-button" type="button" style={{border: 'none'}} onClick={event => this.forceLogin(event, 'like')}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}>{this.props.data.likes ? this.props.data.likes.length : 0}</span>
@@ -132,24 +170,21 @@ class WritingData extends Component {
                 </button>
                 <button className="btn" id="comment-button" type="button" style={{border: 'none'}} onClick={this.commentPressed}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}>{this.props.data.comments ? this.props.data.comments.length : 0}</span>
-                    {/*<img src="/assets/comment.png" alt="Comment" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>*/}
                     <CommentOutlined />
                 </button>
                 <button className="btn" id="views-button" type="button" style={{border: 'none', cursor: 'default'}}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}>{this.viewsCount()}</span>
-                    {/*<img src={`/assets/views.png`} alt="Views" style={{ height: 23, width: 23, margin: '0 0.3rem'}}/>*/}
                     <VisibilityOutlined />
                 </button>
                 <button className="btn" id="share-button" type="button" style={{border: 'none'}} onClick={event => this.forceLogin(event, 'share')}>
-                    {/*<img src="/assets/share.png" alt="Share" style={{ height: 20, width: 20, margin: '0 0.3rem' }}/>*/}
                     <ForwardOutlined />
                 </button>
             </ButtonGroup>
             <div id={`toggle-comment-area${this.props.data.id}`} style={{display: 'none', textAlign: 'left', margin: 5}}>
-                <div id="comment-root"></div>
+                <div id="comment-root"/>
             </div>
             <Modal isOpen={this.state.forceLogin} toggle={this.forceLogin} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', overflowY: 'scroll', maxHeight: '85%'}}>
-                    <ModalHeader>{`Para ${this.state.type}, creá tu cuenta o ingresá!`}</ModalHeader>
+                    <ModalHeader>{`Para ${this.state.type}, creá tu cuenta o ingresá`}</ModalHeader>
                     <ModalBody>¡Iniciá sesión para seguir descubriendo contenido!</ModalBody>
                     <ModalFooter>
                         <Button className="btn btn-light btn-outline-dark" style={{padding: 0}}><Login/></Button>
@@ -159,6 +194,12 @@ class WritingData extends Component {
                 </Modal>
         </div>
     );
+
+    toggleShareModal = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        this.setState({ shareModalIsOpen: !this.state.shareModalIsOpen })
+    }
 
     forceLogin = (event, type) => {
         event.preventDefault();
@@ -171,46 +212,6 @@ class WritingData extends Component {
         this.setState({ forceLogin: !this.state.forceLogin, type: action });
     }
 
-    /*getLastComment = () => {
-        if(this.state.lastComments === null)
-            return (<img src={'/assets/logo.png'} alt={'Loading'} height={50} width={50}/>);
-        else if(this.state.lastComments.length === 0) 
-            return (<div id={`old-comment-empty${this.props.data.id}`} style={{display: 'flex'}}>
-                        <p id={`old-comment-content-empty${this.props.data.id}`} style={{fontFamily: 'Public Sans'}}>No hay comentarios aún, se el primero!</p>
-                    </div>);
-        else if(!this.props.auth.user) {
-            for(let i = 0 ; i < this.state.lastComments.length ; i++) {
-                let mainDiv = document.createElement('div');
-                mainDiv.setAttribute('id', `old-comment${i}${this.props.data.id}`);
-                mainDiv.setAttribute('class', `old-comment${i}${this.props.data.id}-${this.state.lastComments[i].id}`);
-                mainDiv.setAttribute('style', "display: flex; margin: 10");
-                let img = document.createElement('img');
-                img.setAttribute('id', `old-comment-image${i}${this.props.data.id}`);
-                img.setAttribute('src', this.state.lastComments[i].profile_image);
-                img.setAttribute('width', '35');
-                img.setAttribute('height', '35');
-                img.setAttribute('style', "border: 1px solid black; border-radius: 50%");
-                let userDiv = document.createElement('div');
-                userDiv.setAttribute('id', `old-comment${i}${this.props.data.id}`);
-                userDiv.setAttribute('style', "margin-left: 10px; border: solid 1px #E9ECEF; border-radius: 5px; width: 100%; background-color: #E9ECEF");
-                let userA = document.createElement('a');
-                userA.setAttribute('id', `old-commenter-username${i}${this.props.data.id}`);
-                userA.setAttribute('href', `/user/${this.state.lastComments[i].username}`);
-                userA.innerText = this.state.lastComments[i].username;
-                userA.setAttribute('style', "font-family: 'Public Sans'");
-                let userP = document.createElement('p');
-                userP.setAttribute('id', `old-comment-content${i}${this.props.data.id}`);
-                userP.setAttribute('style', "marginBottom: 0px; font-family: 'Public Sans'");
-                userP.innerHTML = this.state.lastComments[i].content;
-                userDiv.appendChild(userA);
-                userDiv.appendChild(userP);
-                mainDiv.appendChild(img);
-                mainDiv.appendChild(userDiv);
-                document.getElementById('comment-root').appendChild(mainDiv);
-            }
-        }
-    }*/
-
     commentPressed = (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -219,7 +220,6 @@ class WritingData extends Component {
                 commentToggled: !this.state.commentToggled,
             });
             this.getAllComments(this.props.data.id);
-            //document.getElementById(`toggle-comment-area${this.props.data.id}`).style.display = '';
         }
     }
 
@@ -245,19 +245,44 @@ class WritingData extends Component {
             return (
                 <div style={{backgroundColor: 'white', border: '1px solid #DADADA', marginTop: '1rem', height: 'max-content'}}>
                     {this.props.auth.user ? this.interactionButtons() : this.dummyButtons()}
-                    {this.state.lastComments ? this.state.lastComments.length > 0 ? this.state.lastComments.map(comment => (
-                        <Comment writingId={this.props.data.id}
-                                 commentId={comment.id}
-                                 auth={this.props.auth}
-                                 likes={comment.likes ? comment.likes : []}
-                                 responses={comment.responses ? comment.responses : []}
-                                 content={comment.content}
-                                 image={comment.profile_image}
-                                 username={comment.username}
-                                 depth={0}
-                                 onDelete={this.handleDelete}
-                        />
-                    )): <p>¡No hay comentarios todavía! Sé el primero en añadir uno.</p> : null}
+                    {
+                        this.state.lastComments ? this.state.lastComments.length > 0 ?
+                        this.state.lastComments.map(comment => (
+                            <Comment writingId={this.props.data.id}
+                                     commentId={comment.id}
+                                     auth={this.props.auth}
+                                     likes={comment.likes ? comment.likes : []}
+                                     responses={comment.responses ? comment.responses : []}
+                                     content={comment.content}
+                                     image={comment.profile_image}
+                                     username={comment.username}
+                                     depth={0}
+                                     onDelete={this.handleDelete}
+                            />
+                        ))
+                        : <p>¡No hay comentarios todavía! Sé el primero en añadir uno.</p>
+                        : null
+                    }
+                    {
+                        this.state.commentsLoading &&
+                            <Spinner size={'sm'} color={'black'}>{''}</Spinner>
+                    }
+                    { this.state.commentToggled &&
+                        <CommentResponseInput  writingId={this.props.data.id}
+                                               commentId={null}
+                                               depth={0}
+                                               trigger={() => this.getAllComments(this.props.data.id)}
+                                               auth={this.props.auth}/>
+                    }
+                    <ShareModal isOpen={this.state.shareModalIsOpen}
+                                toggleShareModal={() => this.setState({shareModalIsOpen: !this.state.shareModalIsOpen})}
+                                currentId={this.props.data.id}
+                    />
+                    <LikersModal isOpen={this.state.likersModalIsOpen}
+                                 toggle={() => this.setState({likersModalIsOpen: !this.state.likersModalIsOpen})}
+                                 likes={this.props.likers}
+                                 loading={this.props.loadingLikers}
+                    />
                 </div>
             );
         } else {
@@ -267,10 +292,12 @@ class WritingData extends Component {
 }
 
 const mapStateToProps = state => ({
-    auth: state.auth
+    auth: state.auth,
+    loadingLikers: state.writing.loadingLikers,
+    likers: state.writing.likers
 });
 
-export default connect(mapStateToProps, null)(WritingData);
+export default connect(mapStateToProps, {saveComment, getWritingLikers, likeWriting, unlikeWriting})(WritingData);
 
 /*{
     "id": 113,

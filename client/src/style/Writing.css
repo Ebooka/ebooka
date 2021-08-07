@@ -45,6 +45,7 @@
 #modal-share-body {
     display: flex;
     align-self: center;
+    flex-direction: column;
 }
 
 .fa {
