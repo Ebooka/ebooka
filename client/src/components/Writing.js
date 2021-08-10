@@ -18,7 +18,14 @@ import { Jumbotron,
 import { genres } from '../static/genres';
 import '../style/Writing.css'
 import { connect } from 'react-redux';
-import {likeWriting, unlikeWriting, saveComment, deleteWriting, getWritingLikers} from '../actions/writingActions';
+import {
+    likeWriting,
+    unlikeWriting,
+    saveComment,
+    deleteWriting,
+    getWritingLikers,
+    getComments
+} from '../actions/writingActions';
 import { follow, unfollow, block, addToFavourites, removeFromFavourites } from '../actions/userActions';
 import { createTagNotification } from '../actions/notificationActions';
 import axios from 'axios';
@@ -88,44 +95,21 @@ class Writing extends Component {
         if(prevProps.newCommentLoading !== this.props.newCommentLoading &&
             !this.props.newCommentLoading &&
             !this.props.newCommentError) {
-            // username, content, c.id, c.likes, c.responses, profile_image
-            console.log(this.props.auth);
             const newCommentComplete = {
                 ...this.props.newComment,
                 username: this.props.auth.user.username,
                 profile_image: this.props.auth.user.profile_image,
             }
-            if(this.state.lastComments) {
+            /*if(this.state.lastComments) {
                 this.setState({lastComments: [...this.state.lastComments, newCommentComplete]});
             } else {
                 this.setState({lastComments: [newCommentComplete]});
-            }
+            }*/
         }
     }
 
     getAllComments = (writingId) => {
-        this.setState({ loading: true });
-        axios.get(`/api/writings/all-comments/${writingId}/`)
-            .then(res => {
-                let likesPerComment = [];
-                let responsesPerComment = [];
-                const comments = res.data;
-                for(let i = 0 ; i < res.data.length ; i++) {
-                    likesPerComment.push(comments[i].likes);
-                    responsesPerComment.push(comments[i].responses);
-                }
-                this.setState({
-                    loading: false,
-                    lastComments: res.data,
-                    lastCommentsLikes: likesPerComment,
-                    lastCommentsResponses: responsesPerComment
-                });
-
-            })
-            .catch(error => this.setState({
-                lastComments: [],
-                loading: false
-            }));
+        this.props.getComments(writingId);
     }
 
     isAlphaNum = code => {
@@ -304,7 +288,7 @@ class Writing extends Component {
     dummyButtons = () => (
         <div style={{textAlign: 'center', zIndex: 1000}} id="interactions">
             <hr className="my-2"/>
-            <ButtonGroup size="sm"style={{width: '100%'}}>
+            <ButtonGroup size="sm" style={{width: '100%'}}>
                 <button className="btn" id="like-button" type="button" style={{border: 'none'}} onClick={event => this.forceLogin(event, 'like')}>
                     <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}>{this.props.current.likes ? this.props.current.likes.length : 0}</span>
                     <img id="like-icon" src="/assets/like-empty.png" alt="Like" style={{ height: 23, width: 23, margin: '0 0.3rem' }}/>
@@ -532,7 +516,7 @@ class Writing extends Component {
     }
 
     handleDelete = () => {
-        this.getAllComments(this.props.current.id);
+        //this.getAllComments(this.props.current.id);
     }
 
     render() {
@@ -665,25 +649,28 @@ class Writing extends Component {
                                 <Spinner size={'sm'}>{''}</Spinner>
                             </div>
                         }
-                        { this.state.lastComments ? this.state.lastComments.length > 0 ?
-                            this.state.lastComments.map(comment => (
-                            <Comment responses={comment.responses ? comment.responses : []}
-                                     likes={comment.likes ? comment.likes : []}
+                        { this.state.commentToggled ? this.props.current.comments ? this.props.current.comments.length > 0 ?
+                            this.props.current.comments.map(comment => (
+                            <Comment current={comment}
+                                     //responses={comment.responses ?? []}
+                                     parents={[]}
+                                     //likes={comment.likes ? comment.likes : []}
                                      writingId={current.id}
-                                     commentId={comment.id}
-                                     image={comment.profile_image}
+                                     //commentId={comment.id}
+                                     //image={comment.profile_image}
                                      auth={this.props.auth}
-                                     username={comment.username}
-                                     content={comment.content}
+                                     //username={comment.username}
+                                     //content={comment.content}
                                      depth={0}
                                      onDelete={this.handleDelete}
                             />
-                        )) : <p style={{fontFamily: 'Public Sans'}}>¡No hay comentarios todavía! Sé el primero en añadir uno.</p> : null}
+                        )) : <p style={{fontFamily: 'Public Sans'}}>¡No hay comentarios todavía! Sé el primero en añadir uno.</p> : null : null}
                         { this.state.commentToggled &&
                             <CommentResponseInput  writingId={current.id}
                                                    commentId={null}
                                                    depth={0}
                                                    trigger={this.triggerNewComment}
+                                                   parents={[]}
                                                    auth={this.props.auth}/>
                         }
                     </div>
@@ -748,7 +735,9 @@ const mapStateToProps = state => ({
     newCommentLoading: state.writing.commentedWritingLoading,
     newCommentError: state.writing.newCommentError,
     loadingLikers: state.writing.loadingLikers,
-    likers: state.writing.likers
+    likers: state.writing.likers,
+    gettingCommentsLoading: state.writing.gettingCommentsLoading,
+    gettingCommentsError: state.writing.gettingCommentsError,
 });
 
-export default connect(mapStateToProps, { likeWriting, unlikeWriting, saveComment, follow, unfollow, deleteWriting, block, createTagNotification, addToFavourites, removeFromFavourites, getWritingLikers })(Writing);
+export default connect(mapStateToProps, { likeWriting, unlikeWriting, saveComment, follow, unfollow, deleteWriting, block, createTagNotification, addToFavourites, removeFromFavourites, getWritingLikers, getComments })(Writing);

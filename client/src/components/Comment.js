@@ -1,9 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import {likeComment, saveResponse, saveComment, unlikeComment, deleteComment} from '../actions/writingActions';
+import {
+    likeComment,
+    saveResponse,
+    saveComment,
+    unlikeComment,
+    deleteComment,
+    getResponses
+} from '../actions/writingActions';
 import axios from 'axios';
 import CommentResponseInput from "./CommentResponseInput";
-import {Modal, ModalHeader, ModalBody, Spinner} from 'reactstrap';
+import {Modal, ModalBody, Spinner} from 'reactstrap';
 import '../style/Comments.css';
 import LikeRow from "./LikeRow";
 
@@ -26,12 +33,13 @@ class Comment extends Component {
     }
 
     componentDidMount() {
-        this.setState({likes: this.props.likes, responses: this.props.responses});
+        this.setState({likes: this.props.current.likes, responses: this.props.current.responses});
         if(this.props.auth.user)
-            this.setState({likedByMyself: this.props.likes.includes(this.props.auth.user.id)});
+            this.setState({likedByMyself: this.props.current.likes?.includes(this.props.auth.user.id)});
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        console.log(this.props.current);
         if(prevProps.deleteCommentLoading !== this.props.deleteCommentLoading) {
             this.setState({ deleteCommentLoading: this.props.deleteCommentLoading });
         }
@@ -49,12 +57,12 @@ class Comment extends Component {
         let currentLikes = this.state.likes;
         if(!this.state.likedByMyself) {
             currentLikes.push(this.props.auth.user.id);
-            this.props.likeComment(this.props.commentId, this.props.auth.user.id);
+            this.props.likeComment(this.props.current.id, this.props.auth.user.id);
             this.setState({likedByMyself: true, likes: currentLikes});
         } else {
             const idx = currentLikes.indexOf(this.props.auth.id);
             currentLikes.splice(idx, 1);
-            this.props.unlikeComment(this.props.commentId, this.props.auth.user.id);
+            this.props.unlikeComment(this.props.current.id, this.props.auth.user.id);
             this.setState({likedByMyself: false, likes: currentLikes});
         }
     }
@@ -66,14 +74,8 @@ class Comment extends Component {
     }
 
     getResponses = event => {
-        this.setState({ openedResponses: true, loading: true });
-        axios.get(`/api/writings/responses/${this.props.commentId}`)
-            .then(res => {
-                this.setState({
-                    responses: res.data,
-                    loading: false
-                });
-            });
+        this.setState({ openedResponses: true });
+        this.props.getResponses(this.props.current.id, this.props.writingId, [...this.props.parents, this.props.current.id]);
     }
 
     createResponseInput = event => {
@@ -121,7 +123,7 @@ class Comment extends Component {
                 }
             }
             this.setState({ commentContent: '' });   
-            this.props.saveResponse(this.props.writingId, commentTrimmed, this.props.commentId, this.props.auth.user.id, null);
+            this.props.saveResponse(this.props.writingId, commentTrimmed, this.props.current.id, this.props.auth.user.id, [...this.props.parents, this.props.current.id]);
         
         }
     }
@@ -129,7 +131,7 @@ class Comment extends Component {
     triggerNewResponse = (content) => {
         this.setState({
             newCommentContent: content,
-            newCommentId: this.props.commentId,
+            newCommentId: this.props.current.id,
             wantsToRespond: false,
         });
     }
@@ -138,7 +140,7 @@ class Comment extends Component {
         event.preventDefault();
         event.stopPropagation();
         this.setState({likesModalIsOpen: !this.state.likesModalIsOpen});
-        axios.get(`/api/writings/comment/likers/${this.props.commentId}`)
+        axios.get(`/api/writings/comment/likers/${this.props.current.id}`)
             .then(res => this.setState({ likes: res.data }));
     }
 
@@ -150,7 +152,7 @@ class Comment extends Component {
 
     deleteComment = event => {
         event.preventDefault();
-        this.props.deleteComment(this.props.commentId, this.props.writingId);
+        this.props.deleteComment(this.props.current.id, this.props.writingId, this.props.parents);
     }
 
     render() {
@@ -158,28 +160,28 @@ class Comment extends Component {
         const widthValue = 100 - (this.props.depth ? this.props.depth > 2 ? 2 : this.props.depth : 0) * 3;
         return (
             <>
-                <div id={`comment-div-${this.props.commentId}`} style={{width: `${widthValue}%`, margin: '3px 0px 3px auto'}}>
-                    <div id={`comment-bubble-${this.props.commentId}`} style={{display: 'flex'}}>
-                        <img id={`comment-image-${this.props.commentId}`} src={this.props.image} width="35" height="35" style={{border: '1px solid black', borderRadius: '50%'}}/>
-                        <div id={`comment-inner-${this.props.commentId}`} style={{marginLeft: 10, border: 'solid 1px #E9ECEF', borderRadius: 5, width: '100%', backgroundColor: '#E9ECEF'}}>
-                            <a href={`/user/${this.props.username}`} id={`commenter-username-${this.props.commentId}`} style={{fontFamily: 'Public Sans'}}>{this.props.username}</a>
-                            <p id={`comment-content-${this.props.commentId}`} style={{marginBottom: 0, fontFamily: 'Public Sans'}}>{this.props.content}</p>
+                <div id={`comment-div-${this.props.current.id}`} style={{width: `${widthValue}%`, margin: '3px 0px 3px auto'}}>
+                    <div id={`comment-bubble-${this.props.id}`} style={{display: 'flex'}}>
+                        <img id={`comment-image-${this.props.current.id}`} src={this.props.current.profile_image} width="35" height="35" style={{border: '1px solid black', borderRadius: '50%'}}/>
+                        <div id={`comment-inner-${this.props.current.id}`} style={{marginLeft: 10, border: 'solid 1px #E9ECEF', borderRadius: 5, width: '100%', backgroundColor: '#E9ECEF'}}>
+                            <a href={`/user/${this.props.current.username}`} id={`commenter-username-${this.props.current.id}`} style={{fontFamily: 'Public Sans'}}>{this.props.current.username}</a>
+                            <p id={`comment-content-${this.props.current.id}`} style={{marginBottom: 0, fontFamily: 'Public Sans'}}>{this.props.current.content}</p>
                         </div>
                     </div>
-                    <div id={`comment-full-bubble-${this.props.commentId}`} style={{display: 'flex'}}>
-                        <div id={`comment-actions-bubble-${this.props.commentId}`} style={{marginLeft: '2rem'}}>
-                            { user ? <a style={{marginLeft: 10, cursor: 'pointer', fontSize: 12}} id={`alike-${this.props.commentId}`} onClick={this.likeComment}>{this.state.likedByMyself ? 'No me gusta más' : 'Me gusta' }</a> : null }
+                    <div id={`comment-full-bubble-${this.props.current.id}`} style={{display: 'flex'}}>
+                        <div id={`comment-actions-bubble-${this.props.id}`} style={{marginLeft: '2rem'}}>
+                            { user ? <a style={{marginLeft: 10, cursor: 'pointer', fontSize: 12}} id={`alike-${this.props.id}`} onClick={this.likeComment}>{this.state.likedByMyself ? 'No me gusta más' : 'Me gusta' }</a> : null }
                             { user ? <a style={{marginLeft: 15, cursor: 'pointer', fontSize: 12}} onClick={this.createResponseInput}>Responder</a> : null }
-                            { this.props.responses && this.props.responses.length > 0 ? <a id={`aresponses-${this.props.commentId}`} style={{marginLeft: 15, fontSize: 12, cursor: 'pointer'}} onClick={this.getResponses}>{`Ver respuestas (${this.props.responses.length})`}</a> : null}
+                            { this.props.current.responses && this.props.current.responses.length > 0 ? <a id={`aresponses-${this.props.current.id}`} style={{marginLeft: 15, fontSize: 12, cursor: 'pointer'}} onClick={this.getResponses}>{`Ver respuestas (${this.props.current.responses.length})`}</a> : null}
                         </div>
                         { user && 
-                            <div id={`comment-icons-bubble-${this.props.commentId}`} style={{display: 'flex', flexDirection: 'row', marginLeft: 'auto', marginRight: 0,  border: '1px solid #DADADA', borderRadius: 20, padding: 3, boxShadow: '1px 1px #DADADA'}}>
+                            <div id={`comment-icons-bubble-${this.props.current.id}`} style={{display: 'flex', flexDirection: 'row', marginLeft: 'auto', marginRight: 0,  border: '1px solid #DADADA', borderRadius: 20, padding: 3, boxShadow: '1px 1px #DADADA'}}>
                                 <div className={'clickable'} onClick={this.triggerLikes}>
-                                    <span style={{fontFamily: 'Public Sans', marginRight: 5, fontSize: 15}}>{this.state.likes.length}</span>
+                                    <span style={{fontFamily: 'Public Sans', marginRight: 5, fontSize: 15}}>{this.props.current.likes ? this.props.current.likes.length : 0}</span>
                                     <img src="/assets/like-comment.png" width="15" height="15" style={{marginRight: 5}}/>
                                 </div>
                                 <div>
-                                    <span style={{fontFamily: 'Public Sans'}} style={{marginRight: 5, fontSize: 15}}>{this.state.responses.length}</span>
+                                    <span style={{fontFamily: 'Public Sans'}} style={{marginRight: 5, fontSize: 15}}>{this.props.current.responses ? this.props.current.responses.length : 0}</span>
                                     <img src="/assets/speech-bubble.png" width="15" height="15"/>
                                 </div>
                                 <div className={'clickable'} onClick={this.triggerMoreOptions}>
@@ -201,63 +203,55 @@ class Comment extends Component {
                     this.props.newCommentResponse &&
                     !this.props.error   &&
                         <Comment  likeComment={this.props.likeComment}
+                                  current={this.props.newCommentResponse}
+                                  parents={[...this.props.parents, this.props.current.id]}
                                   saveResponse={this.props.saveResponse}
-                                  username={user.username}
                                   auth={this.props.auth}
-                                  writingId={this.props.newCommentResponse.writingId}
-                                  commentId={this.props.newCommentResponse.commentId}
-                                  content={this.props.newCommentResponse.content}
-                                  image={user.profile_image}
-                                  likes={[]}
-                                  responses={[]}
                                   onDelete={this.props.onDelete}
                                   deleteComment={this.props.deleteComment}
+                                  writingId={this.props.writingId}
                                   depth={this.props.depth ? this.props.depth + 1 : 1}/>
                 }
                 {   this.state.wantsToRespond &&
                     <CommentResponseInput writingId={this.props.writingId}
                                           auth={this.props.auth}
-                                          commentId={this.props.commentId}
+                                          commentId={this.props.current.id}
                                           trigger={this.triggerNewResponse}
+                                          parents={[...this.props.parents, this.props.current.id]}
                                           depth={this.props.depth ? this.props.depth : 0}/>
                 }
                 {
                     this.state.openedResponses &&
-                    this.state.loading &&
+                    this.props.gettingResponsesLoading &&
                     <div style={{marginLeft: 'auto', marginRight: 'auto', textAlign: 'center'}}>
                         <Spinner color={'dark'} size={'sm'}/>
                     </div>
                 }
                 {
-                    this.state.responses &&
-                    this.state.responses.length > 0 &&
                     this.state.openedResponses &&
-                    !this.state.loading &&
-                    this.state.responses.map((response, idx) => {
-                        return <Comment likeComment={this.props.likeComment}
-                                        saveResponse={this.props.saveResponse}
-                                        username={response.username}
-                                        auth={this.props.auth}
-                                        writingId={this.props.writingId}
-                                        commentId={response.id}
-                                        content={response.content}
-                                        image={response.profile_image}
-                                        idx={this.props.idx + idx}
-                                        likes={response.likes ? response.likes : []}
-                                        responses={response.responses ? response.responses : []}
-                                        onDelete={this.props.onDelete}
-                                        deleteComment={this.props.deleteComment}
-                                        depth={this.props.depth + 1}/>;
-                    })
+                    !this.props.gettingResponsesLoading &&
+                    !this.props.gettingResponsesError &&
+                    this.props.current.responses.map((response, idx) => (
+                        <Comment current={response}
+                                likeComment={this.props.likeComment}
+                                parents={[...this.props.parents, this.props.id]}
+                                saveResponse={this.props.saveResponse}
+                                auth={this.props.auth}
+                                 writingId={this.props.writingId}
+                                onDelete={this.props.onDelete}
+                                deleteComment={this.props.deleteComment}
+                                getResponses={this.props.getResponses}
+                                depth={this.props.depth + 1}/>
+                    ))
                 }
                 <Modal toggle={this.triggerLikes} isOpen={this.state.likesModalIsOpen} style={{width: '70%',  position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%,0)'}}>
                     <ModalBody>
                         {   
-                            this.state.likes.length > 0 &&
+                            this.props.current.likes?.length > 0 &&
                             this.state.likes.map(like => <LikeRow like={like}/>)
                         }
                         {
-                            this.state.likes.length === 0 &&
+                            this.props.current.likes?.length === 0 &&
                                 <p style={{fontFamily: 'Public Sans'}}>¡A nadie le ha gustado este comentario aún! Se el primero.</p>
                         }
                     </ModalBody>
@@ -267,10 +261,10 @@ class Comment extends Component {
                         { user && user.username === this.props.username &&
                             <button style={{color: 'red', backgroundColor: 'inherit', width: '100%', border: 'none', borderBottom: 'solid 1px #EDEDED', height: 60}}
                                     onClick={this.deleteComment}>
-                                { this.state.deleteCommentLoading ? <Spinner color={'danger'} size={'sm'}/> : <b>Eliminar</b>}
+                                { this.props.deleteCommentLoading ? <Spinner color={'danger'} size={'sm'}/> : <b>Eliminar</b>}
                             </button>
                         }
-                        { user && user.username !== this.props.username &&
+                        { user && user.username !== this.props.current.username &&
                             <button style={{color: 'red', backgroundColor: 'inherit', width: '100%', border: 'none', borderBottom: 'solid 1px #EDEDED', height: 60}}><b>Reportar</b></button>
                         }
                         <button style={{color: 'gray', backgroundColor: 'inherit', width: '100%', border: 'none', borderBottom: 'solid 1px #EDEDED', height: 60}} onClick={this.triggerMoreOptions}>Cancelar</button>
@@ -287,7 +281,9 @@ const mapStateToProps = state => ({
     deletionMessage: state.writing.msg,
     deletionError: state.writing.error,
     respondedCommentLoading: state.writing.respondedCommentLoading,
-    newCommentResponse: state.writing.newCommentResponse
+    newCommentResponse: state.writing.newCommentResponse,
+    gettingResponsesLoading: state.writing.gettingResponsesLoading,
+    gettingResponsesError: state.writing.gettingResponsesError,
 });
 
-export default connect(mapStateToProps, {likeComment, saveResponse, saveComment, unlikeComment, deleteComment})(Comment);
+export default connect(mapStateToProps, {likeComment, saveResponse, saveComment, unlikeComment, deleteComment, getResponses})(Comment);

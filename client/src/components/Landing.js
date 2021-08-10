@@ -61,7 +61,6 @@ class Landing extends Component {
 
     render() {
         const { isAuthenticated } = this.props.auth;
-        console.log(this.props.writing);
         if(this.state.checkedAuth) {
             return (
                 <div id="main" className="container p-0"

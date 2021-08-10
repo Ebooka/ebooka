@@ -61,7 +61,7 @@ class CommentResponseInput extends Component {
             }
             this.setState({ response: '' });
             if(this.props.commentId) {
-                this.props.saveResponse(this.props.writingId, responseTrimmed, this.props.commentId, this.props.auth.user.id);
+                this.props.saveResponse(this.props.writingId, responseTrimmed, this.props.commentId, this.props.auth.user.id, this.props.parents);
                 this.props.trigger(responseTrimmed);
             } else {
                 this.props.saveComment(this.props.writingId, responseTrimmed, this.props.auth.user.id);

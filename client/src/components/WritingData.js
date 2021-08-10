@@ -271,6 +271,7 @@ class WritingData extends Component {
                         <CommentResponseInput  writingId={this.props.data.id}
                                                commentId={null}
                                                depth={0}
+                                               parents={[]}
                                                trigger={() => this.getAllComments(this.props.data.id)}
                                                auth={this.props.auth}/>
                     }

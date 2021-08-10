@@ -25,7 +25,12 @@ import {
     RESPONDED_COMMENT_ERROR,
     GETTING_WRITING_LIKERS,
     GETTING_WRITING_LIKERS_SUCCESS,
-    GETTING_WRITING_LIKERS_ERROR
+    GETTING_WRITING_LIKERS_ERROR,
+    GET_COMMENTS,
+    GET_COMMENTS_SUCCESS,
+    GET_COMMENTS_ERROR,
+    GET_RESPONSES,
+    GET_RESPONSES_SUCCESS, GET_RESPONSES_ERROR
 } from './types';
 import axios from 'axios';
 import { returnErrors } from './errorActions';
@@ -190,17 +195,18 @@ export const saveComment = (writingId, content, commenterId) => dispatch => {
 
 }
 
-export const saveResponse = (writingId, content, parentCommentId, commenterId) => async dispatch => {
+export const saveResponse = (writingId, content, parentCommentId, commenterId, parents) => async dispatch => {
     dispatch({type: RESPONDED_COMMENT_REQUEST});
     axios.post('/api/writings/response/', {
             writingId: writingId,
             content: content,
             parentCommentId: parentCommentId,
-            commenterId: commenterId
+            commenterId: commenterId,
         })
         .then(res => dispatch({
             type: RESPONDED_COMMENT_SUCCESS,
-            payload: res.data
+            payload: res.data,
+            parents,
         }))
         .catch(error => dispatch({
             type: RESPONDED_COMMENT_ERROR,
@@ -234,7 +240,6 @@ export const addWriting = (writing, id, chaptersArray) => async dispatch => {
 };
 
 export const addChapters = async (chaptersArray, writingId) => {
-    console.log('addChapters');
     chaptersArray.map(chapter => {
         axios.post('/api/writings/chapters/', {
             body: chapter,
@@ -281,11 +286,14 @@ export const getWritingsByUsername = (username) => dispatch => {
         .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
 }
 
-export const deleteComment = (id, wid) => dispatch => {
+export const deleteComment = (id, wid, parents) => dispatch => {
     dispatch({type: DELETE_COMMENT});
     axios.delete(`/api/writings/comment/${id}/writing/${wid}/`)
         .then(res => dispatch({
             type: DELETE_COMMENT_SUCCESS,
+            commentId: id,
+            writingId: wid,
+            parents: parents,
         }))
         .catch(err => dispatch({
             type: DELETE_COMMENT_ERROR,
@@ -301,5 +309,35 @@ export const getWritingLikers = id => dispatch => {
         }))
         .catch(err => dispatch({
             type: GETTING_WRITING_LIKERS_ERROR,
+        }))
+}
+
+export const getComments = (writingId) => dispatch => {
+    dispatch({type: GET_COMMENTS});
+    axios.get(`/api/writings/all-comments/${writingId}`)
+        .then(res => dispatch({
+            type: GET_COMMENTS_SUCCESS,
+            writingId,
+            payload: res.data,
+        }))
+        .catch(err => dispatch({
+            type: GET_COMMENTS_ERROR,
+            err,
+        }))
+}
+
+export const getResponses = (commentId, writingId, parents) => dispatch => {
+    dispatch({type: GET_RESPONSES});
+    axios.get(`/api/writings/responses/${commentId}`)
+        .then(res => dispatch({
+            type: GET_RESPONSES_SUCCESS,
+            commentId,
+            writingId,
+            payload: res.data,
+            parents,
+        }))
+        .catch(err => dispatch({
+            type: GET_RESPONSES_ERROR,
+            err,
         }))
 }
