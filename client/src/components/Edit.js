@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import '../style/Compose.css';
 import '../style/Editor.css';
 import { Container, Form, Button, FormGroup, Label, Input, CustomInput } from 'reactstrap';
-import { addWriting, getWriting } from '../actions/writingActions';
+import {addWriting, getWriting, getWritingCorrect, setCurrentWriting} from '../actions/writingActions';
 import { editDraft, getDraft } from '../actions/draftActions';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -13,12 +13,6 @@ const stuff = require('../static/genres');
 let genres = stuff.genres;
 
 class Compose extends Component {
-
-    static propTypes = {
-        auth: PropTypes.object.isRequired,
-        getDraft: PropTypes.func,
-        draft: PropTypes.object.isRequired
-    }
 
     state = {
         id: -1,
@@ -42,6 +36,7 @@ class Compose extends Component {
         const id = info[0];
         const type = info[1];
         this.setState({ id, type });
+
     }
 
     uploadCover = (event) => {
@@ -78,7 +73,7 @@ class Compose extends Component {
         event.preventDefault();
         event.stopPropagation();
         this.edit(this.state.type === 'writing');
-        /*const newWriting = {
+        this.props.setCurrentWriting({
             title: this.state.title,
             description: this.state.description,
             genre: this.state.genre,
@@ -88,12 +83,10 @@ class Compose extends Component {
             completed: this.state.completed,
             body: this.state.body,
             chapters: this.state.chapters,
-            currentChapter: this.state.currentChapter
-        };
-        let cookie = `writingData=${JSON.stringify(newWriting)};path=/`;
-        window.localStorage.setItem('coverData',this.state.cover);
-        document.cookie = cookie;
-        window.location.href = '/edit-compose/' + this.state.id + '?' + this.state.type;*/
+            currentChapter: this.state.currentChapter,
+            cover: this.state.cover,
+        });
+        window.location.href = '/edit-compose/' + this.state.id + '?' + this.state.type;
     }
 
     onChange = (event) => {
@@ -131,7 +124,7 @@ class Compose extends Component {
         if(event.key === 'Enter' && input) {
             if(this.state.tags.find(tag => tag.toLowerCase() === input.toLowerCase()))
                 return;
-            const oldTags = this.state.tags;
+            const oldTags = this.state.currentWriting.tags;
             oldTags.push(input);
             this.setState({
                 tags: oldTags
@@ -148,95 +141,28 @@ class Compose extends Component {
 
 
     componentDidUpdate(prevProps) {
-        if(document.cookie.includes('writingData') && !this.state.checked) {
-            const cover = window.localStorage.getItem('coverData');
-            let decodedCookie = decodeURIComponent(document.cookie);
-            let cookieArray = decodedCookie.split('writingData=');
-            console.log(cookieArray);
-            if(cookieArray.length == 2) {
-                this.setState(JSON.parse(cookieArray.pop().split(';').shift()));
-            }
+        if(this.props.currentWriting && !this.state.checked) {
+            this.setState({...this.props.currentWriting});
             genres.map(genre => {
-                if(genre.genre === this.state.genre) {
+                if(genre.genre === this.props.currentWriting.genre) {
                     if(genre.sub)
-                        this.setState({ 
-                            subgenreslist: genre.sub, 
+                        this.setState({
+                            subgenreslist: genre.sub,
                             subgenre: genre.sub[0]
                         });
                     else
-                        this.setState({ 
-                            subgenreslist: genre.sub, 
+                        this.setState({
+                            subgenreslist: genre.sub,
                             subgenre: null
                         });
                 }
             });
-            this.setState({checked: true, isAllowed: true, cover: cover});
+            this.setState({checked: true, isAllowed: true, cover: this.props.currentWriting.cover});
         } else if(!this.state.checked){
             if(this.props.auth.user !== prevProps.auth.user && this.state.type === 'draft') {
                 this.props.getDraft(this.state.id);
             } else if(this.props.auth.user !== prevProps.auth.user && this.state.type === 'writing') {
-                this.props.getWriting(this.state.id);
-            }
-            if(this.props.draft.drafts !== prevProps.draft.drafts && this.state.type === 'draft') {
-                if(this.props.auth.user.id === this.props.draft.drafts.writer_id) {
-                    this.setState({
-                        title: this.props.draft.drafts.title,
-                        description: this.props.draft.drafts.description,
-                        genre: this.props.draft.drafts.genre,
-                        subgenre: this.props.draft.drafts.subgenre,
-                        tags: this.props.draft.drafts.tags,
-                        completed: this.props.draft.drafts.completed,
-                        cover: this.props.draft.drafts.cover,
-                        body: this.props.draft.drafts.body,
-                        chapters: this.props.draft.drafts.chapters,
-                        isAllowed: true
-                    });
-                    genres.map(genre => {
-                        if(genre.genre === this.props.draft.drafts.genre) {
-                            if(genre.sub)
-                                this.setState({ 
-                                    subgenreslist: genre.sub, 
-                                    subgenre: genre.sub[0]
-                                });
-                            else
-                                this.setState({ 
-                                    subgenreslist: genre.sub, 
-                                    subgenre: null
-                                });
-                        }
-                    });
-                    this.setState({checked: true});
-                }  
-            } else if(this.props.writing.writings !== prevProps.writing.writings && this.state.type === 'writing'){
-                if(this.props.auth.user.id === this.props.writing.writings[0].writer_id) {
-                    this.setState({
-                        title: this.props.writing.writings[0].title,
-                        description: this.props.writing.writings[0].description,
-                        genre: this.props.writing.writings[0].genre,
-                        subgenre: this.props.writing.writings[0].subgenre,
-                        tags: this.props.writing.writings[0].tags,
-                        completed: this.props.writing.writings[0].completed,
-                        cover: this.props.writing.writings[0].cover,
-                        body: this.props.writing.writings[0].body,
-                        chapters: this.props.writing.writings[0].chapters,
-                        isAllowed: true
-                    });
-                    genres.map(genre => {
-                        if(genre.genre === this.props.writing.writings[0].genre) {
-                            if(genre.sub)
-                                this.setState({
-                                    subgenreslist: genre.sub,
-                                    subgenre: genre.sub[0]
-                                });
-                            else
-                                this.setState({
-                                    subgenreslist: genre.sub,
-                                    subgenre: null
-                                });
-                        }
-                    });
-                    this.setState({checked: true});
-                }
+                this.props.getWritingCorrect(this.state.id);
             }
         }
     }
@@ -262,11 +188,11 @@ class Compose extends Component {
                     <Form className="main-form">
                         <FormGroup>
                             <Label for="title">Título</Label>
-                            <Input type="text" name="title" placeholder="Ingresá el título del escrito" onChange={this.onChange} style={{backgroundColor: 'white'}} value={this.state.title ? this.state.title : null}/>
+                            <Input type="text" name="title" placeholder="Ingresá el título del escrito" onChange={this.onChange} style={{backgroundColor: 'white'}} value={this.props.currentWriting.title}/>
                         </FormGroup>
                         <FormGroup>
                             <Label for="description">{`Descripción (${400 - this.state.description.length} caracteres restantes)`}</Label>
-                            <Input type="textarea" name="description" maxLength="400" placeholder="Ingresá la descripción del escrito en hasta 400 caracteres" onChange={this.onChange} value={this.state.description ? this.state.description : null}/>
+                            <Input type="textarea" name="description" maxLength="400" placeholder="Ingresá la descripción del escrito en hasta 400 caracteres" onChange={this.onChange} value={this.props.currentWriting.description}/>
                         </FormGroup>
                         <FormGroup>
                             <Label for="genre">Categoría</Label>
@@ -322,7 +248,9 @@ class Compose extends Component {
 const mapStateToProps = state => ({
     writing: state.writing,
     auth: state.auth,
-    draft: state.draft
+    draft: state.draft,
+    currentWriting: state.writing.currentWriting,
+    loading: state.writing.loading,
 });
 
-export default connect(mapStateToProps, { addWriting, editDraft, getDraft, getWriting })(Compose);
+export default connect(mapStateToProps, { addWriting, editDraft, getDraft, getWritingCorrect, setCurrentWriting })(Compose);

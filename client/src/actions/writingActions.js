@@ -30,7 +30,12 @@ import {
     GET_COMMENTS_SUCCESS,
     GET_COMMENTS_ERROR,
     GET_RESPONSES,
-    GET_RESPONSES_SUCCESS, GET_RESPONSES_ERROR
+    GET_RESPONSES_SUCCESS,
+    GET_RESPONSES_ERROR,
+    SET_CURRENT_WRITING,
+    GET_INDIVIDUAL_WRITING,
+    GET_INDIVIDUAL_WRITING_SUCCESS,
+    GET_INDIVIDUAL_WRITING_ERROR,
 } from './types';
 import axios from 'axios';
 import { returnErrors } from './errorActions';
@@ -266,6 +271,16 @@ export const getWriting = (id) => dispatch => {
         //.catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
 }
 
+export const getWritingCorrect = (id) => dispatch => {
+    dispatch({type: GET_INDIVIDUAL_WRITING});
+    axios.get(`/api/writings/${id}/`)
+        .then(res => dispatch({
+            type: GET_INDIVIDUAL_WRITING_SUCCESS,
+            payload: res.data
+        }))
+        .catch(err => dispatch({ type: GET_INDIVIDUAL_WRITING_ERROR, err }));
+}
+
 export const getWritingsPreview = (username) => dispatch => {
     dispatch(setWritingsLoading());
     axios.get(`/api/writings/preview/${username}/`)
@@ -341,3 +356,7 @@ export const getResponses = (commentId, writingId, parents) => dispatch => {
             err,
         }))
 }
+
+export const setCurrentWriting = (data) => dispatch => {
+    dispatch({type: SET_CURRENT_WRITING, data});
+};

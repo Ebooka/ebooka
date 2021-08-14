@@ -14,6 +14,7 @@ import {
 } from 'reactstrap';
 import { connect } from 'react-redux';
 import {Chip} from '@material-ui/core';
+import {setCurrentWriting} from "../actions/writingActions";
 
 const stuff = require('../static/genres');
 let genres = stuff.genres;
@@ -38,33 +39,22 @@ class PreComposeData extends Component {
     }
 
     componentDidMount() {
-        let isData = document.cookie.includes('writingData');
-        if(isData) {
-            let cookies = document.cookie.split('; ');
-            for(let i = 0 ; i < cookies.length ; i++) {
-                if(cookies[i].includes('writingData')) {
-                    let data = JSON.parse(cookies[i].split('=')[1]);
-                    this.setState(data);
-                    genres.map(genre => {
-                        if(genre.genre === data['genre']) {
-                            if(genre.sub)
-                                this.setState({ 
-                                    subgenreslist: genre.sub, 
-                                    subgenre: genre.sub[0]
-                                });
-                            else
-                                this.setState({ 
-                                    subgenreslist: genre.sub, 
-                                    subgenre: null
-                                });
-                        }
-                    });
+        if(this.props.currentWriting) {
+            this.setState({...this.props.currentWriting});
+            genres.map(genre => {
+                if(genre.genre === this.props.currentWriting.genre) {
+                    if(genre.sub)
+                        this.setState({
+                            subgenreslist: genre.sub,
+                            subgenre: genre.sub[0]
+                        });
+                    else
+                        this.setState({
+                            subgenreslist: genre.sub,
+                            subgenre: null
+                        });
                 }
-            }
-        }
-        let cover = window.localStorage.getItem('coverData');
-        if(cover) {
-            this.setState({ cover });
+            });
         }
     }
 
@@ -137,7 +127,6 @@ class PreComposeData extends Component {
         if(this.state.tags.length === 0)
             emptyInputs.push('Tags');
         if(emptyInputs.length !== 0) {
-            console.log(emptyInputs);
             this.setState({ emptyInputs: emptyInputs });
             this.toggleWarningModal();
         } else {
@@ -157,11 +146,10 @@ class PreComposeData extends Component {
             completed: this.state.completed,
             body: this.state.body,
             chapters: this.state.chapters,
-            currentChapter: this.state.currentChapter
+            currentChapter: this.state.currentChapter,
+            cover: this.state.cover,
         };
-        let cookie = `writingData=${JSON.stringify(newWriting)}`;
-        window.localStorage.setItem('coverData',this.state.cover);
-        document.cookie = cookie;
+        this.props.setCurrentWriting(newWriting);
         window.location.href = '/compose';
     }
 
@@ -248,7 +236,8 @@ class PreComposeData extends Component {
 const mapStateToProps = state => ({
     writing: state.writing,
     auth: state.auth,
-    draft: state.draft
+    draft: state.draft,
+    currentWriting: state.writing.currentWriting,
 });
 
-export default connect(mapStateToProps, null)(PreComposeData);
+export default connect(mapStateToProps, {setCurrentWriting})(PreComposeData);

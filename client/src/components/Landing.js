@@ -18,25 +18,21 @@ class Landing extends Component {
         initialLoad: true,
     }
 
-    static propTypes = {
-        getWritings: PropTypes.func.isRequired,
-        getWritingsWithFilters: PropTypes.func.isRequired,
-        writing: PropTypes.object.isRequired,
-    }
-
     componentDidUpdate(prevProps) {
         if(prevProps.writing.writings?.length < this.props.writing.writings?.length)
             this.setState({ incremented: false });
-        if(prevProps.auth.isLoading !== this.props.auth.isLoading && !this.props.auth.isLoading)
-            this.setState({ checkedAuth: true });
-        if(this.state.checkedAuth && this.props.auth.user && this.state.initialLoad) {
+        console.log(this.state.checkedAuth, this.state.initialLoad, this.props.location.search);
+        if(this.props.auth.user && this.state.initialLoad) {
+            console.log('aca');
             if(this.props.location.search !== undefined && this.props.location.search !== '') {
+                console.log('aca 2');
                 this.props.getWritingsWithFiltersAndBlocked(this.props.location.search.split('?')[1], this.props.auth.user.id, this.state.pageNumber);
             } else {
+                console.log('getWritingsWithBlocked')
                 this.props.getWritingsWithBlocked(this.props.auth.user.id, this.state.pageNumber);
             }
             this.setState({ initialLoad: false });
-        } else if(this.state.checkedAuth && !this.props.auth.user && this.state.initialLoad){
+        } else if(!this.props.auth.user && this.state.initialLoad){
             if(this.props.location.search !== undefined && this.props.location.search !== '') {
                 this.props.getWritingsWithFilters(this.props.location.search.split('?')[1], this.state.pageNumber);
             } else {
@@ -82,7 +78,7 @@ class Landing extends Component {
                             <hr/>
                         </div>
                         <div className="col-md-9 col-12">
-                            <WritingsList filteredWritings={this.props.writing} expanded={false}/>
+                            <WritingsList expanded={false}/>
                         </div>
                     </div>
                 </div>

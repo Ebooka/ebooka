@@ -26,8 +26,13 @@ import {
     GET_COMMENTS_SUCCESS,
     GET_COMMENTS_ERROR,
     GET_RESPONSES,
-    GET_RESPONSES_SUCCESS, GET_RESPONSES_ERROR
+    GET_RESPONSES_SUCCESS,
+    GET_RESPONSES_ERROR,
+    SET_CURRENT_WRITING,
+    GET_INDIVIDUAL_WRITING,
+    GET_INDIVIDUAL_WRITING_SUCCESS, GET_INDIVIDUAL_WRITING_ERROR
 } from '../actions/types';
+import {REHYDRATE} from "redux-persist/es/constants";
 
 const initialState = {
     writings: null,
@@ -45,6 +50,7 @@ const initialState = {
     gettingCommentsError: false,
     gettingResponsesLoading: false,
     gettingResponsesError: false,
+    currentWriting: null,
 }
 
 export default function(state = initialState, action) {
@@ -62,7 +68,6 @@ export default function(state = initialState, action) {
         case ADD_VIEWER:
         case ADD_ANON_VIEWER:
             let newWritings = [];
-            console.log('reducer', action.type, action.payload);
             if(state.writings) {
                 if(Array.isArray(state.writings))
                     newWritings.push(...state.writings);
@@ -80,6 +85,22 @@ export default function(state = initialState, action) {
                 writings: newWritings,
                 loading: false
             }
+        case GET_INDIVIDUAL_WRITING:
+            return {
+                ...state,
+                loading: true,
+            };
+        case GET_INDIVIDUAL_WRITING_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                currentWriting: action.payload,
+            };
+        case GET_INDIVIDUAL_WRITING_ERROR:
+            return {
+                ...state,
+                loading: false,
+            };
         case LIKED_WRITING:
         case UNLIKED_WRITING:
             let { writings } = state;
@@ -263,6 +284,16 @@ export default function(state = initialState, action) {
                 gettingResponsesLoading: false,
                 gettingCommentsError: true,
             }
+        case SET_CURRENT_WRITING:
+            return {
+                ...state,
+                currentWriting: action.data,
+            }
+        case REHYDRATE:
+            return {
+                ...state,
+                writings: null,
+            };
         default:
             return state;
     };

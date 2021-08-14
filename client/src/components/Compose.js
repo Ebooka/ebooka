@@ -4,7 +4,7 @@ import '../style/Editor.css';
 import { Container, Button } from 'reactstrap';
 import CKEditor from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import { addWriting, addChapters } from '../actions/writingActions';
+import {addWriting, addChapters, setCurrentWriting} from '../actions/writingActions';
 import { addDraft } from '../actions/draftActions';
 import { connect } from 'react-redux';
 const stuff = require('../static/genres');
@@ -33,15 +33,8 @@ class Compose extends Component {
     }
 
     componentDidMount() {
-        let isData = document.cookie.includes('writingData');
-        if(isData) {
-            let cookies = document.cookie.split('; ');
-            for(let i = 0 ; i < cookies.length ; i++) {
-                if(cookies[i].includes('writingData')) {
-                    this.setState(JSON.parse(cookies[i].split('=')[1]));
-                    break;
-                }
-            }
+        if(this.props.currentWriting) {
+            this.setState({...this.props.currentWriting});
         }
     }
 
@@ -60,10 +53,8 @@ class Compose extends Component {
             cover: coverString !== undefined ? coverString : null,
             chapters: this.state.chapters
         };
-        console.log(this.state.chapters);
         await this.props.addWriting(newWriting, null, this.state.chapters);
-        document.cookie = 'writingData=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'; // delete unnecesary cookie
-        localStorage.removeItem('coverData');
+        this.props.setCurrentWriting(null);
         window.location.href = '/';
     }
 
@@ -121,8 +112,7 @@ class Compose extends Component {
             chapters: this.state.chapters,
             currentChapter: this.state.currentChapter
         };
-        document.cookie = `writingData=${JSON.stringify(newWriting)}`;
-        window.location.href = '/pre-compose';
+        this.props.setCurrentWriting(newWriting);
     }
 
     isNovel = () => this.state.genre === 'Novela';
@@ -189,7 +179,8 @@ class Compose extends Component {
 const mapStateToProps = state => ({
     writing: state.writing,
     auth: state.auth,
-    draft: state.draft
+    draft: state.draft,
+    currentWriting: state.writing.currentWriting,
 });
 
-export default connect(mapStateToProps, { addWriting, addDraft, addChapters })(Compose);
+export default connect(mapStateToProps, { addWriting, addDraft, addChapters, setCurrentWriting })(Compose);
