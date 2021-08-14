@@ -36,6 +36,9 @@ import {
     GET_INDIVIDUAL_WRITING,
     GET_INDIVIDUAL_WRITING_SUCCESS,
     GET_INDIVIDUAL_WRITING_ERROR,
+    EDIT_WRITING,
+    EDIT_WRITING_SUCCESS,
+    EDIT_WRITING_ERROR,
 } from './types';
 import axios from 'axios';
 import { returnErrors } from './errorActions';
@@ -128,6 +131,13 @@ export const getSubgenre = (subgenre) => dispatch => {
             payload: res.data
         }))
         .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+}
+
+export const editWriting = (writingId, data) => dispatch => {
+    dispatch({type: EDIT_WRITING});
+    axios.put(`/api/writings/${writingId}`, data)
+        .then(res => dispatch({ type: EDIT_WRITING_SUCCESS }))
+        .catch(err => dispatch({ type: EDIT_WRITING_ERROR }));
 }
 
 export const likeComment = (commentId, likerId, writingId) => dispatch => {
@@ -233,7 +243,6 @@ export const addWriting = (writing, id, chaptersArray) => async dispatch => {
     await axios.post('/api/writings/', writing)
         .then(async (res) => {
                 const id = res.data;
-                console.log('volvi, genero => ', writing.genre);
                 if(writing.genre === 'Novela') {
                     return await addChapters(chaptersArray, id);
                 }

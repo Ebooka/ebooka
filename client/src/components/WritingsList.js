@@ -8,8 +8,7 @@ import '../style/WritingsList.css'
 class WritingsList extends Component {
 
     loadedContent = () => {
-        let { writings } = this.props.writing;
-        if(writings && writings.length === 0)
+        if(this.props.writings && this.props.writings.length === 0)
             return (
                 <Container style={{ textAlign: 'center', width: '100%' }}>
                     <h3>No hay resultados</h3>
@@ -18,13 +17,13 @@ class WritingsList extends Component {
         else
             return (
                 <div style={{maxHeight: '90vh', width: '100%', padding: 0}}>
-                    {writings.map((writing, idx) => {
-                        if(idx % 4 === 3)
+                    {this.props.writings.map((writing, idx) => {
+                        /*if(idx % 4 === 3)
                             return (
                                 <div>
                                     <Ad/>
                                     <Writing current={writing} expanded={this.props.expanded}/>
-                                </div>);
+                                </div>);*/
                         return (<Writing current={writing} expanded={this.props.expanded}/>);
                     })}
                 </div>
@@ -38,15 +37,14 @@ class WritingsList extends Component {
     );
 
     render() {
-        let { writings } = this.props.writing;
         return (
-            writings === null ? this.loadingContent() : this.loadedContent()
+            this.props.writings === null ? this.loadingContent() : this.loadedContent()
         );
     }
 }
 
 const mapStateToProps = (state) => ({
-    writing: state.writing,
+    writings: state.writing.writings,
 });
 
 export default connect(mapStateToProps, null)(WritingsList);

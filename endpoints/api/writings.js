@@ -228,7 +228,7 @@ router.post('/chapters/', (req, res) => {
 
 router.get('/chapters/:id/', (req, res) => {
     try {
-        const getChaptersBodyQuery = 'SELECT c.body, c.id FROM chapters AS c WHERE c.id IN (SELECT UNNEST(chapters) FROM writings AS w WHERE w.id = $1);';
+        const getChaptersBodyQuery = 'SELECT c.body, c.id FROM chapters AS c WHERE c.id IN (SELECT UNNEST(chapters) FROM writings AS w WHERE w.id = $1) ORDER BY c.id;';
         pool.query(getChaptersBodyQuery, [req.params.id], (error, results) => {
             if (error)
                 throw error;
@@ -532,8 +532,32 @@ router.get('/all-comments/:id/', (req, res) => {
 
 router.put('/:id/', (req, res) => {
     try {
-        const query = 'UPDATE writings SET title = $1, description = $2, genre = $3, tags = $4, completed = $5, body = $6, chapters = $7, last_edited = now(), subgenre = $8 WHERE id = $9;';
-        const params = [req.body.title, req.body.description, req.body.genre, req.body.tags, req.body.completed, req.body.body, req.body.chapters, req.params.subgenre, req.params.id];
+        const editChaptersQuery = 'UPDATE chapters SET body = $1 WHERE id = $2';
+        const addChapterQuery = 'INSERT INTO chapters(body, writing_id) VALUES ($1, $2) RETURNING id;';
+        const addChapterToWritingQuery = 'UPDATE writings SET chapters = array_append(chapters, $1) WHERE id = $2';
+        const query = 'UPDATE writings SET title = $1, description = $2, genre = $3, tags = $4, completed = $5, body = $6, last_edited = now(), subgenre = $7 WHERE id = $8;';
+        const chapters = req.body.chapters;
+        if(chapters) {
+            chapters.forEach(chapter => {
+                if(chapter.id) {
+                    pool.query(editChaptersQuery, [chapter.body, chapter.id], (error, result) => {
+                        if(error)
+                            throw error;
+                    });
+                } else {
+                    pool.query(addChapterQuery, [chapter.body, req.params.id], (error, result) => {
+                        if(error)
+                            throw error;
+                        console.log('into query', result.rows[0]);
+                        pool.query(addChapterToWritingQuery, [parseInt(result.rows[0].id), req.params.id], (error, result) => {
+                            if(error)
+                                throw error;
+                        });
+                    });
+                }
+            })
+        }
+        const params = [req.body.title, req.body.description, req.body.genre, req.body.tags, req.body.completed, req.body.body, req.params.subgenre, req.params.id];
         pool.query(query, params, (error, result) => {
             if (error)
                 throw error;

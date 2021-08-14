@@ -57,38 +57,31 @@ class Landing extends Component {
 
     render() {
         const { isAuthenticated } = this.props.auth;
-        if(this.state.checkedAuth) {
-            return (
-                <div id="main" className="container p-0"
-                     style={{position: 'fixed', top: 90, overflowY: 'scroll', left: '50%', transform: 'translate(-50%, 0)', maxWidth: '100%', height: '85vh'}}
-                     onScroll={this.checkPosition}>
-                    { !isAuthenticated &&
-                        <div className="container banner">
-                            <img src={`/assets/banner.jpg`} alt="banner" style={{minHeight: '50vh', height: '85vh', width: '100%'}}/>
-                            <div className="welcome-header">Tu espacio para expresarte</div>
-                            <div className="welcome-mid">Inspirate</div>
-                            <div className="welcome-footer">Lee y escribí, donde y cuando quieras</div>
-                        </div>
-                    }
-                    <div className="row" style={{width: '90%', display: 'flex', flexWrap: 'column', marginLeft: 'auto', marginRight: 'auto', marginTop: '1.5rem'}}>
-                        <div className="col-md-3 col-12 ml-auto mr-auto">
-                            <FiltersList/>
-                            <hr/>
-                            <EnterpriseLinks/>
-                            <hr/>
-                        </div>
-                        <div className="col-md-9 col-12">
-                            <WritingsList expanded={false}/>
-                        </div>
+        return (
+            <div id="main" className="container p-0"
+                 style={{position: 'fixed', top: 90, overflowY: 'scroll', left: '50%', transform: 'translate(-50%, 0)', maxWidth: '100%', height: '85vh'}}
+                 onScroll={this.checkPosition}>
+                { !isAuthenticated &&
+                    <div className="container banner">
+                        <img src={`/assets/banner.jpg`} alt="banner" style={{minHeight: '50vh', height: '85vh', width: '100%'}}/>
+                        <div className="welcome-header">Tu espacio para expresarte</div>
+                        <div className="welcome-mid">Inspirate</div>
+                        <div className="welcome-footer">Lee y escribí, donde y cuando quieras</div>
+                    </div>
+                }
+                <div className="row" style={{width: '90%', display: 'flex', flexWrap: 'column', marginLeft: 'auto', marginRight: 'auto', marginTop: '1.5rem'}}>
+                    <div className="col-md-3 col-12 ml-auto mr-auto">
+                        <FiltersList/>
+                        <hr/>
+                        <EnterpriseLinks/>
+                        <hr/>
+                    </div>
+                    <div className="col-md-9 col-12">
+                        <WritingsList expanded={false}/>
                     </div>
                 </div>
-            )
-        } else {
-            return  <Container style={{textAlign: 'center'}}>
-                        <img src={'/assets/logo.png'} alt={'Loading'} height={50} width={50}/>
-                    </Container>
-
-        }
+            </div>
+        )
     }
 }
 

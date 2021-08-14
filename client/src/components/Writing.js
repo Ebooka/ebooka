@@ -24,7 +24,7 @@ import {
     saveComment,
     deleteWriting,
     getWritingLikers,
-    getComments
+    getComments, setCurrentWriting
 } from '../actions/writingActions';
 import { follow, unfollow, block, addToFavourites, removeFromFavourites } from '../actions/userActions';
 import { createTagNotification } from '../actions/notificationActions';
@@ -46,6 +46,7 @@ import {
     VisibilityOutlined
 } from "@material-ui/icons";
 import ShareModal from "./ShareModal";
+import {withRouter} from 'react-router-dom';
 
 const iconPath = process.env.PUBLIC_URL + '/assets/';
 const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -380,7 +381,8 @@ class Writing extends Component {
     edit = (event) => {
         event.preventDefault();
         event.stopPropagation();
-        window.location.href = `/edit/${this.props.current.id}?writing`;
+        this.props.setCurrentWriting(this.props.current);
+        this.props.history.push(`/pre-compose?id=${this.props.current.id}`);
     }
 
     expandWriting = (event) => {
@@ -740,4 +742,4 @@ const mapStateToProps = state => ({
     gettingCommentsError: state.writing.gettingCommentsError,
 });
 
-export default connect(mapStateToProps, { likeWriting, unlikeWriting, saveComment, follow, unfollow, deleteWriting, block, createTagNotification, addToFavourites, removeFromFavourites, getWritingLikers, getComments })(Writing);
+export default connect(mapStateToProps, { likeWriting, unlikeWriting, saveComment, follow, unfollow, deleteWriting, block, createTagNotification, addToFavourites, removeFromFavourites, getWritingLikers, getComments, setCurrentWriting })(withRouter(Writing));

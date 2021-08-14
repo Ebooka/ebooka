@@ -4,9 +4,11 @@ import '../style/Editor.css';
 import { Container, Button } from 'reactstrap';
 import CKEditor from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import {addWriting, addChapters, setCurrentWriting} from '../actions/writingActions';
+import {addWriting, addChapters, setCurrentWriting, editWriting} from '../actions/writingActions';
 import { addDraft } from '../actions/draftActions';
 import { connect } from 'react-redux';
+import {withRouter} from 'react-router-dom';
+import axios from 'axios';
 const stuff = require('../static/genres');
 let genres = stuff.genres;
 
@@ -18,6 +20,7 @@ const editorConfig = {
 class Compose extends Component {
 
     state = {
+        writingId: null,
         title: '',
         description: '',
         genre: genres[0].genre,
@@ -33,34 +36,46 @@ class Compose extends Component {
     }
 
     componentDidMount() {
+        const id = window.location.href.split('compose?id=')[1] ?? null;
+        this.setState({writingId: id})
         if(this.props.currentWriting) {
-            this.setState({...this.props.currentWriting});
+            this.setState({
+                ...this.props.currentWriting,
+                chapters: this.props.currentWriting.chapters ?? [],
+            });
+            if(id && this.isNovel()) {
+                axios.get(`/api/writings/chapters/${id}/`)
+                    .then(res => this.setState({chapters: res.data}))
+                    .catch(err => this.setState({chapters: []}))
+            }
         }
     }
 
     saveWriting = async (event) => {
         event.preventDefault();
-        const coverString = localStorage.getItem('coverData');
         const newWriting = {
             title: this.state.title,
             description: this.state.description,
             genre: this.state.genre,
             subgenre: this.state.subgenre,
-            body: this.state.genre === 'Novela' ? this.state.chapters[0] : this.state.body,
+            body: this.state.genre === 'Novela' ? this.state.chapters[0].body : this.state.body,
             writer_id: this.props.auth.user.id,
             tags: this.state.tags,
             completed: this.state.completed,
-            cover: coverString !== undefined ? coverString : null,
+            cover: this.state.cover,
             chapters: this.state.chapters
         };
-        await this.props.addWriting(newWriting, null, this.state.chapters);
+        if(this.state.writingId) {
+            this.props.editWriting(this.state.writingId, newWriting);
+        } else {
+            await this.props.addWriting(newWriting, null, this.state.chapters);
+        }
         this.props.setCurrentWriting(null);
         window.location.href = '/';
     }
 
     saveDraft = async (event) => {
         event.preventDefault();
-        const coverString = localStorage.getItem('coverData');
         const newDraft = {
             title: this.state.title,
             description: this.state.description,
@@ -70,7 +85,7 @@ class Compose extends Component {
             writer_id: this.props.auth.user.id,
             tags: this.state.tags,
             completed: this.state.completed,
-            cover: coverString !== undefined ? coverString : null
+            cover: this.state.cover,
         };
         await this.props.addDraft(newDraft, this.state.chapters);
         document.getElementById('draft-alert').style.display = 'block';
@@ -85,7 +100,7 @@ class Compose extends Component {
     onEditorChange = (event, editor) => {
         let bodyHTML = editor.getData();
         let chaptersCopy = this.state.chapters;
-        chaptersCopy[this.state.currentChapter - 1] = bodyHTML;
+        chaptersCopy[this.state.currentChapter - 1] = {...chaptersCopy[this.state.currentChapter - 1], body: bodyHTML};
         this.setState({
             chapters: chaptersCopy,
             body: bodyHTML
@@ -113,6 +128,7 @@ class Compose extends Component {
             currentChapter: this.state.currentChapter
         };
         this.props.setCurrentWriting(newWriting);
+        this.props.history.push(`/pre-compose${this.state.writingId ? `?id=${this.state.writingId}` : ''}`);
     }
 
     isNovel = () => this.state.genre === 'Novela';
@@ -126,7 +142,7 @@ class Compose extends Component {
         document.getElementById(`chapter-${this.state.currentChapter}`).style.backgroundColor = 'blue';
         this.setState({
             currentChapter: number,
-            body: this.state.chapters[number - 1]
+            body: this.state.chapters[number - 1].body
         });
     }
 
@@ -143,10 +159,8 @@ class Compose extends Component {
         </div>);
     }
 
-    addChapter = (event) => {
-        let newChaptersArray = this.state.chapters;
-        newChaptersArray.push('');
-        this.setState({chapters: newChaptersArray});
+    addChapter = () => {
+        this.setState({chapters: [...this.state.chapters, {id: null, body: ''}]});
     }
 
     render() {
@@ -183,4 +197,4 @@ const mapStateToProps = state => ({
     currentWriting: state.writing.currentWriting,
 });
 
-export default connect(mapStateToProps, { addWriting, addDraft, addChapters, setCurrentWriting })(Compose);
+export default connect(mapStateToProps, { addWriting, addDraft, addChapters, setCurrentWriting, editWriting })(withRouter(Compose));

@@ -15,6 +15,7 @@ import {
 import { connect } from 'react-redux';
 import {Chip} from '@material-ui/core';
 import {setCurrentWriting} from "../actions/writingActions";
+import {withRouter} from 'react-router-dom';
 
 const stuff = require('../static/genres');
 let genres = stuff.genres;
@@ -22,6 +23,7 @@ let genres = stuff.genres;
 class PreComposeData extends Component {
 
     state = {
+        writingId: null,
         title: '',
         description: '',
         genre: genres[0].genre,
@@ -39,6 +41,8 @@ class PreComposeData extends Component {
     }
 
     componentDidMount() {
+        const id = window.location.href.split('pre-compose?id=')[1] ?? null;
+        this.setState({writingId: id});
         if(this.props.currentWriting) {
             this.setState({...this.props.currentWriting});
             genres.map(genre => {
@@ -150,7 +154,7 @@ class PreComposeData extends Component {
             cover: this.state.cover,
         };
         this.props.setCurrentWriting(newWriting);
-        window.location.href = '/compose';
+        this.props.history.push(`/compose${this.state.writingId ? `?id=${this.state.writingId}` : ''}`);
     }
 
     render() {
@@ -240,4 +244,4 @@ const mapStateToProps = state => ({
     currentWriting: state.writing.currentWriting,
 });
 
-export default connect(mapStateToProps, {setCurrentWriting})(PreComposeData);
+export default connect(mapStateToProps, {setCurrentWriting})(withRouter(PreComposeData));
