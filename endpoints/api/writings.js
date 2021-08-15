@@ -432,12 +432,12 @@ router.post('/comment/', (req, res) => {
             if (error)
                 return res.status(400).json({msg: 'Error añadiendo comentario'});
             const commentCreated = {
-                commentId: result.rows[0].id,
+                id: result.rows[0].id,
                 writingId: result.rows[0].writing_id,
                 content: result.rows[0].content
             };
             if (commentCreated) {
-                const commentId = commentCreated.commentId;
+                const commentId = commentCreated.id;
                 pool.query(query, [commentId, req.body.writingId], (error, result) => {
                     if (error)
                         res.status(400).json({msg: 'Error añadiendo comentario al posteo'});
@@ -470,15 +470,15 @@ router.post('/response/', (req, res) => {
             if (error)
                 throw error;
             const response = {
-                commentId: results.rows[0].id,
+                id: results.rows[0].id,
                 writingId: results.rows[0].writing_id,
                 content: results.rows[0].content
             };
             console.log('response: ', response);
-            pool.query(addToCommentResponseArray, [response.commentId, req.body.parentCommentId], (error, results) => {
+            pool.query(addToCommentResponseArray, [response.id, req.body.parentCommentId], (error, results) => {
                 if (error)
                     throw error;
-                pool.query(addToCommentsWritingArray, [response.commentId, req.body.writingId], (error, results) => {
+                pool.query(addToCommentsWritingArray, [response.id, req.body.writingId], (error, results) => {
                     if (error)
                         throw error;
                     return res.status(200).json(response);
@@ -519,7 +519,7 @@ router.get('/old-comment/:id/', (req, res) => {
 
 router.get('/all-comments/:id/', (req, res) => {
     try {
-        const query = 'SELECT username, content, c.id, c.likes, c.responses, profile_image FROM commentItem AS c JOIN users AS u ON u.id = commenter_id WHERE c.id IN (SELECT unnest(comments) FROM writings AS w WHERE w.id = $1 ORDER BY unnest DESC) AND c.is_comment = true;';
+        const query = 'SELECT username, content, c.id, c.likes, c.responses, profile_image FROM commentItem AS c JOIN users AS u ON u.id = commenter_id WHERE c.id IN (SELECT unnest(comments) FROM writings AS w WHERE w.id = $1) AND c.is_comment = true ORDER BY c.id;';
         pool.query(query, [req.params.id], (error, result) => {
             if (error)
                 return res.status(400).json({msg: 'Error buscando último comentario'});

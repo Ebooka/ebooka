@@ -60,7 +60,7 @@ export const getWritingsWithBlocked = (id, pageNumber) => dispatch => {
             type: GET_WRITINGS,
             payload: res.data
         }))
-        .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+        //.catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
 };
 
 export const getWritingsWithFilters = (filters, pageNumber) => dispatch => {
@@ -193,35 +193,41 @@ export const unlikeWriting = (writingId, likerId) => dispatch => {
         .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
 }
 
-export const saveComment = (writingId, content, commenterId) => dispatch => {
+export const saveComment = (writingId, content, commenter) => dispatch => {
     dispatch({type: COMMENTED_WRITING});
     axios.post('/api/writings/comment/', {
             writingId: writingId,
-            commenterId: commenterId,
+            commenterId: commenter.id,
             content: content
         })
         .then(res => dispatch({
             type: COMMENTED_WRITING_SUCCESS,
-            payload: res.data
+            payload: res.data,
+            user: commenter,
+            parents: [],
         }))
-        .catch(error => dispatch({
-            type: COMMENTED_WRITING_ERROR,
-        }));
+        .catch(error => {
+            console.log(error)
+            dispatch({
+                type: COMMENTED_WRITING_ERROR,
+            })
+        });
 
 }
 
-export const saveResponse = (writingId, content, parentCommentId, commenterId, parents) => async dispatch => {
+export const saveResponse = (writingId, content, parentCommentId, commenter, parents) => async dispatch => {
     dispatch({type: RESPONDED_COMMENT_REQUEST});
     axios.post('/api/writings/response/', {
             writingId: writingId,
             content: content,
             parentCommentId: parentCommentId,
-            commenterId: commenterId,
+            commenterId: commenter.id,
         })
         .then(res => dispatch({
             type: RESPONDED_COMMENT_SUCCESS,
             payload: res.data,
             parents,
+            user: commenter,
         }))
         .catch(error => dispatch({
             type: RESPONDED_COMMENT_ERROR,

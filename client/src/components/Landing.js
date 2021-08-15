@@ -21,14 +21,10 @@ class Landing extends Component {
     componentDidUpdate(prevProps) {
         if(prevProps.writing.writings?.length < this.props.writing.writings?.length)
             this.setState({ incremented: false });
-        console.log(this.state.checkedAuth, this.state.initialLoad, this.props.location.search);
         if(this.props.auth.user && this.state.initialLoad) {
-            console.log('aca');
             if(this.props.location.search !== undefined && this.props.location.search !== '') {
-                console.log('aca 2');
                 this.props.getWritingsWithFiltersAndBlocked(this.props.location.search.split('?')[1], this.props.auth.user.id, this.state.pageNumber);
             } else {
-                console.log('getWritingsWithBlocked')
                 this.props.getWritingsWithBlocked(this.props.auth.user.id, this.state.pageNumber);
             }
             this.setState({ initialLoad: false });

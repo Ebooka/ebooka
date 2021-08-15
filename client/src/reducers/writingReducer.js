@@ -124,13 +124,19 @@ export default function(state = initialState, action) {
                 respondedCommentLoading: true
             }
         case RESPONDED_COMMENT_SUCCESS:
+            const newComment = {
+                ...action.payload,
+                username: action.user.username,
+                profile_image: action.user.profile_image,
+                responses: []
+            };
             return {
                 ...state,
                 writings: state.writings.map(writing => {
                     if(writing.id === action.payload.writingId) {
                         return {
                             ...writing,
-                            comments: addCommentToThread(writing.comments, action.payload, action.parents),
+                            comments: addCommentToThread(writing.comments, newComment, action.parents),
                         };
                     } else {
                         return writing;
@@ -150,15 +156,21 @@ export default function(state = initialState, action) {
                 ...state,
                 commentedWritingLoading: true
             }
-        case COMMENTED_WRITING_SUCCESS:
+        case COMMENTED_WRITING_SUCCESS: {
+            const newComment = {
+                ...action.payload,
+                username: action.user.username,
+                profile_image: action.user.profile_image,
+                responses: []
+            };
             return {
                 ...state,
                 newComment: action.payload,
                 writings: state.writings.map(writing => {
-                    if(writing.id === action.payload.writingId) {
+                    if (writing.id === action.payload.writingId) {
                         return {
                             ...writing,
-                            comments: addCommentToThread(writing.comments, action.payload, action.parents),
+                            comments: addCommentToThread(writing.comments, newComment, action.parents, action.user),
                         };
                     } else {
                         return writing;
@@ -166,7 +178,8 @@ export default function(state = initialState, action) {
                 }),
                 commentedWritingLoading: false,
                 error: false
-            }
+            };
+        }
         case COMMENTED_WRITING_ERROR:
             return {
                 ...state,
@@ -300,8 +313,8 @@ export default function(state = initialState, action) {
 }
 
 const addCommentToThread = (comments, comment, parents) => {
-    console.log(comments, comment, parents, '<');
-    if(parents.length === 0) return [...comments, comment];
+    console.log(comments, comment, parents);
+    if(parents.length === 0) return comments ? [...comments, comment] : [comment];
     return comments.map(commentMap => {
         if(commentMap.id === parents[0]) {
             parents.splice(0, 1);

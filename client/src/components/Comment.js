@@ -13,6 +13,7 @@ import CommentResponseInput from "./CommentResponseInput";
 import {Modal, ModalBody, Spinner} from 'reactstrap';
 import '../style/Comments.css';
 import LikeRow from "./LikeRow";
+import CommentThread from './CommentThread';
 
 class Comment extends Component {
 
@@ -29,7 +30,8 @@ class Comment extends Component {
         deleteCommentLoading: false,
         openedResponses: false,
         loading: false,
-        newCommentLoading: false
+        newCommentLoading: false,
+        requestedResponses: false,
     }
 
     componentDidMount() {
@@ -39,7 +41,6 @@ class Comment extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log(this.props.current);
         if(prevProps.deleteCommentLoading !== this.props.deleteCommentLoading) {
             this.setState({ deleteCommentLoading: this.props.deleteCommentLoading });
         }
@@ -50,6 +51,9 @@ class Comment extends Component {
         }
         if(prevProps.respondedCommentLoading !== this.props.respondedCommentLoading) {
             this.setState({ newCommentLoading: this.props.respondedCommentLoading });
+        }
+        if(prevProps.gettingResponsesLoading && !this.props.gettingResponsesLoading && this.state.requestedResponses) {
+            this.setState({loading: false, requestedResponses: false});
         }
     }
 
@@ -74,7 +78,7 @@ class Comment extends Component {
     }
 
     getResponses = event => {
-        this.setState({ openedResponses: true });
+        this.setState({ openedResponses: true, loading: true, requestedResponses: true });
         this.props.getResponses(this.props.current.id, this.props.writingId, [...this.props.parents, this.props.current.id]);
     }
 
@@ -198,19 +202,15 @@ class Comment extends Component {
                         <Spinner color={'dark'} size={'sm'}/>
                     </div>
                 }
-                {   this.state.newCommentContent  &&
-                    !this.state.newCommentLoading &&
-                    this.props.newCommentResponse &&
-                    !this.props.error   &&
-                        <Comment  likeComment={this.props.likeComment}
-                                  current={this.props.newCommentResponse}
-                                  parents={[...this.props.parents, this.props.current.id]}
-                                  saveResponse={this.props.saveResponse}
-                                  auth={this.props.auth}
-                                  onDelete={this.props.onDelete}
-                                  deleteComment={this.props.deleteComment}
-                                  writingId={this.props.writingId}
-                                  depth={this.props.depth ? this.props.depth + 1 : 1}/>
+                {
+                    this.state.openedResponses &&
+                        <CommentThread
+                            comments={this.props.current.responses}
+                            loading={this.state.loading}
+                            depth={this.props.depth + 1}
+                            writingId={this.props.writingId}
+                            parents={[...this.props.parents, this.props.current.id]}
+                        />
                 }
                 {   this.state.wantsToRespond &&
                     <CommentResponseInput writingId={this.props.writingId}
@@ -227,23 +227,6 @@ class Comment extends Component {
                         <Spinner color={'dark'} size={'sm'}/>
                     </div>
                 }
-                {
-                    this.state.openedResponses &&
-                    !this.props.gettingResponsesLoading &&
-                    !this.props.gettingResponsesError &&
-                    this.props.current.responses.map((response, idx) => (
-                        <Comment current={response}
-                                likeComment={this.props.likeComment}
-                                parents={[...this.props.parents, this.props.id]}
-                                saveResponse={this.props.saveResponse}
-                                auth={this.props.auth}
-                                 writingId={this.props.writingId}
-                                onDelete={this.props.onDelete}
-                                deleteComment={this.props.deleteComment}
-                                getResponses={this.props.getResponses}
-                                depth={this.props.depth + 1}/>
-                    ))
-                }
                 <Modal toggle={this.triggerLikes} isOpen={this.state.likesModalIsOpen} style={{width: '70%',  position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%,0)'}}>
                     <ModalBody>
                         {   
@@ -258,7 +241,7 @@ class Comment extends Component {
                 </Modal>
                 <Modal toggle={this.triggerMoreOptions} isOpen={this.state.optionsModalIsOpen} style={{width: '70%',  position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%,0)'}}>
                     <ModalBody style={{textAlign: 'center', display: 'flex', flexDirection: 'column', padding: 0}}>
-                        { user && user.username === this.props.username &&
+                        { user && user.username === this.props.current.username &&
                             <button style={{color: 'red', backgroundColor: 'inherit', width: '100%', border: 'none', borderBottom: 'solid 1px #EDEDED', height: 60}}
                                     onClick={this.deleteComment}>
                                 { this.props.deleteCommentLoading ? <Spinner color={'danger'} size={'sm'}/> : <b>Eliminar</b>}

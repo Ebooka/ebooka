@@ -47,6 +47,7 @@ import {
 } from "@material-ui/icons";
 import ShareModal from "./ShareModal";
 import {withRouter} from 'react-router-dom';
+import CommentSection from './CommentSection';
 
 const iconPath = process.env.PUBLIC_URL + '/assets/';
 const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -651,7 +652,14 @@ class Writing extends Component {
                                 <Spinner size={'sm'}>{''}</Spinner>
                             </div>
                         }
-                        { this.state.commentToggled ? this.props.current.comments ? this.props.current.comments.length > 0 ?
+                        {
+                            this.state.commentToggled &&
+                                <CommentSection hasComments={this.props.current.comments && this.props.current.comments.length > 0}
+                                                writing={this.props.current}
+                                                trigger={this.triggerNewComment}
+                                />
+                        }
+                        {/*this.state.commentToggled ? this.props.current.comments ? this.props.current.comments.length > 0 ?
                             this.props.current.comments.map(comment => (
                             <Comment current={comment}
                                      //responses={comment.responses ?? []}
@@ -666,15 +674,16 @@ class Writing extends Component {
                                      depth={0}
                                      onDelete={this.handleDelete}
                             />
-                        )) : <p style={{fontFamily: 'Public Sans'}}>¡No hay comentarios todavía! Sé el primero en añadir uno.</p> : null : null}
-                        { this.state.commentToggled &&
+                        )) : <p style={{fontFamily: 'Public Sans'}}>¡No hay comentarios todavía! Sé el primero en añadir uno.</p> : null : null*/}
+                        {/* this.state.commentToggled &&
                             <CommentResponseInput  writingId={current.id}
                                                    commentId={null}
                                                    depth={0}
                                                    trigger={this.triggerNewComment}
                                                    parents={[]}
-                                                   auth={this.props.auth}/>
+                                                   auth={this.props.auth}/>*/
                         }
+
                     </div>
                 </Card>
                 <Modal isOpen={this.state.toggleReadMore} toggle={this.toggleReadMore} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', width: '50%'}}>
