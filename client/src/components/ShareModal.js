@@ -1,6 +1,7 @@
 import {Alert, Modal, ModalBody, ModalHeader} from "reactstrap";
 import {FacebookShareButton, TwitterShareButton, WhatsappShareButton} from "react-share";
 import React, {useState} from "react";
+import {withRouter, useHistory} from 'react-router-dom';
 
 const ShareModal = ({
     isOpen,
@@ -9,17 +10,12 @@ const ShareModal = ({
 }) => {
 
     const [success, setSuccess] = useState(false);
-
+    const history = useHistory();
     const copyLinkToClipboard = (event) => {
         event.preventDefault();
         event.stopPropagation();
-        let dummyInput = document.createElement('textarea');
-        dummyInput.value = window.location.href + 'read/' + currentId;
-        document.body.appendChild(dummyInput);
-        dummyInput.select();
-        dummyInput.focus();
-        document.execCommand('copy');
-        setSuccess(true);
+        navigator.clipboard.writeText(`${window.location.host}/read/${currentId}`)
+            .then(() => setSuccess(true));
     }
 
     return (
@@ -30,13 +26,13 @@ const ShareModal = ({
             <ModalHeader toggle={toggleShareModal}>Compartir escrito</ModalHeader>
             <ModalBody id="modal-share-body">
                 <div style={{display: 'flex', flexDirection: 'row', width: 300, justifyContent: 'space-evenly'}}>
-                    <FacebookShareButton url={'http://somosebooka.com/read/' + currentId}>
+                    <FacebookShareButton url={`${window.location.host}/read/${currentId}`}>
                         <p className="fa fa-facebook" style={{fontSize: 25}}/>
                     </FacebookShareButton>
-                    <TwitterShareButton url={'http://somosebooka.com/read/' + currentId}>
+                    <TwitterShareButton url={`${window.location.host}/read/${currentId}`}>
                         <p className="fa fa-twitter" style={{fontSize: 25}}/>
                     </TwitterShareButton>
-                    <WhatsappShareButton url={'http://somosebooka.com/read/' + currentId}>
+                    <WhatsappShareButton url={`${window.location.host}/read/${currentId}`}>
                         <p className="fa fa-whatsapp" style={{fontSize: 24}}/>
                     </WhatsappShareButton>
                     <div onClick={copyLinkToClipboard} id="copy-link">
@@ -49,4 +45,4 @@ const ShareModal = ({
     );
 }
 
-export default ShareModal;
+export default withRouter(ShareModal);

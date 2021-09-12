@@ -48,6 +48,7 @@ import {
 import ShareModal from "./ShareModal";
 import {withRouter} from 'react-router-dom';
 import CommentSection from './CommentSection';
+import {modalStyle} from '../static/styleModal';
 
 const iconPath = process.env.PUBLIC_URL + '/assets/';
 const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -194,10 +195,12 @@ class Writing extends Component {
     likePressed = (event) => {
         event.preventDefault();
         event.stopPropagation();
+        if(this.props.loading) return;
         let current = this.props.current;
         let likeButton = document.getElementById(`like-icon${this.props.current.id}`);
         let likeAmountString = document.getElementById(`like-amount${this.props.current.id}`);
         let id = this.props.auth.user.id;
+        debugger
         if(!current.likes || !current.likes.includes(id)) {
             likeButton.src = `${iconPath}like-full.png`;
             likeAmountString.innerHTML = parseInt(likeAmountString.innerHTML) + 1;
@@ -207,36 +210,6 @@ class Writing extends Component {
             likeAmountString.innerHTML = parseInt(likeAmountString.innerHTML) - 1;
             this.props.unlikeWriting(current.id, this.props.auth.user.id);
         }
-    }
-
-    copyLinkToClipboard = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        let dummyInput = document.createElement('textarea');
-        dummyInput.value = window.location.href + 'read/' + this.props.current.id;
-        document.body.appendChild(dummyInput);
-        dummyInput.select();
-        dummyInput.focus();
-        document.execCommand('copy');
-        document.body.removeChild(dummyInput);
-        let alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-success alert dismissible fade show';
-        alertDiv.id = `alert-${this.props.current.id}`;
-        alertDiv.setAttribute('role', 'alert');
-        alertDiv.innerText = 'El enlace se ha guardado en el portapapeles!';
-        let button = document.createElement('button');
-        button.className = 'close';
-        button.setAttribute('type', 'button');
-        button.setAttribute('data-dismiss', 'alert');
-        button.setAttribute('aria-label', 'Close');
-        let span = document.createElement('span');
-        span.innerHTML = '&times;';
-        span.setAttribute('aria-hidden', 'true');
-        button.appendChild(span);
-        alertDiv.appendChild(button);
-        let jumbotron = document.getElementById(`main${this.props.current.id}`);
-        jumbotron.appendChild(alertDiv);
-        this.toggleShareModal(event);
     }
 
     getWritingLikers = id => {
@@ -590,7 +563,7 @@ class Writing extends Component {
                                                         <p>{`Bloquear a ${current.username}`}</p>
                                                     </div>
                                                 </DropdownItem>
-                                                <Modal isOpen={this.state.confirmBlockModalIsOpen} toggle={this.toggleConfirmBlockModal}>
+                                                <Modal isOpen={this.state.confirmBlockModalIsOpen} toggle={this.toggleConfirmBlockModal} style={modalStyle}>
                                                     <ModalHeader>{`¿Estás seguro que deseas bloquear a ${current.username}?`}</ModalHeader>
                                                     <ModalBody>
                                                         <p>No te preocupes, puedes desbloquear a un usuario en cualquier momento desde tu configuración.</p>
@@ -659,31 +632,6 @@ class Writing extends Component {
                                                 trigger={this.triggerNewComment}
                                 />
                         }
-                        {/*this.state.commentToggled ? this.props.current.comments ? this.props.current.comments.length > 0 ?
-                            this.props.current.comments.map(comment => (
-                            <Comment current={comment}
-                                     //responses={comment.responses ?? []}
-                                     parents={[]}
-                                     //likes={comment.likes ? comment.likes : []}
-                                     writingId={current.id}
-                                     //commentId={comment.id}
-                                     //image={comment.profile_image}
-                                     auth={this.props.auth}
-                                     //username={comment.username}
-                                     //content={comment.content}
-                                     depth={0}
-                                     onDelete={this.handleDelete}
-                            />
-                        )) : <p style={{fontFamily: 'Public Sans'}}>¡No hay comentarios todavía! Sé el primero en añadir uno.</p> : null : null*/}
-                        {/* this.state.commentToggled &&
-                            <CommentResponseInput  writingId={current.id}
-                                                   commentId={null}
-                                                   depth={0}
-                                                   trigger={this.triggerNewComment}
-                                                   parents={[]}
-                                                   auth={this.props.auth}/>*/
-                        }
-
                     </div>
                 </Card>
                 <Modal isOpen={this.state.toggleReadMore} toggle={this.toggleReadMore} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', width: '50%'}}>
@@ -749,6 +697,7 @@ const mapStateToProps = state => ({
     likers: state.writing.likers,
     gettingCommentsLoading: state.writing.gettingCommentsLoading,
     gettingCommentsError: state.writing.gettingCommentsError,
+    loading: state.writing.loading,
 });
 
 export default connect(mapStateToProps, { likeWriting, unlikeWriting, saveComment, follow, unfollow, deleteWriting, block, createTagNotification, addToFavourites, removeFromFavourites, getWritingLikers, getComments, setCurrentWriting })(withRouter(Writing));

@@ -11,6 +11,7 @@ import CommentResponseInput from "./CommentResponseInput";
 import {getWritingLikers, likeWriting, saveComment, unlikeWriting} from "../actions/writingActions";
 import LikersModal from "./LikersModal";
 import ShareModal from "./ShareModal";
+import CommentSection from './CommentSection';
 
 const iconPath = process.env.PUBLIC_URL + '/assets/';
 
@@ -130,8 +131,12 @@ class WritingData extends Component {
 
             <div id={`toggle-comment-area${this.props.data.id}`} style={{display: 'none', textAlign: 'left', margin: 5}}>
                 {
-                    this.state.lastComments && this.state.lastComments.length > 0 &&
-                    this.state.lastComments.map((comment, idx) =>
+                    this.state.commentToggled &&
+                        <CommentSection writing={this.props.data}
+                                        hasComments={this.props.data.comments?.length > 0}
+                                        trigger={this.preventEnter}
+                        />
+                    /*this.state.lastComments.map((comment, idx) =>
                         <Comment parent={null}
                                  commentId={comment.id}
                                  username={comment.username}
@@ -142,9 +147,9 @@ class WritingData extends Component {
                                  onDelete={this.handleDelete}
                                  likes={this.state.lastCommentsLikes && this.state.lastCommentsLikes[idx] ? this.state.lastCommentsLikes[idx] : []}
                                  responses={this.state.lastCommentsResponses && this.state.lastCommentsResponses[idx] ? this.state.lastCommentsResponses[idx] : []} />
-                    )
+                    )*/
                 }
-                <div id={`new-comment${this.props.data.id}`} style={{display: 'none', marginLeft: 'auto', marginRight: 'auto', margin: 5, zIndex: 10}}>
+                {/*<div id={`new-comment${this.props.data.id}`} style={{display: 'none', marginLeft: 'auto', marginRight: 'auto', margin: 5, zIndex: 10}}>
                     <img id={`new-commenter-profile-image${this.props.data.id}`} src="" width="35" height="35" style={{border: '1px solid black', borderRadius: '50%'}} alt={'alt'}/>
                     <div id="comment-bubble" style={{marginLeft: 10, backgroundColor: '#E9ECEF', border: 'solid 1px #E0ECEF', borderRadius: 5, width: '100%'}}>
                         <a href="#" id={`new-commenter-username${this.props.data.id}`} style={{fontFamily: 'Public Sans'}}/>
@@ -155,7 +160,7 @@ class WritingData extends Component {
                     <FormGroup>
                         <Input type="text" name={`comment${this.props.data.id}`} id={`comment${this.props.data.id}`} placeholder="Dejá tu comentario aquí" onChange={this.commentTyped} />
                     </FormGroup>
-                </Form>
+                </Form>*/}
             </div>
         </div>
     );
@@ -219,7 +224,7 @@ class WritingData extends Component {
             this.setState({
                 commentToggled: !this.state.commentToggled,
             });
-            this.getAllComments(this.props.data.id);
+            //this.getAllComments(this.props.data.id);
         }
     }
 

@@ -1,0 +1,11 @@
+#cookies-container,
+#terms-container {
+    width: 100% !important;
+}
+
+.text-container {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 50px;
+}

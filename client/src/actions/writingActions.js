@@ -4,6 +4,7 @@ import {
     WRITINGS_LOADING,
     GET_WRITING,
     LIKED_WRITING,
+    LIKED_WRITING_REQUEST,
     UNLIKED_WRITING,
     GET_WRITINGS_PREVIEW,
     DELETE_DRAFT,
@@ -38,7 +39,7 @@ import {
     GET_INDIVIDUAL_WRITING_ERROR,
     EDIT_WRITING,
     EDIT_WRITING_SUCCESS,
-    EDIT_WRITING_ERROR,
+    EDIT_WRITING_ERROR, UNLIKED_WRITING_REQUEST,
 } from './types';
 import axios from 'axios';
 import { returnErrors } from './errorActions';
@@ -169,6 +170,7 @@ export const unlikeComment = (commentId, likerId, writingId) => dispatch => {
 
 export const likeWriting = (writingId, likerId) => dispatch => {
     dispatch(setWritingsLoading());
+    dispatch({type: LIKED_WRITING_REQUEST});
     axios.put('/api/writings/like/', {
             writingId: writingId,
             likerId: likerId
@@ -182,6 +184,7 @@ export const likeWriting = (writingId, likerId) => dispatch => {
 
 export const unlikeWriting = (writingId, likerId) => dispatch => {
     dispatch(setWritingsLoading());
+    dispatch({type: UNLIKED_WRITING_REQUEST})
     axios.put('/api/writings/unlike/', {
             writingId: writingId,
             likerId: likerId

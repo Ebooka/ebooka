@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import { connect } from 'react-redux';
 import { getLikedPosts } from '../actions/userActions';
+import {modalStyle} from '../static/styleModal';
+import {withRouter} from 'react-router-dom';
 
 class LikedPosts extends Component {
 
@@ -18,6 +20,8 @@ class LikedPosts extends Component {
         });
     }
 
+    redirectToWriting = id => this.props.history.push(`/read/${id}`);
+
     render() {
         return (
             <>
@@ -25,11 +29,14 @@ class LikedPosts extends Component {
                     <p style={sansStyle}>Likes</p>
                     <p style={sansStyle}>{this.props.liked_posts ? this.props.liked_posts.length : 0}</p>
                 </div>
-                <Modal isOpen={this.state.modal} toggle={this.toggle}>
+                <Modal isOpen={this.state.modal} toggle={this.toggle} style={modalStyle}>
                     <ModalHeader toggle={this.toggle}>Escritos likeados</ModalHeader>
                     <ModalBody>
-                        {this.props.posts ? this.props.posts.map(post => (<p>{post.title}</p>)) :
-                                                    <p>No te gusta ningún escrito todavía.</p>}
+                        {
+                            this.props.posts ?
+                                this.props.posts.map(post => (<a href={''} onClick={() => this.redirectToWriting(post.id)}>{post.title}</a>)) :
+                                <p>No te gusta ningún escrito todavía.</p>
+                        }
                     </ModalBody>
                 </Modal>
             </>
@@ -45,4 +52,4 @@ const sansStyle = {
     fontFamily: 'Public Sans'
 }
 
-export default connect(mapStateToProps, { getLikedPosts })(LikedPosts);
+export default connect(mapStateToProps, { getLikedPosts })(withRouter(LikedPosts));

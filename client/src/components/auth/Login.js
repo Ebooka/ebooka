@@ -123,7 +123,7 @@ class Login extends Component {
         return (
             <div>
                 <NavLink onClick={this.toggle} href="#">Ingresá</NavLink>
-                <Modal isOpen={this.state.modal} toggle={this.toggle} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', width: '100%', overflowY: 'scroll', maxHeight: '85%'}}>
+                <Modal isOpen={this.state.modal} toggle={this.toggle} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', width: '100%', maxHeight: '85%'}}>
                     <ModalHeader toggle={this.toggle}>Ingresá tus datos</ModalHeader>
                     <ModalBody>
                         <Form>

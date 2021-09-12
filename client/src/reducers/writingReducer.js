@@ -30,9 +30,10 @@ import {
     GET_RESPONSES_ERROR,
     SET_CURRENT_WRITING,
     GET_INDIVIDUAL_WRITING,
-    GET_INDIVIDUAL_WRITING_SUCCESS, GET_INDIVIDUAL_WRITING_ERROR
+    GET_INDIVIDUAL_WRITING_SUCCESS, GET_INDIVIDUAL_WRITING_ERROR, LIKED_WRITING_REQUEST, UNLIKED_WRITING_REQUEST
 } from '../actions/types';
 import {REHYDRATE} from "redux-persist/es/constants";
+import {whenMapStateToPropsIsMissing} from 'react-redux/lib/connect/mapStateToProps';
 
 const initialState = {
     writings: null,
@@ -101,19 +102,21 @@ export default function(state = initialState, action) {
                 ...state,
                 loading: false,
             };
-        case LIKED_WRITING:
-        case UNLIKED_WRITING:
-            let { writings } = state;
-            let updatedWriting = action.payload;
-            let index = -1;
-            for(let i = 0 ; i < writings.length && index < 0; i++) {
-                if(writings[i].id === updatedWriting.id)
-                    index = i;
-            }
-            writings[index] = updatedWriting;
+        case UNLIKED_WRITING_REQUEST:
+        case LIKED_WRITING_REQUEST:
             return {
                 ...state,
-                writings: writings,
+                loading: true,
+            };
+        case LIKED_WRITING:
+        case UNLIKED_WRITING:
+            return {
+                ...state,
+                writings: state.writings.map(writing => {
+                    if(writing.id === action.payload.id)
+                        return action.payload;
+                    return writing;
+                }),
                 loading: false,
                 commentedWritingLoading: false,
                 error: false,

@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import { connect } from 'react-redux';
 import { getFollowersByUsername, getFollowersById } from '../actions/userActions';
+import {modalStyle} from '../static/styleModal';
+import LikeRow from './LikeRow';
 
 class Followers extends Component {
 
@@ -28,10 +30,10 @@ class Followers extends Component {
                     <p style={sansStyle}>Seguidores</p>
                     <p style={sansStyle} id="followers">{this.props.followers ? this.props.followers.length : 0}</p>
                 </div>
-                <Modal isOpen={this.state.modal} toggle={this.toggle}>
+                <Modal isOpen={this.state.modal} toggle={this.toggle} style={modalStyle}>
                     <ModalHeader toggle={this.toggle}>Seguidores</ModalHeader>
                     <ModalBody>
-                        {this.props.accounts ? this.props.accounts.map(follower => (<><a href={`/user/${follower.username}`}>{follower.username}</a><br></br></>)) :
+                        {this.props.accounts ? this.props.accounts.map(follower => <LikeRow like={follower}/>) :
                                                     <p>No te sigue ninguna cuenta todavía.</p>}
                     </ModalBody>
                 </Modal>

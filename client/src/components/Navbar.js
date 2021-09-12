@@ -127,7 +127,8 @@ class Navbar extends Component {
                         <BorderColorOutlined />
                     </button>
                 </div>
-                <Modal isOpen={this.state.forceLogin} toggle={this.forceLogin} style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', overflowY: 'scroll', maxHeight: '85%'}}>
+                <Modal isOpen={this.state.forceLogin} toggle={this.forceLogin}
+                       style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)'}}>
                     <ModalHeader>Para escribir, creá tu cuenta o ingresá</ModalHeader>
                     <ModalBody>¡Iniciá sesión para seguir descubriendo contenido!</ModalBody>
                     <ModalFooter>

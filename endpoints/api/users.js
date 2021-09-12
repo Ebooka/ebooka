@@ -283,7 +283,7 @@ router.put('/unfollow', (req, res) => {
 
 router.get('/followed_accounts/:id', (req, res) => {
     try {
-        const query = 'SELECT username FROM users WHERE id IN (SELECT unnest(followed_users) FROM users WHERE id = $1);';
+        const query = 'SELECT username, profile_image FROM users WHERE id IN (SELECT unnest(followed_users) FROM users WHERE id = $1);';
         pool.query(query, [req.params.id], (error, results) => {
             if (error)
                 res.status(400).json({msg: 'Error buscando seguidos'});
@@ -296,7 +296,7 @@ router.get('/followed_accounts/:id', (req, res) => {
 
 router.get('/followed_accounts_by_username/:username', (req, res) => {
     try {
-        const query = 'SELECT username FROM users WHERE id IN (SELECT unnest(followed_users) FROM users WHERE username = $1);';
+        const query = 'SELECT username, profile_image FROM users WHERE id IN (SELECT unnest(followed_users) FROM users WHERE username = $1);';
         pool.query(query, [req.params.username.toString()], (error, results) => {
             if (error)
                 res.status(400).json({msg: 'Error buscando seguidos'});
@@ -309,7 +309,7 @@ router.get('/followed_accounts_by_username/:username', (req, res) => {
 
 router.get('/followers/:id', (req, res) => {
     try {
-        const query = 'SELECT username FROM users WHERE id IN (SELECT unnest(followers) FROM users WHERE id = $1);';
+        const query = 'SELECT username, profile_image FROM users WHERE id IN (SELECT unnest(followers) FROM users WHERE id = $1);';
         pool.query(query, [req.params.id], (error, results) => {
             if (error)
                 res.status(400).json({msg: 'Error buscando seguidores'});
@@ -322,7 +322,7 @@ router.get('/followers/:id', (req, res) => {
 
 router.get('/followers_by_username/:username', (req, res) => {
     try {
-        const query = 'SELECT username FROM users WHERE id IN (SELECT unnest(followers) FROM users WHERE username = $1);';
+        const query = 'SELECT username, profile_image FROM users WHERE id IN (SELECT unnest(followers) FROM users WHERE username = $1);';
         pool.query(query, [req.params.username.toString()], (error, results) => {
             if (error)
                 res.status(400).json({msg: 'Error buscando seguidores'});
@@ -335,7 +335,7 @@ router.get('/followers_by_username/:username', (req, res) => {
 
 router.get('/liked_posts/:id', (req, res) => {
     try {
-        const query = 'SELECT w.title, w.likes, w.comments, u.username FROM writings AS w JOIN users AS u ON w.writer_id = u.id WHERE w.id IN (SELECT unnest(liked_posts) FROM users WHERE id = $1);';
+        const query = 'SELECT w.title, w.id, w.likes, w.comments, u.username FROM writings AS w JOIN users AS u ON w.writer_id = u.id WHERE w.id IN (SELECT unnest(liked_posts) FROM users WHERE id = $1);';
         pool.query(query, [req.params.id], (error, results) => {
             if (error)
                 res.status(400).json({msg: 'Error buscando posts likeados'});
