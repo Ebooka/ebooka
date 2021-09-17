@@ -39,12 +39,12 @@ class Notification extends Component {
             const index = this.state.followedUsers.indexOf(id);
             copy.splice(index, 1);
             this.setState({ followButtonText: 'Seguir' });
-            this.props.unfollow(username, this.props.auth.user.id);
+            this.props.unfollow(id, username, this.props.auth.user.id);
         } else {
             copy.push(id);
             followButton.innerText = 'Dejar de seguir';
             this.setState({ followButtonText: 'Dejar de seguir' });
-            this.props.follow(username, this.props.auth.user.id);
+            this.props.follow(id, username, this.props.auth.user.id);
         }
         this.setState({ followedUsers: copy });
     }

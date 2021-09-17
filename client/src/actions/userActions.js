@@ -12,7 +12,12 @@ import {
     BLOCKED_USER,
     UNBLOCKED_USER,
     ADD_TO_FAVOURITE,
-    REMOVE_FROM_FAVOURITES, UPDATE_USER_SUCCESS, UPDATE_USER_ERROR, UPDATE_USER
+    REMOVE_FROM_FAVOURITES,
+    UPDATE_USER_SUCCESS,
+    UPDATE_USER_ERROR,
+    UPDATE_USER,
+    FOLLOWED_USER_REQUEST,
+    UNFOLLOWED_USER_REQUEST
 } from './types';
 
 export const getUser = (username) => dispatch => {
@@ -39,8 +44,9 @@ export const updateUser = (data, id) => dispatch => {
         .catch(error => dispatch(({type: UPDATE_USER_ERROR})));
 }
 
-export const follow = (username, followerId) => dispatch => {
+export const follow = (followedId, username, followerId) => dispatch => {
     dispatch(setGettingUser());
+    dispatch({type: FOLLOWED_USER_REQUEST, followedId});
     axios.put('/api/users/follow', {
             username: username,
             followerId: followerId
@@ -52,8 +58,9 @@ export const follow = (username, followerId) => dispatch => {
         .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
 };
 
-export const unfollow = (username, unfollowerId) => dispatch => {
+export const unfollow = (unfollowedId, username, unfollowerId) => dispatch => {
     dispatch(setGettingUser());
+    dispatch({type: UNFOLLOWED_USER_REQUEST, unfollowedId});
     axios.put('/api/users/unfollow', {
             username: username,
             unfollowerId: unfollowerId

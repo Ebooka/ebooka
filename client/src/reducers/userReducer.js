@@ -12,8 +12,9 @@ import {
     ADD_TO_FAVOURITE,
     REMOVE_FROM_FAVOURITES,
     UPDATE_USER_SUCCESS,
-    UPDATE_USER_ERROR, UPDATE_USER
+    UPDATE_USER_ERROR, UPDATE_USER, UNFOLLOWED_USER_REQUEST, FOLLOWED_USER_REQUEST
 } from '../actions/types';
+import {REHYDRATE} from 'redux-persist/es/constants';
 
 const initialState = {
     user: null,
@@ -76,6 +77,10 @@ export default function (state = initialState, action) {
                 ...state,
                 loading: false,
                 updateUserError: true,
+            };
+        case REHYDRATE:
+            return {
+                loading: false,
             };
         default:
             return state;

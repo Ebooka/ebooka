@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { Spinner } from 'reactstrap';
 import BlockedAccount from './BlockedAccount';
+import '../style/BlockedAccountsList.css';
 
 export class BlockedAccountsList extends Component {
     
@@ -26,11 +26,13 @@ export class BlockedAccountsList extends Component {
 
     showAccounts = () => {
         if(this.state.blockedAccounts.length > 0) {
-            return <div>{
+            return <div className={'blocked-accounts-container'}>
+                {
                         this.state.blockedAccounts.map(account => (
                             <BlockedAccount account={account} action={this.remove}/>
                         ))
-                    }</div>;
+                }
+            </div>;
             
         } else {
             return <h3>No hay cuentas bloqueadas</h3>

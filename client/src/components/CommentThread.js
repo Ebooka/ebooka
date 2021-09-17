@@ -8,6 +8,8 @@ const CommentThread = ({
     depth,
     writingId,
     parents,
+    triggerDelete,
+    trigger
 }) => {
 
     return (
@@ -26,6 +28,8 @@ const CommentThread = ({
                                          writingId={writingId}
                                          parents={parents}
                                          depth={depth}
+                                         triggerDelete={triggerDelete}
+                                         trigger={trigger}
                                 />
                             )
                         }

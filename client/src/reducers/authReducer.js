@@ -10,7 +10,7 @@ import {
     UPDATED_USER,
     SEND_PASSWORD_EMAIL,
     SEND_PASSWORD_EMAIL_SUCCESS,
-    SEND_PASSWORD_EMAIL_ERROR
+    SEND_PASSWORD_EMAIL_ERROR, UNFOLLOWED_USER_REQUEST, FOLLOWED_USER_REQUEST, FOLLOWED_USER, UNFOLLOWED_USER
 } from '../actions/types';
 
 const initialState = {
@@ -26,6 +26,30 @@ const initialState = {
 
 export default function (state = initialState, action) {
     switch(action.type) {
+        case UNFOLLOWED_USER_REQUEST:
+            return {
+                ...state,
+                isLoading: true,
+                user: {
+                    ...state.user,
+                    followed_users: state.user.followed_users.filter(userId => userId !== action.unfollowedId),
+                },
+            };
+        case FOLLOWED_USER_REQUEST:
+            return {
+                ...state,
+                isLoading: true,
+                user: {
+                    ...state.user,
+                    followed_users: [...state.user.followed_users, action.followedId],
+                },
+            };
+        case FOLLOWED_USER:
+        case UNFOLLOWED_USER:
+            return {
+                ...state,
+                isLoading: false,
+            };
         case USER_LOADING:
             return {
                 ...state,

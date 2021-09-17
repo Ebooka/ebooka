@@ -39,7 +39,7 @@ import {
     GET_INDIVIDUAL_WRITING_ERROR,
     EDIT_WRITING,
     EDIT_WRITING_SUCCESS,
-    EDIT_WRITING_ERROR, UNLIKED_WRITING_REQUEST,
+    EDIT_WRITING_ERROR, UNLIKED_WRITING_REQUEST, LIKED_COMMENT_REQUEST, UNLIKED_COMMENT_REQUEST,
 } from './types';
 import axios from 'axios';
 import { returnErrors } from './errorActions';
@@ -141,8 +141,9 @@ export const editWriting = (writingId, data) => dispatch => {
         .catch(err => dispatch({ type: EDIT_WRITING_ERROR }));
 }
 
-export const likeComment = (commentId, likerId, writingId) => dispatch => {
+export const likeComment = (commentId, likerId, writingId, parents) => dispatch => {
     dispatch(setWritingsLoading());
+    dispatch({ type: LIKED_COMMENT_REQUEST, commentId, likerId, writingId, parents });
     axios.put('/api/writings/comment-like/', {
         writingId: writingId,
         likerId: likerId,
@@ -155,8 +156,9 @@ export const likeComment = (commentId, likerId, writingId) => dispatch => {
         .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
 }
 
-export const unlikeComment = (commentId, likerId, writingId) => dispatch => {
+export const unlikeComment = (commentId, likerId, writingId, parents) => dispatch => {
     dispatch(setWritingsLoading());
+    dispatch({ type: UNLIKED_COMMENT_REQUEST, commentId, likerId, writingId, parents });
     axios.put('/api/writings/comment-unlike/', {
         writingId: writingId,
         likerId: likerId,

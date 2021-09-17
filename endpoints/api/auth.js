@@ -99,7 +99,7 @@ router.get('/', auth, (req, res) => {
     try {
         const username = req.header('x-auth-username');
         if (username) {
-            const query = 'SELECT id, name, username, email, liked_posts, followers, followed_users, role, writings, favourites, drafts, profile_image, biography, external_account, likes_notif_active, comments_notif_active, follows_notif_active, tags_notif_active FROM users WHERE username = $1;';
+            const query = 'SELECT id, name, username, email, liked_posts, followers, blocked_accounts, followed_users, role, writings, favourites, drafts, profile_image, biography, external_account, likes_notif_active, comments_notif_active, follows_notif_active, tags_notif_active FROM users WHERE username = $1;';
             pool.query(query, [username], (error, results) => {
                 if (error)
                     return res.status(404).json({msg: 'Usuario inexistente'});

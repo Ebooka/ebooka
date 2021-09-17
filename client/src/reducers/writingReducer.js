@@ -30,7 +30,11 @@ import {
     GET_RESPONSES_ERROR,
     SET_CURRENT_WRITING,
     GET_INDIVIDUAL_WRITING,
-    GET_INDIVIDUAL_WRITING_SUCCESS, GET_INDIVIDUAL_WRITING_ERROR, LIKED_WRITING_REQUEST, UNLIKED_WRITING_REQUEST
+    GET_INDIVIDUAL_WRITING_SUCCESS,
+    GET_INDIVIDUAL_WRITING_ERROR,
+    LIKED_WRITING_REQUEST,
+    UNLIKED_WRITING_REQUEST,
+    LIKED_COMMENT_REQUEST, UNLIKED_COMMENT_REQUEST
 } from '../actions/types';
 import {REHYDRATE} from "redux-persist/es/constants";
 import {whenMapStateToPropsIsMissing} from 'react-redux/lib/connect/mapStateToProps';
@@ -108,6 +112,34 @@ export default function(state = initialState, action) {
                 ...state,
                 loading: true,
             };
+        case LIKED_COMMENT_REQUEST:
+            return {
+                ...state,
+                writings: state.writings.map(writing => {
+                    if(writing.id === action.writingId) {
+                        return {
+                            ...writing,
+                            comments: updateCommentLikes(writing.comments, action.likerId, action.commentId, action.parents, 'LIKE'),
+                        }
+                    } else {
+                        return writing;
+                    }
+                })
+            }
+        case UNLIKED_COMMENT_REQUEST:
+            return {
+                ...state,
+                writings: state.writings.map(writing => {
+                    if(writing.id === action.writingId) {
+                        return {
+                            ...writing,
+                            comments: updateCommentLikes(writing.comments, action.likerId, action.commentId, action.parents, 'UNLIKE'),
+                        };
+                    } else {
+                        return writing;
+                    }
+                })
+            }
         case LIKED_WRITING:
         case UNLIKED_WRITING:
             return {
@@ -316,7 +348,6 @@ export default function(state = initialState, action) {
 }
 
 const addCommentToThread = (comments, comment, parents) => {
-    console.log(comments, comment, parents);
     if(parents.length === 0) return comments ? [...comments, comment] : [comment];
     return comments.map(commentMap => {
         if(commentMap.id === parents[0]) {
@@ -332,6 +363,7 @@ const addCommentToThread = (comments, comment, parents) => {
 }
 
 const deleteCommentFromThread = (comments, commentId, parents) => {
+    console.log(comments, commentId, parents);
     if(parents.length === 0) {
         return comments.filter(comment => comment.id !== commentId);
     }
@@ -349,7 +381,6 @@ const deleteCommentFromThread = (comments, commentId, parents) => {
 }
 
 const queueCommentToThread = (comments, callerCommentId, payload, parents) => {
-    console.log(comments, callerCommentId, payload, parents);
     if(parents.length === 0) {
         return payload;
     }
@@ -362,6 +393,33 @@ const queueCommentToThread = (comments, callerCommentId, payload, parents) => {
             };
         } else {
             return oldComment;
+        }
+    });
+}
+
+const updateCommentLikes = (comments, likerId, commentId, parents, type) => {
+    if(parents.length === 0) {
+        return comments.map(comment => {
+            if(comment.id === commentId) {
+                return {
+                    ...comment,
+                    likes: type === 'UNLIKE' ? comment.likes.filter(id => id !== likerId) :
+                        comment.likes ? [...comment.likes, likerId] : [likerId],
+                };
+            } else {
+                return comment;
+            }
+        })
+    }
+    return comments.map(comment => {
+        if (comment.id === parents[0]) {
+            parents.splice(0, 1);
+            return {
+                ...comment,
+                responses: updateCommentLikes(comment.responses, likerId, commentId, parents, type),
+            };
+        } else {
+            return comment;
         }
     });
 }

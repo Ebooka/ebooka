@@ -9,6 +9,7 @@ import { Container, Spinner, Button, Modal, ModalHeader, ModalBody } from 'react
 import axios from 'axios';
 import ModalFooter from 'reactstrap/lib/ModalFooter';
 import {MoreHorizOutlined} from "@material-ui/icons";
+import {modalStyle} from '../static/styleModal';
 
 const iconPath = process.env.PUBLIC_URL + '/assets/';
 
@@ -29,7 +30,7 @@ class User extends Component {
         if(this.props.auth.user !== prevProps.auth.user && this.props.auth.user.username === username) {
                 window.location.href = `/profile/${username}`;
         }
-        if(this.props.user !== prevProps.user) {
+        if(this.props.user !== prevProps.user && !this.props.auth.user.blocked_accounts?.includes(this.props.user.id)) {
             axios.get(`/api/users/profile_image/${username}`)
             .then(res => {
                 let image = document.getElementById('profile-image');
@@ -45,16 +46,25 @@ class User extends Component {
         let followersElement = document.getElementById('followers');
         if(followers && followers.includes(this.props.auth.user.id)) {
             followersElement.innerHTML = parseInt(followersElement.innerHTML) - 1;
-            this.props.unfollow(this.props.user.username, this.props.auth.user.id);
+            this.props.unfollow(this.props.user.id, this.props.user.username, this.props.auth.user.id);
         } else {
             followersElement.innerHTML = parseInt(followersElement.innerHTML) + 1;
-            this.props.follow(this.props.user.username, this.props.auth.user.id);
+            this.props.follow(this.props.user.id, this.props.user.username, this.props.auth.user.id);
         }
     }
 
     followButton = () => {
         let { followers } = this.props.user;
-        return ( <Button style={{marginBottom: 20, backgroundColor: '#3B52A5', borderColor: '#3B52A5', color: 'white'}} onClick={this.toggleFollow}>{followers && followers.includes(this.props.auth.user.id) ? 'Dejar de seguir' : 'Seguir'}</Button> );
+        return  <Button style={{marginBottom: 20, backgroundColor: '#3B52A5', borderColor: '#3B52A5', color: 'white'}}
+                         disabled={this.props.isLoading}
+                         onClick={this.toggleFollow}>
+                    {this.props.isLoading ?
+                        <Spinner size={'sm'} color={'light'}>{''}</Spinner> :
+                        followers && followers.includes(this.props.auth.user.id) ?
+                            'Dejar de seguir' :
+                            'Seguir'
+                    }
+        </Button>;
     }
 
     toggleConfirmBlockModal = () => {
@@ -82,7 +92,8 @@ class User extends Component {
                     {/*<img src="/assets/more-dots.png" width="30" height="30"/>*/}
                     <MoreHorizOutlined />
                 </Button>
-                <Modal isOpen={this.state.isBlockModalOpen} toggle={this.toggleBlockModal} style={{position: 'fixed', top: '25%', left: '50%', transform: 'translate(-50%, 0)', width: 400}}>
+                <Modal isOpen={this.state.isBlockModalOpen}
+                       toggle={this.toggleBlockModal} style={{position: 'fixed', top: '25%', left: '50%', transform: 'translate(-50%, 0)', width: 400}}>
                     <ModalBody style={{textAlign: 'center'}}>
                         <a href="#" onClick={this.toggleConfirmBlockModal} style={{color: 'red'}}><strong>{`Bloquear a ${this.props.user.username}`}</strong></a>
                     </ModalBody>
@@ -90,7 +101,7 @@ class User extends Component {
                         <a href="#" onClick={this.toggleBlockModal}>Cancelar</a>
                     </ModalFooter>
                 </Modal>
-                <Modal isOpen={this.state.isConfirmationModalOpen} toggle={this.toggleConfirmBlockModal}>
+                <Modal isOpen={this.state.isConfirmationModalOpen} toggle={this.toggleConfirmBlockModal} style={modalStyle}>
                     <ModalHeader>{`¿Estás seguro que deseas bloquear a ${this.props.user.username}?`}</ModalHeader>
                     <ModalBody>
                         <p>No te preocupes, puedes desbloquear a un usuario en cualquier momento desde tu configuración.</p>
@@ -104,36 +115,47 @@ class User extends Component {
 
     render() {
         if(this.props.user) {
-            let { username, followed_users, followers } = this.props.user;
+            let { username, followed_users, followers, id } = this.props.user;
             let { writings } = this.props.writing;
             return (
                 <div style={{position: 'fixed', top: 90, width: '100%'}}>
-                    <div style={{textAlign: 'center'}}>
-                        <div id="top-section" style={{display: 'flex', marginLeft: 'auto', marginRight: 'auto', width: 'max-content'}}>
-                            <div className="img-wrapper" style={{marginTop: 30, marginLeft: 0, marginRight: 0}}>
-                                <img src="" alt="profile-image" style={{ height: 100, width: 100}} id="profile-image"/>
+                        {
+                            this.props.auth.user.blocked_accounts?.includes(id) &&
+                            <div style={{textAlign: 'center'}}>
+                                <p>Usuario no encontrado.</p>
                             </div>
-                            <div id="actions" style={{marginTop: '1.5rem', marginLeft: '1rem'}}>
-                                {this.props.auth.user ? <h3>{username}</h3> : <h3 style={{marginTop: '2rem'}}>{username}</h3>}
-                                {this.props.auth.user ? this.followButton() : null}
-                                {this.props.auth.user ? this.blockButton() : null}
-                            </div>
-                        </div>
-                        <hr/>
-                        <div className="row" style={{width: '60%', marginLeft: 'auto', marginRight: 'auto', marginTop: '30px'}}>
-                            <div className="col-sm" style={{padding: 0, textAlign: 'center', cursor:'pointer'}}>
-                                <p style={sansStyle}>Escritos</p>
-                                <p style={sansStyle}>{writings ? writings.length : 0}</p>
-                            </div>
-                            <Followers followers={followers} username={username}/>
-                            <FollowedAccounts followedUsers={followed_users} username={username}/>
-                        </div>
-                        <hr/>
-                    </div>
-                    <Container style={{width: '60%', overflowY: 'scroll'}}>
-                        <h5 style={{marginLeft: 40}}>Escritos publicados</h5>
-                        {writings ? <WritingsList filteredWritings={writings} expanded={false}/> : <p>No hay escritos publicados aún</p>}
-                    </Container>
+                        }
+                        {
+                            !this.props.auth.user.blocked_accounts || !this.props.auth.user.blocked_accounts.includes(id) &&
+                            <>
+                                <div style={{textAlign: 'center'}}>
+                                <div id="top-section" style={{display: 'flex', marginLeft: 'auto', marginRight: 'auto', width: 'max-content'}}>
+                                    <div className="img-wrapper" style={{marginTop: 30, marginLeft: 0, marginRight: 0}}>
+                                        <img src="" alt="profile-image" style={{ height: 100, width: 100}} id="profile-image"/>
+                                    </div>
+                                    <div id="actions" style={{marginTop: '1.5rem', marginLeft: '1rem'}}>
+                                        {this.props.auth.user ? <h3>{username}</h3> : <h3 style={{marginTop: '2rem'}}>{username}</h3>}
+                                        {this.props.auth.user ? this.followButton() : null}
+                                        {this.props.auth.user ? this.blockButton() : null}
+                                    </div>
+                                </div>
+                                <hr/>
+                                <div className="row" style={{width: '60%', marginLeft: 'auto', marginRight: 'auto', marginTop: '30px'}}>
+                                    <div className="col-sm" style={{padding: 0, textAlign: 'center', cursor:'pointer'}}>
+                                        <p style={sansStyle}>Escritos</p>
+                                        <p style={sansStyle}>{writings ? writings.length : 0}</p>
+                                    </div>
+                                    <Followers followers={followers} username={username}/>
+                                    <FollowedAccounts followedUsers={followed_users} username={username}/>
+                                </div>
+                                <hr/>
+                                </div>
+                                <Container style={{width: '60%', overflowY: 'scroll'}}>
+                                <h5 style={{marginLeft: 40}}>Escritos publicados</h5>
+                            {writings ? <WritingsList filteredWritings={writings} expanded={false}/> : <p>No hay escritos publicados aún</p>}
+                                </Container>
+                            </>
+                        }
                 </div>
             );
         } else {
@@ -149,7 +171,8 @@ class User extends Component {
 const mapStateToProps = state => ({
     auth: state.auth,
     writing: state.writing,
-    user: state.user.user
+    user: state.user.user,
+    isLoading: state.auth.isLoading,
 });
 
 const sansStyle = {

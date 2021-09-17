@@ -28,7 +28,7 @@
   border-top: none;
   animation: fadeEffect 1s;
   height: 75vh;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 @keyframes fadeEffect {

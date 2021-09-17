@@ -31,9 +31,6 @@ import { createTagNotification } from '../actions/notificationActions';
 import axios from 'axios';
 import Login from './auth/Login';
 import Register from './auth/Register';
-import { FacebookShareButton, TwitterShareButton, WhatsappShareButton } from "react-share";
-import Comment from './Comment';
-import CommentResponseInput from "./CommentResponseInput";
 import {Card} from "@material-ui/core";
 import LikersModal from "./LikersModal";
 import {
@@ -42,7 +39,6 @@ import {
     CommentOutlined, DeleteOutlineOutlined,
     ExpandMoreOutlined,
     ForwardOutlined, OutlinedFlagOutlined, PersonAddOutlined,
-    Visibility,
     VisibilityOutlined
 } from "@material-ui/icons";
 import ShareModal from "./ShareModal";
@@ -81,9 +77,11 @@ class Writing extends Component {
         newCommentContent: '',
         loading: false,
         likersModalIsOpen: false,
+        originalCommentsCount: 0,
     }
 
     componentDidMount() {
+        this.setState({originalCommentsCount: this.props.current.comments ? this.props.current.comments.length : 0});
         axios.get(`/api/users/profile_image/${this.props.current.username}`)
             .then(res => {
                 this.setState({ imageURL: res.data.profile_image })
@@ -172,6 +170,7 @@ class Writing extends Component {
             }
             this.setState({ commentContent: '' });
             this.props.saveComment(this.props.current.id, commentTrimmed, this.props.auth.user.id);
+            this.setState({ originalCommentsCount: this.state.originalCommentsCount + 1 });
         }
     }
 
@@ -200,7 +199,6 @@ class Writing extends Component {
         let likeButton = document.getElementById(`like-icon${this.props.current.id}`);
         let likeAmountString = document.getElementById(`like-amount${this.props.current.id}`);
         let id = this.props.auth.user.id;
-        debugger
         if(!current.likes || !current.likes.includes(id)) {
             likeButton.src = `${iconPath}like-full.png`;
             likeAmountString.innerHTML = parseInt(likeAmountString.innerHTML) + 1;
@@ -234,7 +232,7 @@ class Writing extends Component {
                          onClick={this.likePressed}/>
                 </button>
                 <button className="btn" type="button" id="comment-button" style={{border: 'none'}} onClick={this.commentPressed}>
-                    <span style={{color: '#5D5C5C', fontSize: '0.9rem'}} id={`comments-amount${this.props.current.id}`}>{this.props.current.comments ? this.props.current.comments.length : 0}</span>
+                    <span style={{color: '#5D5C5C', fontSize: '0.9rem'}} id={`comments-amount${this.props.current.id}`}>{this.state.originalCommentsCount}</span>
                     <CommentOutlined />
                 </button>
                 <button className="btn" type="button" id="views-button" style={{border: 'none', cursor: 'default'}}>
@@ -269,7 +267,7 @@ class Writing extends Component {
                     <img id="like-icon" src="/assets/like-empty.png" alt="Like" style={{ height: 23, width: 23, margin: '0 0.3rem' }}/>
                 </button>
                 <button className="btn" id="comment-button" type="button" style={{border: 'none'}} onClick={this.commentPressed}>
-                    <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}>{this.props.current.comments ? this.props.current.comments.length : 0}</span>
+                    <span style={{color: '#5D5C5C', fontSize: '0.9rem'}}>{this.state.originalCommentsCount}</span>
                     <CommentOutlined />
                 </button>
                 <button className="btn" id="views-button" type="button" style={{border: 'none', cursor: 'default'}}>
@@ -313,17 +311,17 @@ class Writing extends Component {
         const current = this.props.current;
         let copy = this.state.followedUsers ?? [];
         let followText = document.getElementById(`follow-p${current.id}`);
-        if(this.state.followedUsers?.includes(current.writer_id)) {
+        if(this.props.auth.user.followed_users?.includes(current.writer_id)) {
             const index = this.state.followedUsers.indexOf(current.writer_id);
             copy.splice(index, 1);
             followText.innerText = `Seguir a ${current.username}`;
             this.setState({ followText: `Seguir a ${current.username}` });
-            this.props.unfollow(current.username, this.props.auth.user.id);
+            this.props.unfollow(current.writer_id, current.username, this.props.auth.user.id);
         } else {
             copy.push(current.writer_id);
             followText.innerText = `Dejar de seguir a ${current.username}`;
             this.setState({ followText: `Dejar de seguir a ${current.username}` });
-            this.props.follow(current.username, this.props.auth.user.id);
+            this.props.follow(current.writer_id, current.username, this.props.auth.user.id);
         }  
         this.setState({ followedUsers: copy});
     }
@@ -461,7 +459,8 @@ class Writing extends Component {
     triggerNewComment = content => {
         this.setState({
             newCommentTriggered: true,
-            newCommentContent: content
+            newCommentContent: content,
+            originalCommentsCount: this.state.originalCommentsCount + 1,
         });
     }
 
@@ -495,6 +494,12 @@ class Writing extends Component {
         //this.getAllComments(this.props.current.id);
     }
 
+    getFollowText = () => this.props.auth.user.followed_users?.includes(this.props.current.writer_id) ?
+        `Dejar de seguir a ${this.props.current.username}` :
+        `Seguir a ${this.props.current.username}`;
+
+    reduceCount = (count) => this.setState({ originalCommentsCount: this.state.originalCommentsCount - (count ? count : 1) });
+
     render() {
         const { isAuthenticated, user, isAdmin } = this.props.auth;
         let current = this.props.current;
@@ -522,7 +527,7 @@ class Writing extends Component {
                                                 <DropdownItem onClick={this.follow}>
                                                     <div id="follow-option" className="writing-item">
                                                         <PersonAddOutlined />
-                                                        <p id={`follow-p${current.id}`}>{this.state.followText}</p>
+                                                        <p id={`follow-p${current.id}`}>{this.getFollowText()}</p>
                                                     </div>
                                                 </DropdownItem> :
                                                 null
@@ -630,6 +635,7 @@ class Writing extends Component {
                                 <CommentSection hasComments={this.props.current.comments && this.props.current.comments.length > 0}
                                                 writing={this.props.current}
                                                 trigger={this.triggerNewComment}
+                                                triggerDelete={this.reduceCount}
                                 />
                         }
                     </div>

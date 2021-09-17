@@ -625,17 +625,37 @@ router.delete('/comment/:id/writing/:wid/', (req, res) => {
                    });
                }
                if (!responses || responses.length === 0) return res.status(200).json({msg: 'Comentario eliminado con éxito'});
-               responses.forEach(responseId => {
-                   pool.query(deleteFromParentComment, [responseId, req.params.wid]);
-                   pool.query(deleteFromWritingComments, [responseId, req.params.wid]);
-               });
-               return res.status(200).json({msg: 'Comentario eliminado con éxito'});
+               const ok = deleteRecursively(responses, req.params.wid);
+               return ok ? res.status(200).json({msg: 'Comentario eliminado con éxito'}) : res.status(500).json({ msg: 'Ocurrio un error eliminando comentarios.' });
            });
        });
    } catch (e) {
        return res.status(500);
    }
 });
+
+const deleteRecursively = (responses, writingId) => {
+    try {
+        const getReponses = 'SELECT responses FROM commentItem WHERE id = $1;';
+        const deleteFromWritingComments = 'UPDATE writings SET comments = array_remove(comments, $1) WHERE id = $2';
+        if (!responses) return true;
+        console.log(responses);
+        responses.forEach(responseId => {
+            let responsesFromCurrent = null;
+            pool.query(getReponses, [responseId], (error, results) => {
+                if(error) console.log(error);
+                responsesFromCurrent = results.rows[0];
+            });
+            pool.query(deleteFromWritingComments, [responseId, writingId], (error, results) => {
+                if(error) console.log(error);
+                deleteRecursively(responsesFromCurrent, writingId);
+            });
+        })
+    } catch (e) {
+        console.log(e);
+        return false;
+    }
+}
 
 router.get('/:id/likers/', (req, res) => {
     try {

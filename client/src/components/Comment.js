@@ -58,15 +58,15 @@ class Comment extends Component {
     }
 
     likeComment = (event) => {
-        let currentLikes = this.state.likes;
+        let currentLikes = this.state.likes ?? [];
         if(!this.state.likedByMyself) {
             currentLikes.push(this.props.auth.user.id);
-            this.props.likeComment(this.props.current.id, this.props.auth.user.id);
+            this.props.likeComment(this.props.current.id, this.props.auth.user.id, this.props.writingId, this.props.parents);
             this.setState({likedByMyself: true, likes: currentLikes});
         } else {
             const idx = currentLikes.indexOf(this.props.auth.id);
             currentLikes.splice(idx, 1);
-            this.props.unlikeComment(this.props.current.id, this.props.auth.user.id);
+            this.props.unlikeComment(this.props.current.id, this.props.auth.user.id, this.props.writingId, this.props.parents);
             this.setState({likedByMyself: false, likes: currentLikes});
         }
     }
@@ -133,6 +133,7 @@ class Comment extends Component {
     }
 
     triggerNewResponse = (content) => {
+        this.props.trigger && this.props.trigger();
         this.setState({
             newCommentContent: content,
             newCommentId: this.props.current.id,
@@ -156,6 +157,7 @@ class Comment extends Component {
 
     deleteComment = event => {
         event.preventDefault();
+        this.props.triggerDelete(this.props.current.responses ? this.props.current.responses.length + 1 : 0);
         this.props.deleteComment(this.props.current.id, this.props.writingId, this.props.parents);
     }
 
@@ -210,6 +212,8 @@ class Comment extends Component {
                             depth={this.props.depth + 1}
                             writingId={this.props.writingId}
                             parents={[...this.props.parents, this.props.current.id]}
+                            triggerDelete={this.props.triggerDelete}
+                            trigger={this.props.trigger}
                         />
                 }
                 {   this.state.wantsToRespond &&
@@ -227,7 +231,8 @@ class Comment extends Component {
                         <Spinner color={'dark'} size={'sm'}/>
                     </div>
                 }
-                <Modal toggle={this.triggerLikes} isOpen={this.state.likesModalIsOpen} style={{width: '70%',  position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%,0)'}}>
+                <Modal toggle={this.triggerLikes} isOpen={this.state.likesModalIsOpen}
+                       style={{width: '70%',  position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%,0)'}}>
                     <ModalBody>
                         {   
                             this.props.current.likes?.length > 0 &&

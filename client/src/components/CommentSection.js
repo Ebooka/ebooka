@@ -10,6 +10,7 @@ const CommentSection = ({
     getComments,
     gettingCommentsLoading,
     trigger,
+    triggerDelete
 }) => {
 
     useEffect(() => {
@@ -30,6 +31,8 @@ const CommentSection = ({
                         depth={0}
                         writingId={writing.id}
                         parents={[]}
+                        triggerDelete={triggerDelete}
+                        trigger={trigger}
                     />
             }
             <CommentResponseInput
