@@ -12,7 +12,7 @@ const genre = window.location.href.split('/genre/')[1]?.split('/subgenre')[0];
 class Genre extends Component {
 
     componentDidMount() {
-        this.props.getSubgenre(subgenre);
+        this.props.getSubgenre(this.parseGenre(genre), subgenre);
     }
 
     parseGenre = (genre) => {

@@ -5,9 +5,10 @@ import { Container, Button } from 'reactstrap';
 import CKEditor from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { addWriting, addChapters } from '../actions/writingActions';
-import { editDraft } from '../actions/draftActions';
+import {editDraft, setCurrentDraft} from '../actions/draftActions';
 import { connect } from 'react-redux';
 import axios from "axios";
+import {withRouter} from 'react-router-dom';
 const stuff = require('../static/genres');
 let genres = stuff.genres;
 
@@ -41,12 +42,13 @@ class EditCompose extends Component {
         const id = info[0];
         const type = info[1];
         this.setState({ id, type});
-        axios.get(`/api/writings/compose-data/${id}`)
-            .then(res => {
-                console.log(res.data);
-                this.setState({...res.data, fetching: false});
-            })
-            
+        if(type === 'writing') {
+            axios.get(`/api/writings/compose-data/${id}`)
+                .then(res => this.setState({...res.data, fetching: false}));
+        } else {
+            this.setState({...this.props.currentDraft, fetching: false});
+        }
+
     }
 
     saveWriting = async (event) => {
@@ -64,8 +66,6 @@ class EditCompose extends Component {
             cover: coverString !== undefined ? coverString : null
         };
         await this.props.addWriting(newWriting, this.state.id, this.state.chapters);
-        document.cookie = 'writingData=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'; // delete unnecesary cookie
-        localStorage.removeItem('coverData');
         window.location.href = '/';
     }
 
@@ -84,15 +84,12 @@ class EditCompose extends Component {
             cover: coverString !== undefined ? coverString : null
         };
         await this.props.editDraft(newDraft, this.state.chapters, this.state.id);
-        //document.cookie = 'writingData=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'; // delete unnecesary cookie
-        //localStorage.removeItem('coverData');
+        this.props.setCurrentDraft(newDraft);
         document.getElementById('draft-alert').style.display = 'block';
     }
 
     componentDidUpdate(prevProps) {
-        if(this.props.draft.drafts !== prevProps.draft.drafts) {
-            window.location.href = `/edit/${this.state.id}`;
-        } else if (this.state.type === 'writing' && this.state.chapters && this.state.chapters.length > 1 && this.state.genre === 'Novela') {
+        if (this.state.type === 'writing' && this.state.chapters && this.state.chapters.length > 1 && this.state.genre === 'Novela') {
             axios.get(`/api/writings/chapters/${this.state.id}`)
                 .then(res => {
                     let chaptersId = [];
@@ -140,12 +137,11 @@ class EditCompose extends Component {
             body: this.state.body,
             chapters: null,
         };
-        const destination = isWriting ? 'writings' : 'drafts';
+        const destination = isWriting ? 'writings' : 'drafts/edit';
         await axios.put(`/api/${destination}/${this.state.id}`, newObject);
     }
 
     editChapterContent = async (ids) => {
-        let chapters = this.state.chapters;
         ids.map(async (id, idx) => {
             const body = this.state.chapters[idx];
             await axios.put(`/api/writings/chapters/${id}`, {body: body});
@@ -181,22 +177,7 @@ class EditCompose extends Component {
         } else {
             await this.editRegular(this.state.type === 'writing');
         }
-        window.location.href = `/edit-compose/${this.state.id}?${this.state.type}`;
-        /*const newWriting = {
-            title: this.state.title,
-            description: this.state.description,
-            genre: this.state.genre,
-            subgenre: this.state.subgenre,
-            writer_id: this.props.auth.user.id,
-            tags: this.state.tags,
-            completed: this.state.completed,
-            cover: this.state.cover,
-            body: this.state.body,
-            chapters: this.state.chapters,
-            currentChapter: this.state.currentChapter
-        };
-        document.cookie = `writingData=${JSON.stringify(newWriting)};path=/`;
-        window.location.href = `/edit/${this.state.id}?${this.state.type}`;*/
+        this.props.history.push(`/edit/${this.state.id}?${this.state.type}`);
     }
 
     isNovel = () => this.state.genre === 'Novela';
@@ -234,7 +215,6 @@ class EditCompose extends Component {
     }
 
     render() {
-        console.log(this.state);
         if(this.state.fetching) {
             return <Container style={{
                 overflowY: 'scroll',
@@ -281,7 +261,7 @@ class EditCompose extends Component {
                         ¡Borrador guardado con éxito!
                     </div>
                     <Button type="button" className="btn btn-success" id="publish"
-                            onClick={this.saveWriting}>Guardar!</Button>
+                            onClick={this.saveWriting}>{this.state.type === 'writing' ? 'Guardar' : 'Publicar'}</Button>
                     <Button type="button" className="btn btn-info" id="draft" onClick={this.saveDraft}>Guardar
                         borrador</Button>
                     <Button type="button" className="btn" id="delete"
@@ -295,8 +275,9 @@ class EditCompose extends Component {
 const mapStateToProps = state => ({
     writing: state.writing,
     auth: state.auth,
-    draft: state.draft
+    draft: state.draft,
+    currentDraft: state.draft.currentDraft,
 });
 
-export default connect(mapStateToProps, { addWriting, editDraft, addChapters })(EditCompose);
+export default connect(mapStateToProps, { addWriting, editDraft, addChapters, setCurrentDraft })(withRouter(EditCompose));
 

@@ -3,11 +3,11 @@ import '../style/Compose.css';
 import '../style/Editor.css';
 import { Container, Form, Button, FormGroup, Label, Input, CustomInput } from 'reactstrap';
 import {addWriting, getWriting, getWritingCorrect, setCurrentWriting} from '../actions/writingActions';
-import { editDraft, getDraft } from '../actions/draftActions';
+import {editDraft, getDraft, getDraftCorrect, setCurrentDraft} from '../actions/draftActions';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import axios from 'axios';
 import {Chip} from "@material-ui/core";
+import {withRouter} from 'react-router-dom';
 const stuff = require('../static/genres');
 
 let genres = stuff.genres;
@@ -28,7 +28,8 @@ class Compose extends Component {
         cover: '',
         currentChapter: 1,
         chapters: [],
-        type: ''
+        type: '',
+        error: false,
     }
 
     componentDidMount() {
@@ -36,7 +37,9 @@ class Compose extends Component {
         const id = info[0];
         const type = info[1];
         this.setState({ id, type });
-
+        axios.get(`/api/${type}s/compose-data/${id}`)
+            .then(res => this.setState({...res.data, fetching: false}))
+            .catch(err => this.setState({ fetching: false, error: true }));
     }
 
     uploadCover = (event) => {
@@ -64,7 +67,7 @@ class Compose extends Component {
             chapters: this.state.genre === 'Novela' ? this.state.chapters : null,
             currentChapter: this.state.currentChapter
         };
-        const destination = isWriting ? 'writings' : 'drafts';
+        const destination = isWriting ? 'writings' : 'drafts/edit/';
         axios.put(`/api/${destination}/${this.state.id}`, newObject)
             .then(res => window.location.href = `/edit-compose/${this.state.id}?${this.state.type}`);
     }
@@ -72,8 +75,9 @@ class Compose extends Component {
     goToEditor = (event) => {
         event.preventDefault();
         event.stopPropagation();
-        this.edit(this.state.type === 'writing');
-        this.props.setCurrentWriting({
+        const isWriting = this.state.type === 'writing';
+        this.edit(isWriting);
+        const object = {
             title: this.state.title,
             description: this.state.description,
             genre: this.state.genre,
@@ -85,8 +89,15 @@ class Compose extends Component {
             chapters: this.state.chapters,
             currentChapter: this.state.currentChapter,
             cover: this.state.cover,
-        });
-        window.location.href = '/edit-compose/' + this.state.id + '?' + this.state.type;
+        };
+        if(isWriting) {
+            this.props.setCurrentWriting(object);
+        } else {
+            this.props.setCurrentDraft(object)
+        }
+        const destination = isWriting ? 'writings' : 'drafts/edit';
+        axios.put(`/api/${destination}/${this.state.id}`, object)
+            .then(() => this.props.history.push(`/edit-compose/${this.state.id}?${this.state.type}`));
     }
 
     onChange = (event) => {
@@ -141,10 +152,11 @@ class Compose extends Component {
 
 
     componentDidUpdate(prevProps) {
-        if(this.props.currentWriting && !this.state.checked) {
-            this.setState({...this.props.currentWriting});
+        if((this.props.currentWriting || this.props.currentDraft) && !this.state.checked) {
+            const currentObject = this.props.currentWriting ? this.props.currentWriting : this.props.currentDraft;
+            this.setState({...currentObject});
             genres.map(genre => {
-                if(genre.genre === this.props.currentWriting.genre) {
+                if(genre.genre === currentObject.genre) {
                     if(genre.sub)
                         this.setState({
                             subgenreslist: genre.sub,
@@ -157,10 +169,10 @@ class Compose extends Component {
                         });
                 }
             });
-            this.setState({checked: true, isAllowed: true, cover: this.props.currentWriting.cover});
+            this.setState({checked: true, isAllowed: true, cover: currentObject.cover});
         } else if(!this.state.checked){
             if(this.props.auth.user !== prevProps.auth.user && this.state.type === 'draft') {
-                this.props.getDraft(this.state.id);
+                this.props.getDraftCorrect(this.state.id);
             } else if(this.props.auth.user !== prevProps.auth.user && this.state.type === 'writing') {
                 this.props.getWritingCorrect(this.state.id);
             }
@@ -172,6 +184,13 @@ class Compose extends Component {
     }
 
     allowedComponents = () => {
+        if(this.state.error) {
+            return (
+                <div id="full-container-compose" style={{marginBottom: 50, height: '90%', display: 'flex', left: '50%', transform: 'translate(-50%, 0)', width: 'max-content', maxWidth: '50%', position: 'fixed', top: 90, overflowY: 'scroll'}}>
+                    <h1>Borrador inexistente</h1>
+                </div>
+            )
+        }
         return (
             <div id="full-container-compose" style={{marginBottom: 50, height: '90%', display: 'flex', left: '50%', transform: 'translate(-50%, 0)', width: 'max-content', maxWidth: '50%', position: 'fixed', top: 90, overflowY: 'scroll'}}>
                 <div id="book-cover-container" style={{width: '30vw', overflow: 'none', display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
@@ -188,11 +207,11 @@ class Compose extends Component {
                     <Form className="main-form">
                         <FormGroup>
                             <Label for="title">Título</Label>
-                            <Input type="text" name="title" placeholder="Ingresá el título del escrito" onChange={this.onChange} style={{backgroundColor: 'white'}} value={this.props.currentWriting.title}/>
+                            <Input type="text" name="title" placeholder="Ingresá el título del escrito" onChange={this.onChange} style={{backgroundColor: 'white'}} value={this.state.title}/>
                         </FormGroup>
                         <FormGroup>
                             <Label for="description">{`Descripción (${400 - this.state.description.length} caracteres restantes)`}</Label>
-                            <Input type="textarea" name="description" maxLength="400" placeholder="Ingresá la descripción del escrito en hasta 400 caracteres" onChange={this.onChange} value={this.props.currentWriting.description}/>
+                            <Input type="textarea" name="description" maxLength="400" placeholder="Ingresá la descripción del escrito en hasta 400 caracteres" onChange={this.onChange} value={this.state.description}/>
                         </FormGroup>
                         <FormGroup>
                             <Label for="genre">Categoría</Label>
@@ -202,14 +221,18 @@ class Compose extends Component {
                                 ))}
                             </Input>
                         </FormGroup>
-                        <FormGroup id="subgenre">
-                            <Label for="subgenre">Subcategoría</Label>
-                            <Input type="select" name="subgenre" onChange={this.onChange} value={this.state.subgenre}>
-                                {this.state.subgenreslist ?  this.state.subgenreslist.map(sub => (
-                                    <option key={sub}>{sub}</option>
-                                )) : null}
-                            </Input>
-                        </FormGroup>
+                        {
+                            this.state.subgenreslist &&
+                            <FormGroup id="subgenre">
+                                <Label for="subgenre">Subcategoría</Label>
+                                <Input type="select" name="subgenre" onChange={this.onChange}
+                                       value={this.state.subgenre}>
+                                    {this.state.subgenreslist ? this.state.subgenreslist.map(sub => (
+                                        <option key={sub}>{sub}</option>
+                                    )) : null}
+                                </Input>
+                            </FormGroup>
+                        }
                         <FormGroup>
                             <Label for="tags">Elegí tus tags</Label>
                             <div className="input-tag-div" style={{overflowY: 'scroll', height: '200px'}}>
@@ -224,7 +247,7 @@ class Compose extends Component {
                             </div>                        
                         </FormGroup>
                         <FormGroup>
-                            <CustomInput type="switch" id="completed-switch" name="completed" label="Terminado" onClick={this.completed} onChange={this.completed} checked={!this.state.completed}/>
+                            <CustomInput type="switch" id="completed-switch" name="completed" label="Terminado" onClick={this.completed} checked={!this.state.completed}/>
                         </FormGroup>
                     </Form>
                     <Button type="button" className="btn" id="publish" onClick={this.goToEditor} style={{backgroundColor: '#3B52A5', borderColor: '#3B52A5', color: 'white'}}>Ir a escribir</Button>
@@ -250,7 +273,8 @@ const mapStateToProps = state => ({
     auth: state.auth,
     draft: state.draft,
     currentWriting: state.writing.currentWriting,
-    loading: state.writing.loading,
+    loading: state.writing.loading || state.draft.loading,
+    currentDraft: state.draft.currentDraft,
 });
 
-export default connect(mapStateToProps, { addWriting, editDraft, getDraft, getWritingCorrect, setCurrentWriting })(Compose);
+export default connect(mapStateToProps, { addWriting, editDraft, getDraft, getWritingCorrect, setCurrentWriting, getDraftCorrect, setCurrentDraft })(withRouter(Compose));

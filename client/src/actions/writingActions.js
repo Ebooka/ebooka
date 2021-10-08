@@ -124,9 +124,9 @@ export const getGenre = (genre) => dispatch => {
         .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
 }
 
-export const getSubgenre = (subgenre) => dispatch => {
+export const getSubgenre = (genre, subgenre) => dispatch => {
     dispatch(setWritingsLoading());
-    axios.get(`/api/writings/subgenre/${subgenre}/`)
+    axios.get(`/api/writings/genre/${genre}/subgenre/${subgenre}/`)
         .then(res => dispatch({
             type: GET_WRITINGS,
             payload: res.data
@@ -267,7 +267,7 @@ export const addWriting = (writing, id, chaptersArray) => async dispatch => {
 export const addChapters = async (chaptersArray, writingId) => {
     chaptersArray.map(chapter => {
         axios.post('/api/writings/chapters/', {
-            body: chapter,
+            body: chapter.body,
             writing_id: writingId
         })
             .then(res => { return true; })

@@ -118,7 +118,7 @@ class User extends Component {
             let { username, followed_users, followers, id } = this.props.user;
             let { writings } = this.props.writing;
             return (
-                <div style={{position: 'fixed', top: 90, width: '100%'}}>
+                <div style={{position: 'fixed', top: 90, width: '100%', height: '90%'}}>
                         {
                             this.props.auth.user.blocked_accounts?.includes(id) &&
                             <div style={{textAlign: 'center'}}>
@@ -150,9 +150,9 @@ class User extends Component {
                                 </div>
                                 <hr/>
                                 </div>
-                                <Container style={{width: '60%', overflowY: 'scroll'}}>
+                                <Container style={{width: '60%', height: '90%'}}>
                                 <h5 style={{marginLeft: 40}}>Escritos publicados</h5>
-                            {writings ? <WritingsList filteredWritings={writings} expanded={false}/> : <p>No hay escritos publicados aún</p>}
+                            {writings ? <WritingsList filteredWritings={writings} expanded={false} style={{height: '70%', overflowY: 'scroll'}}/> : <p>No hay escritos publicados aún</p>}
                                 </Container>
                             </>
                         }

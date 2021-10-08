@@ -249,7 +249,7 @@ class WritingData extends Component {
         if(data) {
             return (
                 <div style={{backgroundColor: 'white', border: '1px solid #DADADA', marginTop: '1rem', height: 'max-content'}}>
-                    {this.props.auth.user ? this.interactionButtons() : this.dummyButtons()}
+                    {this.props.auth.user ? this.interactionButtons(this.props.auth.user.id) : this.dummyButtons()}
                     {
                         this.state.lastComments ? this.state.lastComments.length > 0 ?
                         this.state.lastComments.map(comment => (

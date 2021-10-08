@@ -4,7 +4,7 @@ import {
     GET_DRAFT,
     DRAFTS_LOADING,
     EDIT_DRAFT,
-    GET_DRAFTS_PREVIEW
+    GET_DRAFTS_PREVIEW, GETTING_DRAFT_REQUEST, GETTING_DRAFT_RESPONSE, GETTING_DRAFT_ERROR, SET_CURRENT_DRAFT
 } from './types';
 import axios from 'axios';
 import { returnErrors } from './errorActions';
@@ -75,6 +75,20 @@ export const getDraft = (id) => dispatch => {
         }))
         .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
 };
+
+export const getDraftCorrect = (id) => dispatch => {
+    dispatch({ type: GETTING_DRAFT_REQUEST });
+    axios.get(`/api/drafts/${id}`)
+        .then(res => dispatch({
+            type: GETTING_DRAFT_RESPONSE,
+            payload: res.data
+        }))
+        .catch(err => dispatch({ type: GETTING_DRAFT_ERROR, err }))
+}
+
+export const setCurrentDraft = (data) => dispatch => {
+    dispatch({ type: SET_CURRENT_DRAFT, data });
+}
 
 export const setDraftsLoading = () => {
     return {

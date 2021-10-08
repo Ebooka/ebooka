@@ -2,12 +2,12 @@ import React, {Component} from 'react';
 import { Container, Spinner } from 'reactstrap';
 import { connect } from 'react-redux';
 import Writing from './Writing';
-import Ad from './Ad';
 import '../style/WritingsList.css'
 
 class WritingsList extends Component {
 
     loadedContent = () => {
+        const style = this.props.style;
         if(this.props.writings && this.props.writings.length === 0)
             return (
                 <Container style={{ textAlign: 'center', width: '100%' }}>
@@ -16,7 +16,7 @@ class WritingsList extends Component {
             );
         else
             return (
-                <div style={{maxHeight: '90vh', width: '100%', padding: 0}}>
+                <div style={{maxHeight: '90vh', width: '100%', padding: 0, ...style}}>
                     {this.props.writings.map((writing, idx) => {
                         /*if(idx % 4 === 3)
                             return (

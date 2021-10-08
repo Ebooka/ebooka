@@ -189,14 +189,17 @@ class PreComposeData extends Component {
                                 ))}
                             </Input>
                         </FormGroup>
-                        <FormGroup id="subgenre">
-                            <Label for="subgenre">Subcategoría</Label>
-                            <Input type="select" name="subgenre" onChange={this.onChange} value={this.state.subgenre}>
-                                {this.state.subgenreslist ?  this.state.subgenreslist.map(sub => (
-                                    <option key={sub}>{sub}</option>
-                                )) : null}
-                            </Input>
-                        </FormGroup>
+                        {
+                            this.state.subgenreslist &&
+                            <FormGroup id="subgenre">
+                                <Label for="subgenre">Subcategoría</Label>
+                                <Input type="select" name="subgenre" onChange={this.onChange} value={this.state.subgenre}>
+                                    {this.state.subgenreslist ?  this.state.subgenreslist.map(sub => (
+                                        <option key={sub}>{sub}</option>
+                                    )) : null}
+                                </Input>
+                            </FormGroup>
+                        }
                         <FormGroup>
                             <Label for="tags">Agregá tus tags</Label>
                             <Input id="main-input" type="text" onKeyDown={this.readTags} style={{backgroundColor: 'white', height: '50%'}} placeholder={'Escribí el nombre de tus tags'}/>

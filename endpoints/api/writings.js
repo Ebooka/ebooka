@@ -77,9 +77,9 @@ router.get('/genre/:genre/', (req, res) => {
  *  @desc: get a specific subgenre from db
  *  @access: public, no authentication is required
  */
-router.get('/subgenre/:subgenre/', (req, res) => {
+router.get('/genre/:genre/subgenre/:subgenre/', (req, res) => {
     try {
-        pool.query('SELECT w.*, u.username, u.profile_image FROM writings AS w JOIN users as u ON w.writer_id = u.id AND w.subgenre = $1;', [req.params.subgenre.toString()], (error, result) => {
+        pool.query('SELECT w.*, u.username, u.profile_image FROM writings AS w JOIN users as u ON w.writer_id = u.id AND w.genre = $1 AND w.subgenre = $2;', [req.params.genre, req.params.subgenre.toString()], (error, result) => {
             if (error)
                 return res.status(404).json({msg: 'Esa subcategoría no existe'});
             res.status(200).json(result.rows);
@@ -208,6 +208,7 @@ router.post('/chapters/', (req, res) => {
     try {
         const insertChapter = 'INSERT INTO chapters(body, writing_id) VALUES($1, $2) RETURNING id;';
         const appendChapterToWriting = 'UPDATE writings SET chapters = array_append(chapters, $1) WHERE id = $2;';
+        console.log('CONTENT', req.body.body, req.body.writing_id);
         const values = [req.body.body, req.body.writing_id];
         pool.query(insertChapter, values, (error, results) => {
             if (error)
@@ -548,7 +549,6 @@ router.put('/:id/', (req, res) => {
                     pool.query(addChapterQuery, [chapter.body, req.params.id], (error, result) => {
                         if(error)
                             throw error;
-                        console.log('into query', result.rows[0]);
                         pool.query(addChapterToWritingQuery, [parseInt(result.rows[0].id), req.params.id], (error, result) => {
                             if(error)
                                 throw error;
