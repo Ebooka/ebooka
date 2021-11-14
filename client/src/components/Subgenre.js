@@ -1,19 +1,16 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
-import { getSubgenre } from '../actions/writingActions';
-import { Container, Spinner } from 'reactstrap';
+import { Container } from 'reactstrap';
 import WritingsList from './WritingsList';
-import AdsColumn from './AdsColumn';
 import {genres} from "../static/genres";
+import FiltersList from './FiltersList';
 
-const subgenre = window.location.href.split('/subgenre/')[1];
+console.log(window.location.pathname);
+const subgenre = window.location.href.split('/subgenre/')[1]?.split('/filter')[0];
 const genre = window.location.href.split('/genre/')[1]?.split('/subgenre')[0];
+const url = window.location.href.split('/genre/')[1];
 
 class Genre extends Component {
-
-    componentDidMount() {
-        this.props.getSubgenre(this.parseGenre(genre), subgenre);
-    }
 
     parseGenre = (genre) => {
         if(genre.includes('%20'))
@@ -42,40 +39,32 @@ class Genre extends Component {
 
     render() {
         const genreParsed = this.parseGenre(genre);
-        if(!this.props.writings) {
-            return (
-                <Container className="col-9" style={{ textAlign: 'center', top: 90, position:'fixed', left: '50%', transform: 'translate(-50%, 0)', height: '90%' }}>
-                    <img src={'/assets/logo.png'} alt={'Loading'} height={50} width={50}/>
-                </Container>
-            );
-        } else if(this.props.writings.length === 0) {
             return (
                 <Container style={{width: '75%', position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', height: '90%'}}>
-                    <div className="row" style={{overflow: 'hidden'}}>
-                    <Container className="col-9" style={{ textAlign: 'center' }}>
-                        <div className={'genre-title-container-color-box'}
-                             style={{borderRadius: 10, backgroundColor: this.getBg(genreParsed), width: 'max-content', padding: '10px 20px',color: 'white', margin: '10px auto 25px auto'}}>
-                            <h1>{genreParsed}</h1>
-                        </div>
-                        <h3>No hay escritos publicados en la subcategoría <i>{this.parseGenre(subgenre)}</i> aún</h3>
-                    </Container>
-                    </div>
-                </Container>
-            ); 
-        } else {
-            return (
-                <Container style={{width: '75%', position: 'fixed', top: 90, overflowY: 'scroll', left: '50%', transform: 'translate(-50%, 0)', height: '90%'}}>
-                    <Container className="col-9" style={{ textAlign: 'center', margin: '10px auto 25px auto' }}>
+                    <div style={{textAlign: 'center'}}>
                         <div className={'genre-title-container-color-box'}
                              style={{borderRadius: 10, backgroundColor: this.getBg(genreParsed), width: 'max-content', padding: '10px 20px',color: 'white', margin: '10px auto'}}>
                             <h1>{genreParsed}</h1>
                         </div>
                         <h3>{subgenre}</h3>
-                    </Container>
-                    <WritingsList filteredWritings={this.props.writings} expanded={true}/>
+                    </div>
+                    <div className={'row'} style={{height: '100%'}}>
+                        <Container className={'col-md-3 col-12 ml-auto mr-auto'}>
+                            <FiltersList/>
+                        </Container>
+                        <Container className="col-md-9 col-12">
+                            <WritingsList
+                                filteredWritings={this.props.writings}
+                                expanded={true}
+                                genre={genre}
+                                subgenre={subgenre}
+                                fullUrl={url}
+                                style={{height: '70vh'}}
+                            />
+                        </Container>
+                    </div>
                 </Container>
             );
-        }
     }
 }
 
@@ -83,4 +72,4 @@ const mapStateToProps = state => ({
     writings: state.writing.writings
 });
 
-export default connect(mapStateToProps, { getSubgenre })(Genre);
+export default connect(mapStateToProps, null)(Genre);

@@ -52,7 +52,7 @@ class FiltersList extends Component {
             if(options[i].selected)
                 selected = options[i].id;
         }
-        let filters = 'filter?sort=' + selected;
+        let filters = '/filter?sort=' + selected;
         if(this.state.genresActive.size > 0) {
             filters += '&genre=';
             this.state.genresActive.forEach(filter => {
@@ -60,7 +60,7 @@ class FiltersList extends Component {
             });
             filters = filters.slice(0, -1);
         } 
-        window.location.href = window.location.href.split('filter')[0] + filters;
+        window.location.href = window.location.href.split('/filter')[0] + filters;
     }
 
     checkbox = (event) => {
@@ -73,17 +73,22 @@ class FiltersList extends Component {
         return (
             <div style={{width: '100%'}}>
                 <ListGroup>
-                    <h4>Categorías:</h4>
-                    {genres.map(genre => (
-                        <ListGroupItem key={genre.genre} className="justify-content-between">
-                            <div id={`filter-${genre.genre}`} style={{display: 'flex'}}>
-                                <input type="checkbox" id={genre.genre} onChange={this.checkbox} name={genre.genre} checked={this.state.genresActive.has(genre.genre)}/>
-                                <div style={{ backgroundColor: genre.color, color: 'white', width: '80%', borderRadius: 3, marginLeft: 'auto', marginRight: 'auto', textAlign: 'center'}}>
+                    {
+                        this.props.showCategories &&
+                            <>
+                                <h4>Categorías:</h4>
+                                {genres.map(genre => (
+                                    <ListGroupItem key={genre.genre} className="justify-content-between">
+                                    <div id={`filter-${genre.genre}`} style={{display: 'flex'}}>
+                                    <input type="checkbox" id={genre.genre} onChange={this.checkbox} name={genre.genre} checked={this.state.genresActive.has(genre.genre)}/>
+                                    <div style={{backgroundColor: genre.color, color: 'white', width: '80%', borderRadius: 3, marginLeft: 'auto', marginRight: 'auto', textAlign: 'center'}}>
                                     <strong style={{overflowWrap: 'break-word'}}>{genre.genre}</strong>
-                                </div>
-                            </div>
-                        </ListGroupItem>
-                    ))}
+                                    </div>
+                                    </div>
+                                    </ListGroupItem>
+                                ))}
+                            </>
+                    }
                     <h4 style={{ marginTop: 10 }}>Ordenar por:</h4>
                     <select className="form-control" name="sort" id="sort" defaultValue={this.state.default}>
                         <option className="options-sort" id="most-recent" value="most-recent">Más recientes</option>

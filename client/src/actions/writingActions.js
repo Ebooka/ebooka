@@ -114,9 +114,10 @@ export const deleteWriting = (id) => dispatch => {
         .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
 }
 
-export const getGenre = (genre) => dispatch => {
+export const getGenre = (genre, page) => dispatch => {
     dispatch(setWritingsLoading());
-    axios.get(`/api/writings/genre/${genre}/`)
+    genre = genre.includes('filter') ? genre : `${genre}/filter?sort=regular`;
+    axios.get(`/api/writings/genre/${genre}&page=${page}`)
         .then(res => dispatch({
             type: GET_WRITINGS,
             payload: res.data
@@ -124,9 +125,10 @@ export const getGenre = (genre) => dispatch => {
         .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
 }
 
-export const getSubgenre = (genre, subgenre) => dispatch => {
+export const getSubgenre = (path, page) => dispatch => {
     dispatch(setWritingsLoading());
-    axios.get(`/api/writings/genre/${genre}/subgenre/${subgenre}/`)
+    path = path.includes('filter') ? path : `${path}/filter?sort=regular`
+    axios.get(`/api/writings/genre/${path}&page=${page}`)
         .then(res => dispatch({
             type: GET_WRITINGS,
             payload: res.data

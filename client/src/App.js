@@ -46,8 +46,8 @@ class App extends Component {
               <Route exact path="/validate/:id" component={Validate}/>
               <Route exact path="/about-us" component={AboutUs}/>
               <Route exact path="/terms-and-conditions" component={TermsAndConditions}/>
-              <Route exact path="/genre/:genre/subgenre/:subgenre" component={Subgenre}/>
-              <Route exact path="/genre/:genre" component={Genre}/>
+              <Route exact strict path={["/genre/:genre","/genre/:genre/:filter?"]} component={Genre}/>
+              <Route exact strict path={["/genre/:genre/subgenre/:subgenre", "/genre/:genre/subgenre/:subgenre/:filter?"]} component={Subgenre}/>
               <Route exact path="/search/:term" component={Search}/>
               <Route exact path="/user/:username" component={User}/>
               <Route exact path="/profile/:username/configuration" component={Configuration}/>

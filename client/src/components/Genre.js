@@ -3,18 +3,14 @@ import { connect } from 'react-redux';
 import { getGenre } from '../actions/writingActions';
 import { Container, Spinner } from 'reactstrap';
 import WritingsList from './WritingsList';
-import AdsColumn from './AdsColumn';
 import {hashtags} from "../static/hashtags";
 import {genres} from "../static/genres";
+import FiltersList from './FiltersList';
 
-const genre = window.location.href.split('/genre/')[1];
+const url = window.location.href.split('/genre/')[1];
+const genre = url?.includes('/filter') ? url.split('/filter')[0] : url;
 
 class Genre extends Component {
-
-    componentDidMount() {
-        this.props.getGenre(genre);
-        console.log(genre);
-    }
 
     parseGenre = (genre) => {
         if(genre.includes('%20'))
@@ -60,31 +56,6 @@ class Genre extends Component {
     }
 
     render() {
-        if(!this.props.writings) {
-            return (
-                <Container className="col-9" style={{ textAlign: 'center', position: 'fixed', top: 90 }}>
-                    <img src={'/assets/logo.png'} alt={'Loading'} height={50} width={50}/>
-                </Container>
-            );
-        } else if(this.props.writings.length === 0) {
-            const genreParsed = this.parseGenre(genre);
-            return (
-                <Container style={{width: '75%', position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', height: '90%'}}>
-                    <div className="row" style={{overflow: 'hidden'}}>
-                        <Container className="col-9" style={{ textAlign: 'center' }}>
-                            <div id="header" style={{textAlign: 'center', marginBottom: 30}}>
-                                <div className={'genre-title-container-color-box'}
-                                     style={{borderRadius: 10, backgroundColor: this.getBg(genreParsed), width: 'max-content', padding: '10px 20px',color: 'white', margin: '10px auto'}}>
-                                    <h1>{genreParsed}</h1>
-                                </div>
-                                <p style={{fontFamily: 'Public Sans'}}>{this.description(genreParsed)}</p>
-                            </div>
-                            <h3>No hay escritos publicados bajo la categoría <i>{genreParsed}</i> aún</h3>
-                        </Container>
-                    </div>
-                </Container>
-            ); 
-        } else {
             const genreParsed = this.parseGenre(genre);
             return (
                 <Container style={{width: '75%', position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', height: '80%'}}>
@@ -95,14 +66,16 @@ class Genre extends Component {
                         </div>
                         <p style={{fontFamily: 'Public Sans'}}>{this.description(genreParsed)}</p>
                     </div>
-                    <div className="row" style={{overflow: 'scroll', height: '100%'}}>
-                        <Container className="col-9">
-                            <WritingsList filteredWritings={this.props.writings} expanded={true}/>
+                    <div className="row" style={{height: '100%'}}>
+                        <Container className={'col-md-3 col-12 ml-auto mr-auto'}>
+                            <FiltersList/>
+                        </Container>
+                        <Container className="col-md-9 col-12">
+                            <WritingsList fullUrl={url} genre={genre} expanded={true} style={{height: '70vh'}}/>
                         </Container>
                     </div>
                 </Container>
             );
-        }
     }
 }
 

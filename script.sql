@@ -240,3 +240,7 @@ SELECT username, content, c.id, c.likes, c.responses, profile_image FROM comment
 delete from commentitem where id = 1
 UPDATE writings SET comments = array_remove(comments, 1) WHERE id = 3
 delete from commentitem where id = 16 returning in_response_to
+
+SELECT count(*) FROM writings as w JOIN users as u ON w.writer_id = u.id AND w.writer_id NOT IN (SELECT UNNEST(blocked_accounts) FROM users WHERE id = 86);
+
+SELECT w.*, u.username, u.profile_image FROM writings as w JOIN users as u ON w.writer_id = u.id where genre = 'Novela' or genre = 'Cuento' ORDER BY last_edited DESC LIMIT 4 OFFSET 4;

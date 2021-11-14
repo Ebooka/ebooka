@@ -22,15 +22,120 @@ router.get('/page/:page/', (req, res) => {
     }
 });
 
+router.get('/get-count', (req, res) => {
+   try {
+       const countQuery = 'SELECT count(*) FROM writings;';
+       pool.query(countQuery, [], (error, results) => {
+           if(error) return res.status(400).json({ msg: 'Error contando elementos.' })
+           return res.status(200).json(results.rows[0]);
+       })
+   } catch (e) {
+       return res.status(500);
+   }
+});
+
+router.get('/get-count-by-genre/:genre', (req, res) => {
+    try {
+        const countQuery = 'SELECT count(*) FROM writings WHERE genre = $1;';
+        pool.query(countQuery, [req.params.genre], (error, results) => {
+            if(error) return res.status(400).json({ msg: 'Error contando elementos.' })
+            return res.status(200).json(results.rows[0]);
+        })
+    } catch (e) {
+        return res.status(500);
+    }
+})
+
+router.get('/get-count-by-subgenre/:genre/:subgenre', (req, res) => {
+    try {
+        const countQuery = 'SELECT count(*) FROM writings WHERE genre = $1 AND subgenre = $2;';
+        pool.query(countQuery, [req.params.genre, req.params.subgenre], (error, results) => {
+            if(error) return res.status(400).json({ msg: 'Error contando elementos.' })
+            return res.status(200).json(results.rows[0]);
+        })
+    } catch (e) {
+        return res.status(500);
+    }
+})
+
+router.get('/get-count-filters-blocked/:filters/:id', (req, res) => {
+    try {
+        let countQuery = 'SELECT count(*) FROM writings as w JOIN users as u ON w.writer_id = u.id AND w.writer_id NOT IN (SELECT UNNEST(blocked_accounts) FROM users WHERE id = $1) ';
+        let genres = [];
+        const params = req.params.filters;
+        if (params.includes('genre'))
+            genres = params.split('genre=')[1].split('&')[0].split(',');
+        if (genres.length > 0) {
+            let count = 0;
+            countQuery += ' WHERE ';
+            genres.forEach(genre => {
+                count++;
+                genre = genre.replace(/(\r\n|\n|\r)/gm, '');
+                if (count === genres.length)
+                    countQuery += `genre = '${genre}'`;
+                else
+                    countQuery += `genre = '${genre}' OR `;
+            });
+        }
+        pool.query(countQuery, [], (error, results) => {
+            if(error) return res.status(400).json({ msg: 'Error contando elementos.' })
+            return res.status(200).json(results.rows[0]);
+        })
+    } catch (e) {
+        return res.status(500);
+    }
+});
+
+router.get('/get-count-blocked/:id', (req, res) => {
+    try {
+        const countQuery = 'SELECT count(*) FROM writings as w JOIN users as u ON w.writer_id = u.id AND w.writer_id NOT IN (SELECT UNNEST(blocked_accounts) FROM users WHERE id = $1);';
+        pool.query(countQuery, [req.params.id], (error, results) => {
+            if(error) return res.status(400).json({ msg: 'Error contando elementos.' })
+            return res.status(200).json(results.rows[0]);
+        })
+    } catch (e) {
+        return res.status(500);
+    }
+});
+
+router.get('/get-count-filters/:filters', (req, res) => {
+    try {
+        let countQuery = 'SELECT count(*) FROM writings as w JOIN users as u ON w.writer_id = u.id ';
+        let genres = [];
+        const params = req.params.filters;
+        if (params.includes('genre'))
+            genres = params.split('genre=')[1].split('&')[0].split(',');
+        if (genres.length > 0) {
+            let count = 0;
+            countQuery += ' WHERE ';
+            genres.forEach(genre => {
+                count++;
+                genre = genre.replace(/(\r\n|\n|\r)/gm, '');
+                if (count === genres.length)
+                    countQuery += `genre = '${genre}'`;
+                else
+                    countQuery += `genre = '${genre}' OR `;
+            });
+        }
+        pool.query(countQuery, [], (error, results) => {
+            if(error) return res.status(400).json({ msg: 'Error contando elementos.' })
+            return res.status(200).json(results.rows[0]);
+        })
+    } catch (e) {
+        return res.status(500);
+    }
+});
+
 /*  @route: GET /api/writings-block/:id
  *  @desc: get all writings from db avoiding blocked users 
  *  @access: private
  */
 router.get('/block/:id/page/:page', (req, res) => {
     try {
+        const offset = req.params.page * 4;
         const userId = req.params.id;
         let query = 'SELECT w.*, u.username, u.profile_image FROM writings as w JOIN users as u ON w.writer_id = u.id AND w.writer_id NOT IN (SELECT UNNEST(blocked_accounts) FROM users WHERE id = $1) ORDER BY last_edited DESC LIMIT 4 OFFSET $2;';
-        pool.query(query, [userId, req.params.page], (error, results) => {
+        pool.query(query, [userId, offset], (error, results) => {
             if (error)
                 res.status(404).json({msg: 'Error buscando escritos'});
             res.status(200).json(results ? results.rows : []);
@@ -57,13 +162,35 @@ router.get('/:id/', (req, res) => {
     }
 });
 
+const getSorting = (sorting) => {
+    switch (sorting) {
+        case 'more-likes/':
+        case 'more-likes':
+            return 'array_length(likes, 1) DESC NULLS LAST';
+        case 'less-recent/':
+        case 'less-recent':
+            return 'last_edited ASC';
+        default:
+            return 'last_edited DESC';
+    }
+}
+
 /*  @route: GET /api/writings/genre/:genre
  *  @desc: get a specific genre from db
  *  @access: public, no authentication is required
  */
-router.get('/genre/:genre/', (req, res) => {
+router.get('/genre/:genre/:filters?', (req, res) => {
     try {
-        pool.query('SELECT w.*, u.username, u.profile_image FROM writings AS w JOIN users as u ON w.writer_id = u.id AND w.genre = $1;', [req.params.genre.toString()], (error, result) => {
+        let offset = 4;
+        let query = 'SELECT w.*, u.username, u.profile_image FROM writings AS w JOIN users as u ON w.writer_id = u.id AND w.genre = $1';
+        if(req.query) {
+            const sorting = req.query.sort;
+            const orderBy = ' ORDER BY ' + getSorting(sorting);
+            query += orderBy;
+            offset *= parseInt(req.query.page);
+        }
+        query += ' LIMIT 4 OFFSET $2';
+        pool.query(query, [req.params.genre.toString(), offset], (error, result) => {
             if (error)
                 return res.status(404).json({msg: 'Esa categoría no existe'});
             res.status(200).json(result.rows);
@@ -77,9 +204,18 @@ router.get('/genre/:genre/', (req, res) => {
  *  @desc: get a specific subgenre from db
  *  @access: public, no authentication is required
  */
-router.get('/genre/:genre/subgenre/:subgenre/', (req, res) => {
+router.get('/genre/:genre/subgenre/:subgenre/:filters?', (req, res) => {
     try {
-        pool.query('SELECT w.*, u.username, u.profile_image FROM writings AS w JOIN users as u ON w.writer_id = u.id AND w.genre = $1 AND w.subgenre = $2;', [req.params.genre, req.params.subgenre.toString()], (error, result) => {
+        let offset = 4;
+        let query = 'SELECT w.*, u.username, u.profile_image FROM writings AS w JOIN users as u ON w.writer_id = u.id AND w.genre = $1 AND w.subgenre = $2 ';
+        if(req.query) {
+            const sorting = req.query.sort;
+            const orderBy = ' ORDER BY ' + getSorting(sorting);
+            query += orderBy;
+            offset *= parseInt(req.query.page);
+        }
+        query += ' LIMIT 4 OFFSET $3';
+        pool.query(query, [req.params.genre, req.params.subgenre.toString(), offset], (error, result) => {
             if (error)
                 return res.status(404).json({msg: 'Esa subcategoría no existe'});
             res.status(200).json(result.rows);
@@ -127,6 +263,7 @@ router.get('/preview/:username/', (req, res) => {
  */
 router.get('/filter/:filters/page/:page', (req, res) => {
     try {
+        const offset = req.params.page * 4;
         let params = req.params.filters;
         let sortQuery = ' ORDER BY last_edited DESC LIMIT 4 OFFSET $1;';
         let sortParam = params.split('sort=')[1].split('&')[0];
@@ -152,7 +289,7 @@ router.get('/filter/:filters/page/:page', (req, res) => {
             });
         }
         finalQuery += genreQuery + sortQuery;
-        pool.query(finalQuery, [req.params.page], (error, results) => {
+        pool.query(finalQuery, [offset], (error, results) => {
             if (error)
                 return res.status(404).json({msg: 'Error filtrando resultados'});
             res.status(200).json(results.rows);
@@ -168,6 +305,7 @@ router.get('/filter/:filters/page/:page', (req, res) => {
  */
 router.get('/filter/block/:id/:filters/page/:page', (req, res) => {
     try {
+        const offset = req.params.page * 4;
         let params = req.params.filters;
         let sortQuery = ' ORDER BY last_edited DESC LIMIT 4 OFFSET $2;';
         let sortParam = params.split('sort=')[1].split('&')[0];
@@ -194,7 +332,7 @@ router.get('/filter/block/:id/:filters/page/:page', (req, res) => {
             });
         }
         finalQuery += genreQuery + sortQuery;
-        pool.query(finalQuery, [userId, req.params.page], (error, results) => {
+        pool.query(finalQuery, [userId, offset], (error, results) => {
             if (error)
                 return res.status(404).json({msg: 'Error filtrando resultados'});
             res.status(200).json(results.rows);

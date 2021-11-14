@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
 import FiltersList from './FiltersList';
 import WritingsList from './WritingsList';
-import { Container, Spinner } from 'reactstrap';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { getWritings, getWritingsWithFilters, getWritingsWithFiltersAndBlocked, getWritingsWithBlocked } from '../actions/writingActions';
 import '../style/OverlayBanner.css';
 import EnterpriseLinks from "./EnterpriseLinks";
 
@@ -18,61 +15,29 @@ class Landing extends Component {
         initialLoad: true,
     }
 
-    componentDidUpdate(prevProps) {
-        if(prevProps.writing.writings?.length < this.props.writing.writings?.length)
-            this.setState({ incremented: false });
-        if(this.props.auth.user && this.state.initialLoad) {
-            if(this.props.location.search !== undefined && this.props.location.search !== '') {
-                this.props.getWritingsWithFiltersAndBlocked(this.props.location.search.split('?')[1], this.props.auth.user.id, this.state.pageNumber);
-            } else {
-                this.props.getWritingsWithBlocked(this.props.auth.user.id, this.state.pageNumber);
-            }
-            this.setState({ initialLoad: false });
-        } else if(!this.props.auth.user && this.state.initialLoad){
-            if(this.props.location.search !== undefined && this.props.location.search !== '') {
-                this.props.getWritingsWithFilters(this.props.location.search.split('?')[1], this.state.pageNumber);
-            } else {
-                this.props.getWritings(this.state.pageNumber);
-            }
-            this.setState({ initialLoad: false });
-        }
-    }
-
-    checkPosition = () => {
-        if(!this.state.incremented && !this.state.initialLoad) {
-            const container = document.getElementById('main');
-            const top = container.scrollTop;
-            const height = container.scrollHeight;
-            if (top > Math.floor(height / 4)) {
-                const nextPage = this.state.pageNumber + 1;
-
-                this.setState({pageNumber: nextPage, incremented: true});
-            }
-        }
-    }
-
     render() {
         const { isAuthenticated } = this.props.auth;
         return (
-            <div id="main" className="container p-0"
-                 style={{position: 'fixed', top: 90, overflowY: 'scroll', left: '50%', transform: 'translate(-50%, 0)', maxWidth: '100%', height: '85vh'}}
-                 onScroll={this.checkPosition}>
+            <div id="main"
+                 className="container p-0"
+                 style={{position: 'fixed', top: 90, left: '50%', transform: 'translate(-50%, 0)', maxWidth: '100%', height: '85vh'}}
+            >
                 { !isAuthenticated &&
                     <div className="container banner">
-                        <img src={`/assets/banner.jpg`} alt="banner" style={{minHeight: '50vh', height: '85vh', width: '100%'}}/>
+                        {/* <img src={`/assets/banner.jpg`} alt="banner" style={{minHeight: '50vh', height: '85vh', width: '100%'}}/>
                         <div className="welcome-header">Tu espacio para expresarte</div>
                         <div className="welcome-mid">Inspirate</div>
-                        <div className="welcome-footer">Lee y escribí, donde y cuando quieras</div>
+                        <div className="welcome-footer">Lee y escribí, donde y cuando quieras</div>*/}
                     </div>
                 }
                 <div className="row" style={{width: '90%', display: 'flex', flexWrap: 'column', marginLeft: 'auto', marginRight: 'auto', marginTop: '1.5rem'}}>
                     <div className="col-md-3 col-12 ml-auto mr-auto">
-                        <FiltersList/>
+                        <FiltersList showCategories/>
                         <hr/>
                         <EnterpriseLinks/>
                         <hr/>
                     </div>
-                    <div className="col-md-9 col-12">
+                    <div className="col-md-9 col-12" style={{paddingRight: 0}}>
                         <WritingsList expanded={false}/>
                     </div>
                 </div>
@@ -86,4 +51,4 @@ const mapStateToProps = (state) => ({
     auth: state.auth
 });
 
-export default connect(mapStateToProps, { getWritings, getWritingsWithFilters, getWritingsWithBlocked, getWritingsWithFiltersAndBlocked })(Landing);
+export default connect(mapStateToProps, null)(Landing);

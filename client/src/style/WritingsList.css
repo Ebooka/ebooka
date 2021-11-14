@@ -3,3 +3,6 @@
     margin-right: 0;
 }
 
+.infinite-scroll-component__outerdiv {
+    height: 100% !important;
+}
