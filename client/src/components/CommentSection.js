@@ -10,7 +10,8 @@ const CommentSection = ({
     getComments,
     gettingCommentsLoading,
     trigger,
-    triggerDelete
+    triggerDelete,
+    isAuthenticated
 }) => {
 
     useEffect(() => {
@@ -35,17 +36,21 @@ const CommentSection = ({
                         trigger={trigger}
                     />
             }
-            <CommentResponseInput
-                writingId={writing.id}
-                commentId={null}
-                depth={0}
-                trigger={trigger}
-            />
+            {
+                isAuthenticated &&
+                <CommentResponseInput
+                    writingId={writing.id}
+                    commentId={null}
+                    depth={0}
+                    trigger={trigger}
+                />
+            }
         </div>
     );
 }
 
 const mapStateToProps = (state) => ({
+    isAuthenticated: state.auth.isAuthenticated,
     gettingCommentsLoading: state.writing.gettingCommentsLoading,
 });
 

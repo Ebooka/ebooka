@@ -216,7 +216,7 @@ class Comment extends Component {
                             trigger={this.props.trigger}
                         />
                 }
-                {   this.state.wantsToRespond &&
+                {   this.state.wantsToRespond && this.props.auth.isAuthenticated &&
                     <CommentResponseInput writingId={this.props.writingId}
                                           auth={this.props.auth}
                                           commentId={this.props.current.id}
