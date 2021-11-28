@@ -29,7 +29,6 @@
     "mongoose": "^5.9.22",
     "nodemailer": "^6.4.11",
     "pg": "^8.3.0",
-    "react-infinite-scroll-component": "^6.1.0",
     "react-share": "^4.3.1",
     "uuid": "^8.3.1"
   },

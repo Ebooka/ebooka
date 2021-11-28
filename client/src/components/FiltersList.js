@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { ListGroup, ListGroupItem } from 'reactstrap';
 import {Button} from "@material-ui/core";
+import {withRouter} from "react-router-dom";
 const stuff = require('../static/genres');
 let genres = stuff.genres;
 
@@ -59,8 +60,11 @@ class FiltersList extends Component {
                 filters += `${filter},`;
             });
             filters = filters.slice(0, -1);
-        } 
-        window.location.href = window.location.href.split('/filter')[0] + filters;
+        }
+        let prefix = window.location.href.split('/filter')[0];
+        if(prefix && prefix.length > 0 && prefix.charAt(prefix.length - 1) === '/')
+            prefix = prefix.substr(0, prefix.length - 1);
+        window.location.href = prefix + filters;
     }
 
     checkbox = (event) => {
@@ -102,4 +106,4 @@ class FiltersList extends Component {
     }
 }
 
-export default FiltersList;
+export default withRouter(FiltersList);

@@ -5,7 +5,6 @@ import WritingsList from './WritingsList';
 import {genres} from "../static/genres";
 import FiltersList from './FiltersList';
 
-console.log(window.location.pathname);
 const subgenre = window.location.href.split('/subgenre/')[1]?.split('/filter')[0];
 const genre = window.location.href.split('/genre/')[1]?.split('/subgenre')[0];
 const url = window.location.href.split('/genre/')[1];
