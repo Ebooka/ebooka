@@ -29,7 +29,7 @@ export const getUser = (username) => dispatch => {
                 payload: res.data
             });
         })
-        .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+        .catch(error => console.log(error));
 };
 
 export const updateUser = (data, id) => dispatch => {

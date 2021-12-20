@@ -34,7 +34,7 @@ import {
     GET_INDIVIDUAL_WRITING_ERROR,
     LIKED_WRITING_REQUEST,
     UNLIKED_WRITING_REQUEST,
-    LIKED_COMMENT_REQUEST, UNLIKED_COMMENT_REQUEST
+    LIKED_COMMENT_REQUEST, UNLIKED_COMMENT_REQUEST, GET_WRITINGS_BY_USERNAME_INIT
 } from '../actions/types';
 import {REHYDRATE} from "redux-persist/es/constants";
 import {whenMapStateToPropsIsMissing} from 'react-redux/lib/connect/mapStateToProps';
@@ -66,9 +66,18 @@ export default function(state = initialState, action) {
                 writings: action.payload ? state.writings ? [...state.writings, ...action.payload] : [...action.payload] : state.writings,
                 loading: false
             }
+        case GET_WRITINGS_BY_USERNAME_INIT:
+            return {
+                ...state,
+                writings: [],
+            }
+        case GET_WRITINGS_BY_USERNAME:
+            return {
+                ...state,
+                writings: action.payload,
+            };
         case GET_WRITING:
         case GET_WRITINGS_PREVIEW:
-        case GET_WRITINGS_BY_USERNAME:
         case DELETE_DRAFT:
         case ADD_VIEWER:
         case ADD_ANON_VIEWER:

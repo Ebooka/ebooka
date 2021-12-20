@@ -17,7 +17,8 @@ class User extends Component {
 
     state = {
         isBlockModalOpen: false,
-        isConfirmationModalOpen: false
+        isConfirmationModalOpen: false,
+        stateUserImage: null,
     }
 
     componentDidMount() {
@@ -27,14 +28,13 @@ class User extends Component {
 
     componentDidUpdate(prevProps) {
         const username = window.location.href.split('/user/')[1];
-        if(this.props.auth.user !== prevProps.auth.user && this.props.auth.user.username === username) {
+        if(this.props.auth.user !== prevProps.auth.user && this.props.auth.user?.username === username) {
                 window.location.href = `/profile/${username}`;
         }
-        if(this.props.user !== prevProps.user && !this.props.auth.user.blocked_accounts?.includes(this.props.user.id)) {
+        if(this.props.user !== prevProps.user && !this.props.auth.user?.blocked_accounts?.includes(this.props.user.id)) {
             axios.get(`/api/users/profile_image/${username}`)
             .then(res => {
-                let image = document.getElementById('profile-image');
-                image.src = res.data.profile_image;
+                this.setState({stateUserImage: res.data.profile_image});
             });
             this.props.getWritingsByUsername(username);
         }
@@ -120,18 +120,18 @@ class User extends Component {
             return (
                 <div style={{position: 'fixed', top: 90, width: '100%', height: '90%'}}>
                         {
-                            this.props.auth.user.blocked_accounts?.includes(id) &&
+                            this.props.auth.user?.blocked_accounts?.includes(id) &&
                             <div style={{textAlign: 'center'}}>
                                 <p>Usuario no encontrado.</p>
                             </div>
                         }
                         {
-                            !this.props.auth.user.blocked_accounts || !this.props.auth.user.blocked_accounts.includes(id) &&
+                            (!this.props.auth.user?.blocked_accounts?.includes(id)) &&
                             <>
                                 <div style={{textAlign: 'center'}}>
                                 <div id="top-section" style={{display: 'flex', marginLeft: 'auto', marginRight: 'auto', width: 'max-content'}}>
                                     <div className="img-wrapper" style={{marginTop: 30, marginLeft: 0, marginRight: 0}}>
-                                        <img src="" alt="profile-image" style={{ height: 100, width: 100}} id="profile-image"/>
+                                        <img src={this.state.stateUserImage} alt="profile-image" style={{ height: 100, width: 100}} id="profile-image"/>
                                     </div>
                                     <div id="actions" style={{marginTop: '1.5rem', marginLeft: '1rem'}}>
                                         {this.props.auth.user ? <h3>{username}</h3> : <h3 style={{marginTop: '2rem'}}>{username}</h3>}
@@ -152,7 +152,14 @@ class User extends Component {
                                 </div>
                                 <Container style={{width: '60%', height: '90%'}}>
                                 <h5 style={{marginLeft: 40}}>Escritos publicados</h5>
-                            {writings ? <WritingsList filteredWritings={writings} expanded={false} style={{height: '70%', overflowY: 'scroll'}}/> : <p>No hay escritos publicados aún</p>}
+                            {writings ?
+                                <WritingsList
+                                    userList
+                                    filteredWritings={writings}
+                                    expanded={false}
+                                    style={{height: '70%', overflowY: 'scroll'}}/> :
+                                <p>No hay escritos publicados aún</p>
+                            }
                                 </Container>
                             </>
                         }

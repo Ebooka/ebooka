@@ -69,6 +69,7 @@ class WritingsList extends Component {
     }
 
     getNext = () => {
+        if(this.props.userList) return;
         const page = this.state.page;
         this.setState({ page: this.state.page + 1 });
         switch (this.state.fetchFunction) {
@@ -116,7 +117,7 @@ class WritingsList extends Component {
                 <div style={{overflowY: 'hidden', height: '85vh', maxHeight: '90vh', width: '100%', padding: 0, ...style}}>
                     <InfiniteScroll next={this.getNext}
                                     height={'100%'}
-                                    hasMore={this.props.writings.length < this.state.totalCount}
+                                    hasMore={!this.props.userList && this.props.writings.length < this.state.totalCount}
                                     loader={<Spinner size={'sm'} color={'dark'}/>}
                                     dataLength={this.props.writings.length}
                     >

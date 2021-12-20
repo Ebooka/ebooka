@@ -39,7 +39,11 @@ import {
     GET_INDIVIDUAL_WRITING_ERROR,
     EDIT_WRITING,
     EDIT_WRITING_SUCCESS,
-    EDIT_WRITING_ERROR, UNLIKED_WRITING_REQUEST, LIKED_COMMENT_REQUEST, UNLIKED_COMMENT_REQUEST,
+    EDIT_WRITING_ERROR,
+    UNLIKED_WRITING_REQUEST,
+    LIKED_COMMENT_REQUEST,
+    UNLIKED_COMMENT_REQUEST,
+    GET_WRITINGS_BY_USERNAME_INIT,
 } from './types';
 import axios from 'axios';
 import { returnErrors } from './errorActions';
@@ -51,7 +55,7 @@ export const getWritings = (pageNumber) => dispatch => {
             type: GET_WRITINGS,
             payload: res.data
         }))
-        .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+        .catch(error => console.log(error));
 };
 
 export const getWritingsWithBlocked = (id, pageNumber) => dispatch => {
@@ -61,7 +65,7 @@ export const getWritingsWithBlocked = (id, pageNumber) => dispatch => {
             type: GET_WRITINGS,
             payload: res.data
         }))
-        //.catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+        .catch(error => console.log(error));
 };
 
 export const getWritingsWithFilters = (filters, pageNumber) => dispatch => {
@@ -71,7 +75,7 @@ export const getWritingsWithFilters = (filters, pageNumber) => dispatch => {
             type: GET_WRITINGS,
             payload: res.data
         }))
-        .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+        .catch(error => console.log(error));
 }
 
 export const getWritingsWithFiltersAndBlocked = (filters, id, pageNumber) => dispatch => {
@@ -81,7 +85,7 @@ export const getWritingsWithFiltersAndBlocked = (filters, id, pageNumber) => dis
             type: GET_WRITINGS,
             payload: res.data
         }))
-        .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+        .catch(error => console.log(error));
 }
 
 export const addViewer = (viewerId, writingId) => dispatch => {
@@ -111,7 +115,7 @@ export const deleteWriting = (id) => dispatch => {
             type: DELETE_WRITING,
             payload: res.data
         }))
-        .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+        .catch(error => console.log(error));
 }
 
 export const getGenre = (genre, page) => dispatch => {
@@ -122,7 +126,7 @@ export const getGenre = (genre, page) => dispatch => {
             type: GET_WRITINGS,
             payload: res.data
         }))
-        .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+        .catch(error => console.log(error));
 }
 
 export const getSubgenre = (path, page) => dispatch => {
@@ -133,7 +137,7 @@ export const getSubgenre = (path, page) => dispatch => {
             type: GET_WRITINGS,
             payload: res.data
         }))
-        .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+        .catch(error => console.log(error));
 }
 
 export const editWriting = (writingId, data) => dispatch => {
@@ -155,7 +159,7 @@ export const likeComment = (commentId, likerId, writingId, parents) => dispatch 
             type: LIKED_COMMENT,
             payload: res.data
         }))
-        .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+        .catch(error => console.log(error));
 }
 
 export const unlikeComment = (commentId, likerId, writingId, parents) => dispatch => {
@@ -169,7 +173,7 @@ export const unlikeComment = (commentId, likerId, writingId, parents) => dispatc
         type: UNLIKED_COMMENT,
         payload: res.data
     }))
-    .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+    .catch(error => console.log(error));
 }
 
 export const likeWriting = (writingId, likerId) => dispatch => {
@@ -183,7 +187,7 @@ export const likeWriting = (writingId, likerId) => dispatch => {
             type: LIKED_WRITING,
             payload: res.data
         }))
-        .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+        .catch(error => console.log(error));
 }
 
 export const unlikeWriting = (writingId, likerId) => dispatch => {
@@ -197,7 +201,7 @@ export const unlikeWriting = (writingId, likerId) => dispatch => {
             type: UNLIKED_WRITING,
             payload: res.data
         }))
-        .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+        .catch(error => console.log(error));
 }
 
 export const saveComment = (writingId, content, commenter) => dispatch => {
@@ -251,7 +255,7 @@ export const addWriting = (writing, id, chaptersArray) => async dispatch => {
                     payload: res.data
                 });
             })
-            .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+            .catch(error => console.log(error));
     }
     await axios.post('/api/writings/', writing)
         .then(async (res) => {
@@ -262,7 +266,7 @@ export const addWriting = (writing, id, chaptersArray) => async dispatch => {
             }
         )
         .catch(error => {
-            dispatch(returnErrors(error.response.data, error.response.status))
+            console.log(error)
         });
 };
 
@@ -290,7 +294,7 @@ export const getWriting = (id) => dispatch => {
             type: GET_WRITING,
             payload: res.data
         }))
-        //.catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+        //.catch(error => console.log(error));
 }
 
 export const getWritingCorrect = (id) => dispatch => {
@@ -310,17 +314,18 @@ export const getWritingsPreview = (username) => dispatch => {
             type: GET_WRITINGS_PREVIEW,
             payload: res.data
         }))
-        .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+        .catch(error => console.log(error));
 }
 
 export const getWritingsByUsername = (username) => dispatch => {
     dispatch(setWritingsLoading());
+    dispatch({type: GET_WRITINGS_BY_USERNAME_INIT});
     axios.get(`/api/writings/username/${username}/`)
         .then(res => dispatch({
             type: GET_WRITINGS_BY_USERNAME,
             payload: res.data
         }))
-        .catch(error => dispatch(returnErrors(error.response.data, error.response.status)));
+        .catch(error => console.log(error));
 }
 
 export const deleteComment = (id, wid, parents) => dispatch => {

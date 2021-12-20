@@ -29,18 +29,25 @@ class Navbar extends Component {
     state = {
         notifications: [],
         check: false,
-        forceLogin: false
+        forceLogin: false,
+        intervalId: null,
     }
 
     static propTypes = {
         auth: PropTypes.object.isRequired
     }
 
+    componentDidMount() {
+        if(!!this.props.auth?.user) {
+            this.props.getNotifications(this.props.auth.user.id);
+        }
+    }
+
     componentDidUpdate(prevProps) {
-        if(!prevProps.auth.user && this.props.auth.user && !this.state.check) {
+        /*if(!prevProps.auth.user && this.props.auth.user && !this.state.check) {
             this.setState({ check: true });
             this.props.getNotifications(this.props.auth.user.id, this.props.auth.user.likes_notif_active, this.props.auth.user.comments_notif_active, this.props.auth.user.tags_notif_active, this.props.auth.user.follows_notif_active);
-        }
+        }*/
         if(prevProps.notifications.notifications !== this.props.notifications.notifications) {
             this.setState({ notifications: this.props.notifications.notifications });
         }

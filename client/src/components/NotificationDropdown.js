@@ -14,7 +14,8 @@ class NotificationDropdown extends Component {
 
     state = {
         toggle: false,
-        opened: false
+        opened: false,
+        unread: false,
     }
 
     componentDidUpdate(prevProps) {
@@ -26,6 +27,7 @@ class NotificationDropdown extends Component {
                     unreadNotifications++;
             }
             if(unreadNotifications > 0) {
+                this.setState({unread: true});
                 if(unreadNotifications > 20)
                     document.title = '(20+) - Escritos';
                 else
@@ -44,17 +46,9 @@ class NotificationDropdown extends Component {
             });
         }
         this.setState({
-            toggle: !this.state.toggle
+            toggle: !this.state.toggle,
+            unread: false,
         });
-    }
-
-    allRead = () => {
-        let allRead = true;
-        for(let i = 0 ; i < this.props.notifications.length && allRead ; i++) {
-            if(!this.props.notifications[i].read)
-                allRead = false;
-        }
-        return allRead;
     }
 
     render() {
@@ -63,8 +57,8 @@ class NotificationDropdown extends Component {
                 {/*<DropdownToggle style={toggleStyle}>*/}
                     {/*<img id="notification-image" width="25" src={this.props.notifications.length > 0 && !this.allRead() ? '/assets/notification-full.png' : '/assets/notification-empty.png'} alt="notifications"/>*/}
                     {
-                        this.props.notifications.length > 0 && !this.allRead() ?
-                            <Notifications color={'black'} style={notifStyle} onClick={this.toggle}/> :
+                        this.state.unread ?
+                            <Notifications color={this.state.bellColor} style={notifStyle} onClick={this.toggle}/> :
                             <NotificationsOutlined color={'black'} style={notifStyle} onClick={this.toggle}/>
                     }
                 {/*}</DropdownToggle>*/}

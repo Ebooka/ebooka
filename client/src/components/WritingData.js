@@ -84,6 +84,7 @@ class WritingData extends Component {
     likePressed = (event) => {
         event.preventDefault();
         event.stopPropagation();
+        if(this.props.loading) return;
         let current = this.props.data;
         let likeButton = document.getElementById(`like-icon${current.id}`);
         let likeAmountString = document.getElementById(`like-amount${current.id}`);
@@ -300,34 +301,8 @@ class WritingData extends Component {
 const mapStateToProps = state => ({
     auth: state.auth,
     loadingLikers: state.writing.loadingLikers,
-    likers: state.writing.likers
+    likers: state.writing.likers,
+    loading: state.writing.loading,
 });
 
 export default connect(mapStateToProps, {saveComment, getWritingLikers, likeWriting, unlikeWriting})(WritingData);
-
-/*{
-    "id": 113,
-    "title": "Primero del 2021",
-    "body": "<p>Feliz año!!!</p>",
-    "writer_id": 95,
-    "last_edited": "2021-01-09T16:21:54.071Z",
-    "genre": "Querido X",
-    "tags": [
-      "newyear"
-    ],
-    "comments": null,
-    "likes": [
-      34
-    ],
-    "subgenre": null,
-    "completed": false,
-    "cover": "null",
-    "description": "Primer escrito publicado en 2021!",
-    "viewers": null,
-    "anon_viewers": [
-      "b9350683-52c8-4750-b09a-1c50d6cc5168"
-    ],
-    "chapters": null,
-    "username": "eugeniodamm",
-    "profile_image": ""
-}*/
