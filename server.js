@@ -15,7 +15,7 @@ if (process.env.NODE_ENV === 'production') {
     app.options('*', (_, res) => {
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
         res.setHeader('Access-Control-Allow-Origin', 'https://ebooka-client.onrender.com');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-auth-token');
         res.status(201).send();
     });
     
@@ -23,7 +23,7 @@ if (process.env.NODE_ENV === 'production') {
     app.use((_, res, next) => {
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
         res.setHeader('Access-Control-Allow-Origin', 'https://ebooka-client.onrender.com');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-auth-token');
         next();
     });
 }
