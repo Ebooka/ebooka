@@ -14,7 +14,6 @@
     "bootstrap": "^4.5.0",
     "css-loader": "^3.4.2",
     "metaphone": "^1.0.6",
-    "node-sass": "^6.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-facebook-login": "^4.1.1",
@@ -29,7 +28,6 @@
     "redux-devtools-extension": "^2.13.8",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.3.0",
-    "sass-loader": "^8.0.2",
     "soundex": "^0.2.1",
     "string-similarity-js": "^2.1.2",
     "uuid": "^8.3.0"

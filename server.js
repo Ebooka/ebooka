@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const config = require('config');
@@ -20,7 +21,7 @@ app.use('/api/favourites', require('./endpoints/api/favourites'));
 
 if(process.env.NODE_ENV === 'production') {
     app.use(express.static('client/build'));
-    app.get('*', (req, res) => {
+    app.get('*', (_, res) => {
         res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
     });
 }
