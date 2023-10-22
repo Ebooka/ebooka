@@ -22,7 +22,7 @@ class Validate extends Component {
             .catch(error => {
                 this.props.dispatch({
                     type: LOGIN_FAIL,
-                    payload: error.response.data
+                    payload: error.response?.data ?? {}
                 })
             });
     }
