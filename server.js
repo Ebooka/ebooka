@@ -19,12 +19,12 @@ app.use('/api/search', require('./endpoints/api/searches'));
 app.use('/api/notifications', require('./endpoints/api/notifications'));
 app.use('/api/favourites', require('./endpoints/api/favourites'));
 
-if(process.env.NODE_ENV === 'production') {
-    app.use(express.static('client/build'));
-    app.get('*', (_, res) => {
-        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-    });
-}
+// if(process.env.NODE_ENV === 'production') {
+//     app.use(express.static('client/build'));
+//     app.get('*', (_, res) => {
+//         res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+//     });
+// }
 
 const port = process.env.PORT || 9090;
 
