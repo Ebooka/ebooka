@@ -9,18 +9,4 @@ const pool = new Pool({
     ssl: process.env.NODE_ENV === 'production',
 });
 
-test();
-
-async function test() {
-    const client = await pool.connect();
-    try {
-        const res = await client.query('SELECT * FROM users');
-        console.log(res.rows);
-    } catch (err) {
-        console.log(err.stack);
-    } finally {
-        client.release();
-    }
-}
-
 module.exports = { pool }
