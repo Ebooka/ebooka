@@ -10,6 +10,14 @@ const app = express();
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 app.use(bodyParser.json({limit: '50MB', extended: true}));
 
+if (process.env.NODE_ENV === 'production') {
+    // allow origin
+    app.use((_, res, next) => {
+        res.setHeader('Access-Control-Allow-Origin', 'https://ebooka-client.onrender.com');
+        next();
+    });
+}
+
 // Define endpoints for server interaction
 app.use('/api/writings', require('./endpoints/api/writings'));
 app.use('/api/users', require('./endpoints/api/users'));
