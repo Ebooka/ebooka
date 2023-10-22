@@ -17,8 +17,7 @@ const options = {
 let transporter = nodemailer.createTransport(options)
 
 const sendRegistrationEmail = async (email, needsValidation, token, userResponse) => {
-    console.log('send email');
-    const link = 'https://somosebooka.com/validate/' + token;
+    const link = 'https://ebooka-client.onrender.com/validate/' + token;
     let mailOptions = needsValidation ?
     {
         from: credentials.email,
@@ -46,7 +45,7 @@ const sendRegistrationEmail = async (email, needsValidation, token, userResponse
 }
 
 const sendPasswordEmail = (email, token) => {
-    const link = 'http://somosebooka.com/password/' + token;
+    const link = 'https://ebooka-client.onrender.com/password/' + token;
     let mailOptions = {
         from: credentials.email,
         to: email,
