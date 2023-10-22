@@ -13,6 +13,7 @@ app.use(bodyParser.json({limit: '50MB', extended: true}));
 if (process.env.NODE_ENV === 'production') {
     // allow origin
     app.use((_, res, next) => {
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
         res.setHeader('Access-Control-Allow-Origin', 'https://ebooka-client.onrender.com');
         next();
     });
