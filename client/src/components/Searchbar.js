@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
 import '../style/Searchbar.css'
 import { autoComplete } from '../static/autoComplete';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import {SearchOutlined} from "@material-ui/icons";
 const iconPath = process.env.PUBLIC_URL + '/assets/';
 
