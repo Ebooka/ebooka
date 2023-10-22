@@ -11,6 +11,13 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 app.use(bodyParser.json({limit: '50MB', extended: true}));
 
 if (process.env.NODE_ENV === 'production') {
+    // respond with 201 to options requests
+    app.options('*', (_, res) => {
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+        res.setHeader('Access-Control-Allow-Origin', 'https://ebooka-client.onrender.com');
+        res.status(201).send();
+    });
+    
     // allow origin
     app.use((_, res, next) => {
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
