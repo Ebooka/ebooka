@@ -7,7 +7,7 @@ import { returnErrors } from './errorActions';
 
 export const getNotifications = (userId, likes, comments, tags, follows) => dispatch => {
     dispatch(setNotificationsLoading());
-    axios.get(`/api/notifications/${userId}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/notifications/${userId}`)
         .then(res => dispatch({
             type: GET_NOTIFICATIONS,
             payload: res.data
@@ -17,7 +17,7 @@ export const getNotifications = (userId, likes, comments, tags, follows) => disp
 
 export const createTagNotification = (commenterId, taggedUsername, writingId) => dispatch => {
     dispatch(setNotificationsLoading());
-    axios.post('/api/notifications', {
+    axios.post(`${process.env.REACT_APP_API_URL}/api/notifications`, {
         sender_id: commenterId,
         username: taggedUsername,
         post_id: writingId,

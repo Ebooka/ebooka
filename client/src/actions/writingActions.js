@@ -50,7 +50,7 @@ import { returnErrors } from './errorActions';
 
 export const getWritings = (pageNumber) => dispatch => {
     dispatch(setWritingsLoading());
-    axios.get(`/api/writings/page/${pageNumber}/`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/writings/page/${pageNumber}/`)
         .then(res => dispatch({
             type: GET_WRITINGS,
             payload: res.data
@@ -60,7 +60,7 @@ export const getWritings = (pageNumber) => dispatch => {
 
 export const getWritingsWithBlocked = (id, pageNumber) => dispatch => {
     dispatch(setWritingsLoading());
-    axios.get(`/api/writings/block/${id}/page/${pageNumber}/`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/writings/block/${id}/page/${pageNumber}/`)
         .then(res => dispatch({
             type: GET_WRITINGS,
             payload: res.data
@@ -70,7 +70,7 @@ export const getWritingsWithBlocked = (id, pageNumber) => dispatch => {
 
 export const getWritingsWithFilters = (filters, pageNumber) => dispatch => {
     dispatch(setWritingsLoading());
-    axios.get(`/api/writings/filter/${filters}/page/${pageNumber}/`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/writings/filter/${filters}/page/${pageNumber}/`)
         .then(res => dispatch({
             type: GET_WRITINGS,
             payload: res.data
@@ -80,7 +80,7 @@ export const getWritingsWithFilters = (filters, pageNumber) => dispatch => {
 
 export const getWritingsWithFiltersAndBlocked = (filters, id, pageNumber) => dispatch => {
     dispatch(setWritingsLoading());
-    axios.get(`/api/writings/filter/block/${id}/${filters}/page/${pageNumber}/`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/writings/filter/block/${id}/${filters}/page/${pageNumber}/`)
         .then(res => dispatch({
             type: GET_WRITINGS,
             payload: res.data
@@ -90,7 +90,7 @@ export const getWritingsWithFiltersAndBlocked = (filters, id, pageNumber) => dis
 
 export const addViewer = (viewerId, writingId) => dispatch => {
     dispatch(setWritingsLoading());
-    axios.put(`/api/writings/viewer/${viewerId}/`, { writingId: writingId })
+    axios.put(`${process.env.REACT_APP_API_URL}/api/writings/viewer/${viewerId}/`, { writingId: writingId })
         .then(res => dispatch({
             type: ADD_VIEWER,
             payload: res.data
@@ -100,7 +100,7 @@ export const addViewer = (viewerId, writingId) => dispatch => {
 
 export const addAnonViewer = (viewerId, writingId) => dispatch => {
     dispatch(setWritingsLoading());
-    axios.put(`/api/writings/anonViewer/${viewerId}/`, { writingId: writingId })
+    axios.put(`${process.env.REACT_APP_API_URL}/api/writings/anonViewer/${viewerId}/`, { writingId: writingId })
         .then(res => dispatch({
             type: ADD_ANON_VIEWER,
             payload: res.data
@@ -110,7 +110,7 @@ export const addAnonViewer = (viewerId, writingId) => dispatch => {
 
 export const deleteWriting = (id) => dispatch => {
     dispatch(setWritingsLoading());
-    axios.delete(`/api/writings/${id}/`)
+    axios.delete(`${process.env.REACT_APP_API_URL}/api/writings/${id}/`)
         .then(res => dispatch({
             type: DELETE_WRITING,
             payload: res.data
@@ -121,7 +121,7 @@ export const deleteWriting = (id) => dispatch => {
 export const getGenre = (genre, page) => dispatch => {
     dispatch(setWritingsLoading());
     genre = genre.includes('filter') ? genre : `${genre}/filter?sort=regular`;
-    axios.get(`/api/writings/genre/${genre}&page=${page}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/writings/genre/${genre}&page=${page}`)
         .then(res => dispatch({
             type: GET_WRITINGS,
             payload: res.data
@@ -132,7 +132,7 @@ export const getGenre = (genre, page) => dispatch => {
 export const getSubgenre = (path, page) => dispatch => {
     dispatch(setWritingsLoading());
     path = path.includes('filter') ? path : `${path}/filter?sort=regular`
-    axios.get(`/api/writings/genre/${path}&page=${page}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/writings/genre/${path}&page=${page}`)
         .then(res => dispatch({
             type: GET_WRITINGS,
             payload: res.data
@@ -142,7 +142,7 @@ export const getSubgenre = (path, page) => dispatch => {
 
 export const editWriting = (writingId, data) => dispatch => {
     dispatch({type: EDIT_WRITING});
-    axios.put(`/api/writings/${writingId}`, data)
+    axios.put(`${process.env.REACT_APP_API_URL}/api/writings/${writingId}`, data)
         .then(res => dispatch({ type: EDIT_WRITING_SUCCESS }))
         .catch(err => dispatch({ type: EDIT_WRITING_ERROR }));
 }
@@ -150,7 +150,7 @@ export const editWriting = (writingId, data) => dispatch => {
 export const likeComment = (commentId, likerId, writingId, parents) => dispatch => {
     dispatch(setWritingsLoading());
     dispatch({ type: LIKED_COMMENT_REQUEST, commentId, likerId, writingId, parents });
-    axios.put('/api/writings/comment-like/', {
+    axios.put(`${process.env.REACT_APP_API_URL}/api/writings/comment-like/`, {
         writingId: writingId,
         likerId: likerId,
         commentId: commentId
@@ -165,7 +165,7 @@ export const likeComment = (commentId, likerId, writingId, parents) => dispatch 
 export const unlikeComment = (commentId, likerId, writingId, parents) => dispatch => {
     dispatch(setWritingsLoading());
     dispatch({ type: UNLIKED_COMMENT_REQUEST, commentId, likerId, writingId, parents });
-    axios.put('/api/writings/comment-unlike/', {
+    axios.put(`${process.env.REACT_APP_API_URL}/api/writings/comment-unlike/`, {
         writingId: writingId,
         likerId: likerId,
         commentId: commentId
@@ -179,7 +179,7 @@ export const unlikeComment = (commentId, likerId, writingId, parents) => dispatc
 export const likeWriting = (writingId, likerId) => dispatch => {
     dispatch(setWritingsLoading());
     dispatch({type: LIKED_WRITING_REQUEST});
-    axios.put('/api/writings/like/', {
+    axios.put(`${process.env.REACT_APP_API_URL}/api/writings/like/`, {
             writingId: writingId,
             likerId: likerId
         })
@@ -193,7 +193,7 @@ export const likeWriting = (writingId, likerId) => dispatch => {
 export const unlikeWriting = (writingId, likerId) => dispatch => {
     dispatch(setWritingsLoading());
     dispatch({type: UNLIKED_WRITING_REQUEST})
-    axios.put('/api/writings/unlike/', {
+    axios.put(`${process.env.REACT_APP_API_URL}/api/writings/unlike/`, {
             writingId: writingId,
             likerId: likerId
         })
@@ -206,7 +206,7 @@ export const unlikeWriting = (writingId, likerId) => dispatch => {
 
 export const saveComment = (writingId, content, commenter) => dispatch => {
     dispatch({type: COMMENTED_WRITING});
-    axios.post('/api/writings/comment/', {
+    axios.post(`${process.env.REACT_APP_API_URL}/api/writings/comment/`, {
             writingId: writingId,
             commenterId: commenter.id,
             content: content
@@ -228,7 +228,7 @@ export const saveComment = (writingId, content, commenter) => dispatch => {
 
 export const saveResponse = (writingId, content, parentCommentId, commenter, parents) => async dispatch => {
     dispatch({type: RESPONDED_COMMENT_REQUEST});
-    axios.post('/api/writings/response/', {
+    axios.post(`${process.env.REACT_APP_API_URL}/api/writings/response/`, {
             writingId: writingId,
             content: content,
             parentCommentId: parentCommentId,
@@ -248,7 +248,7 @@ export const saveResponse = (writingId, content, parentCommentId, commenter, par
 export const addWriting = (writing, id, chaptersArray) => async dispatch => {
     dispatch(setWritingsLoading());
     if(id) {
-        axios.delete(`/api/drafts/${id}/`)
+        axios.delete(`${process.env.REACT_APP_API_URL}/api/drafts/${id}/`)
             .then(res => {
                 dispatch({
                     type: DELETE_DRAFT,
@@ -257,7 +257,7 @@ export const addWriting = (writing, id, chaptersArray) => async dispatch => {
             })
             .catch(error => console.log(error));
     }
-    await axios.post('/api/writings/', writing)
+    await axios.post(`${process.env.REACT_APP_API_URL}/api/writings/`, writing)
         .then(async (res) => {
                 const id = res.data;
                 if(writing.genre === 'Novela') {
@@ -272,7 +272,7 @@ export const addWriting = (writing, id, chaptersArray) => async dispatch => {
 
 export const addChapters = async (chaptersArray, writingId) => {
     chaptersArray.map(chapter => {
-        axios.post('/api/writings/chapters/', {
+        axios.post(`${process.env.REACT_APP_API_URL}/api/writings/chapters/`, {
             body: chapter.body,
             writing_id: writingId
         })
@@ -289,7 +289,7 @@ export const setWritingsLoading = () => {
 
 export const getWriting = (id) => dispatch => {
     dispatch(setWritingsLoading());
-    axios.get(`/api/writings/${id}/`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/writings/${id}/`)
         .then(res => dispatch({
             type: GET_WRITING,
             payload: res.data
@@ -299,7 +299,7 @@ export const getWriting = (id) => dispatch => {
 
 export const getWritingCorrect = (id) => dispatch => {
     dispatch({type: GET_INDIVIDUAL_WRITING});
-    axios.get(`/api/writings/${id}/`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/writings/${id}/`)
         .then(res => dispatch({
             type: GET_INDIVIDUAL_WRITING_SUCCESS,
             payload: res.data
@@ -309,7 +309,7 @@ export const getWritingCorrect = (id) => dispatch => {
 
 export const getWritingsPreview = (username) => dispatch => {
     dispatch(setWritingsLoading());
-    axios.get(`/api/writings/preview/${username}/`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/writings/preview/${username}/`)
         .then(res => dispatch({
             type: GET_WRITINGS_PREVIEW,
             payload: res.data
@@ -320,7 +320,7 @@ export const getWritingsPreview = (username) => dispatch => {
 export const getWritingsByUsername = (username) => dispatch => {
     dispatch(setWritingsLoading());
     dispatch({type: GET_WRITINGS_BY_USERNAME_INIT});
-    axios.get(`/api/writings/username/${username}/`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/writings/username/${username}/`)
         .then(res => dispatch({
             type: GET_WRITINGS_BY_USERNAME,
             payload: res.data
@@ -330,7 +330,7 @@ export const getWritingsByUsername = (username) => dispatch => {
 
 export const deleteComment = (id, wid, parents) => dispatch => {
     dispatch({type: DELETE_COMMENT});
-    axios.delete(`/api/writings/comment/${id}/writing/${wid}/`)
+    axios.delete(`${process.env.REACT_APP_API_URL}/api/writings/comment/${id}/writing/${wid}/`)
         .then(res => dispatch({
             type: DELETE_COMMENT_SUCCESS,
             commentId: id,
@@ -344,7 +344,7 @@ export const deleteComment = (id, wid, parents) => dispatch => {
 
 export const getWritingLikers = id => dispatch => {
     dispatch({type: GETTING_WRITING_LIKERS});
-    axios.get(`/api/writings/${id}/likers/`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/writings/${id}/likers/`)
         .then(res => dispatch({
             type: GETTING_WRITING_LIKERS_SUCCESS,
             payload: res.data
@@ -356,7 +356,7 @@ export const getWritingLikers = id => dispatch => {
 
 export const getComments = (writingId) => dispatch => {
     dispatch({type: GET_COMMENTS});
-    axios.get(`/api/writings/all-comments/${writingId}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/writings/all-comments/${writingId}`)
         .then(res => dispatch({
             type: GET_COMMENTS_SUCCESS,
             writingId,
@@ -370,7 +370,7 @@ export const getComments = (writingId) => dispatch => {
 
 export const getResponses = (commentId, writingId, parents) => dispatch => {
     dispatch({type: GET_RESPONSES});
-    axios.get(`/api/writings/responses/${commentId}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/writings/responses/${commentId}`)
         .then(res => dispatch({
             type: GET_RESPONSES_SUCCESS,
             commentId,

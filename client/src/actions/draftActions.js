@@ -11,7 +11,7 @@ import { returnErrors } from './errorActions';
 
 export const addDraft = (draft, chaptersArray) => async dispatch => {
     dispatch(setDraftsLoading());
-    await axios.post('/api/drafts', draft)
+    await axios.post(`${process.env.REACT_APP_API_URL}/api/drafts`, draft)
         .then(async res => {
             const id = res.data.id;
             if(draft.genre === 'Novela')
@@ -22,7 +22,7 @@ export const addDraft = (draft, chaptersArray) => async dispatch => {
 
 export const addDraftChapters = async (chaptersArray, draftId) => {
     chaptersArray.map(chapter => {
-        axios.post('/api/drafts/chapters', {
+        axios.post(`${process.env.REACT_APP_API_URL}/api/drafts/chapters`, {
             body: chapter,
             draft_id: draftId
         })
@@ -33,7 +33,7 @@ export const addDraftChapters = async (chaptersArray, draftId) => {
 
 export const getDraftsByUser = (id) => dispatch => {
     dispatch(setDraftsLoading());
-    axios.get('/api/drafts', id)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/drafts`, id)
         .then(res => dispatch({
             type: GET_DRAFTS_BY_USER,
             payload: res.data
@@ -43,7 +43,7 @@ export const getDraftsByUser = (id) => dispatch => {
 
 export const getDraftsPreview = (id) => dispatch => {
     dispatch(setDraftsLoading());
-    axios.get(`/api/drafts/user/${id}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/drafts/user/${id}`)
         .then(res => dispatch({
             type: GET_DRAFTS_PREVIEW,
             payload: res.data
@@ -53,7 +53,7 @@ export const getDraftsPreview = (id) => dispatch => {
 
 export const editDraft = (draft, chapters, id) => async dispatch => {
     dispatch(setDraftsLoading());
-    await axios.put(`/api/drafts/edit/${id}`, draft)
+    await axios.put(`${process.env.REACT_APP_API_URL}/api/drafts/edit/${id}`, draft)
         .then(async res => {
             dispatch({
                 type: EDIT_DRAFT,
@@ -67,7 +67,7 @@ export const editDraft = (draft, chapters, id) => async dispatch => {
 
 export const getDraft = (id) => dispatch => {
     dispatch(setDraftsLoading());
-    axios.get(`/api/drafts/${id}`, id)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/drafts/${id}`, id)
         .then(res => dispatch({
             type: GET_DRAFT,
             payload: res.data
@@ -78,7 +78,7 @@ export const getDraft = (id) => dispatch => {
 
 export const getDraftCorrect = (id) => dispatch => {
     dispatch({ type: GETTING_DRAFT_REQUEST });
-    axios.get(`/api/drafts/${id}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/drafts/${id}`)
         .then(res => dispatch({
             type: GETTING_DRAFT_RESPONSE,
             payload: res.data

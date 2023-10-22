@@ -10,7 +10,7 @@ export const searchTerm = (term, filter) => dispatch => {
     dispatch(setSearchLoading());
     console.log(term);
     if(!filter) {
-        axios.get(`/api/search/${term}`)
+        axios.get(`${process.env.REACT_APP_API_URL}/api/search/${term}`)
             .then(res => dispatch({
                 type: EXECUTING_QUERY,
                 payload: res.data
@@ -20,7 +20,7 @@ export const searchTerm = (term, filter) => dispatch => {
             //    dispatch(returnErrors(error.response.data, error.response.status))
             //});
     } else {
-        axios.get(`/api/search/${term}/${filter}`)
+        axios.get(`${process.env.REACT_APP_API_URL}/api/search/${term}/${filter}`)
             .then(res => dispatch({
                 type: EXECUTING_QUERY,
                 payload: res.data

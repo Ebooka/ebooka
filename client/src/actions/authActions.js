@@ -11,11 +11,10 @@ import {
     REGISTER_SUCCESS,
     SEND_PASSWORD_EMAIL, SEND_PASSWORD_EMAIL_SUCCESS, SEND_PASSWORD_EMAIL_ERROR
 } from './types';
-import {setGettingUser} from "./userActions";
 
 export const loadUser = () => (dispatch, getState) => {
     dispatch({ type: USER_LOADING });    
-    axios.get('/api/auth/user', tokenConfig(getState))
+    axios.get(`${process.env.REACT_APP_API_URL}/api/auth/user`, tokenConfig(getState))
         .then(res => {
             dispatch({ 
                 type: USER_LOADED,
@@ -33,7 +32,7 @@ export const loadUser = () => (dispatch, getState) => {
 
 export const registerUser = (user) => dispatch => {
     dispatch({type: USER_LOADING});
-    axios.post('/api/users', user)
+    axios.post(`${process.env.REACT_APP_API_URL}/api/users`, user)
         .then(res => 
             dispatch({
                 type: REGISTER_SUCCESS,
@@ -55,7 +54,7 @@ export const logout = () => dispatch => {
 
 export const login = (data) => dispatch => {
     dispatch({ type: USER_LOADING });
-    axios.post('/api/auth/user', data)
+    axios.post(`${process.env.REACT_APP_API_URL}/api/auth/user`, data)
         .then(res => {
             dispatch({
                 type: LOGIN_SUCCESS,
@@ -74,7 +73,7 @@ export const login = (data) => dispatch => {
 
 export const sendPasswordEmail = email => dispatch => {
     dispatch({type: SEND_PASSWORD_EMAIL})
-    axios.post('/api/auth/user/password', {email})
+    axios.post(`${process.env.REACT_APP_API_URL}/api/auth/user/password`, {email})
         .then(res => dispatch({type: SEND_PASSWORD_EMAIL_SUCCESS, payload: res.data}))
         .catch(err => dispatch({type: SEND_PASSWORD_EMAIL_ERROR}))
     ;

@@ -22,7 +22,7 @@ import {
 
 export const getUser = (username) => dispatch => {
     dispatch(setGettingUser());
-    axios.get(`/api/users/${username}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/users/${username}`)
         .then(res => {
             dispatch({
                 type: GOT_USER,
@@ -34,7 +34,7 @@ export const getUser = (username) => dispatch => {
 
 export const updateUser = (data, id) => dispatch => {
     dispatch({type: UPDATE_USER})
-    axios.put(`/api/users/update/${id}`, data)
+    axios.put(`${process.env.REACT_APP_API_URL}/api/users/update/${id}`, data)
         .then(res => {
             dispatch({
                 type: UPDATE_USER_SUCCESS,
@@ -47,7 +47,7 @@ export const updateUser = (data, id) => dispatch => {
 export const follow = (followedId, username, followerId) => dispatch => {
     dispatch(setGettingUser());
     dispatch({type: FOLLOWED_USER_REQUEST, followedId});
-    axios.put('/api/users/follow', {
+    axios.put(`${process.env.REACT_APP_API_URL}/api/users/follow`, {
             username: username,
             followerId: followerId
         })
@@ -61,7 +61,7 @@ export const follow = (followedId, username, followerId) => dispatch => {
 export const unfollow = (unfollowedId, username, unfollowerId) => dispatch => {
     dispatch(setGettingUser());
     dispatch({type: UNFOLLOWED_USER_REQUEST, unfollowedId});
-    axios.put('/api/users/unfollow', {
+    axios.put(`${process.env.REACT_APP_API_URL}/api/users/unfollow`, {
             username: username,
             unfollowerId: unfollowerId
         })
@@ -74,7 +74,7 @@ export const unfollow = (unfollowedId, username, unfollowerId) => dispatch => {
 
 export const block = (userId, blockedId) => dispatch => {
     dispatch(setGettingUser());
-    axios.put('/api/users/block', {
+    axios.put(`${process.env.REACT_APP_API_URL}/api/users/block`, {
             userId: userId,
             blockedId: blockedId
         })
@@ -87,7 +87,7 @@ export const block = (userId, blockedId) => dispatch => {
 
 export const unblock = (userId, blockedId) => dispatch => {
     dispatch(setGettingUser());
-    axios.put('/api/users/unblock', {
+    axios.put(`${process.env.REACT_APP_API_URL}/api/users/unblock`, {
             userId: userId,
             blockedId: blockedId
         })
@@ -100,7 +100,7 @@ export const unblock = (userId, blockedId) => dispatch => {
 
 export const addToFavourites = (userId, writingId) => dispatch => {
     dispatch(setGettingUser());
-    axios.put('/api/users/favourites', {
+    axios.put(`${process.env.REACT_APP_API_URL}/api/users/favourites`, {
             user_id: userId,
             writing_id: writingId
         })
@@ -113,7 +113,7 @@ export const addToFavourites = (userId, writingId) => dispatch => {
 
 export const removeFromFavourites = (userId, writingId) => dispatch => {
     dispatch(setGettingUser());
-    axios.put('/api/users/remove-favourite', {
+    axios.put(`${process.env.REACT_APP_API_URL}/api/users/remove-favourite`, {
             user_id: userId,
             writing_id: writingId
         })
@@ -126,7 +126,7 @@ export const removeFromFavourites = (userId, writingId) => dispatch => {
 
 export const getFollowedAccountsById = (userId) => dispatch => {
     dispatch(setGettingUser());
-    axios.get(`/api/users/followed_accounts/${userId}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/users/followed_accounts/${userId}`)
         .then(res => {
             dispatch({
                 type: GOT_FOLLOWED_ACCOUNTS,
@@ -138,7 +138,7 @@ export const getFollowedAccountsById = (userId) => dispatch => {
 
 export const getLikedPosts = (userId) => dispatch => {
     dispatch(setGettingUser());
-    axios.get(`/api/users/liked_posts/${userId}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/users/liked_posts/${userId}`)
         .then(res => {
             dispatch({
                 type: GOT_LIKED_POSTS,
@@ -150,7 +150,7 @@ export const getLikedPosts = (userId) => dispatch => {
 
 export const getFollowedAccountsByUsername = (username) => dispatch => {
     dispatch(setGettingUser());
-    axios.get(`/api/users/followed_accounts_by_username/${username}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/users/followed_accounts_by_username/${username}`)
         .then(res => {
             dispatch({
                 type: GOT_FOLLOWED_ACCOUNTS,
@@ -162,7 +162,7 @@ export const getFollowedAccountsByUsername = (username) => dispatch => {
 
 export const getFollowersById = (userId) => dispatch => {
     dispatch(setGettingUser());
-    axios.get(`/api/users/followers/${userId}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/users/followers/${userId}`)
         .then(res => {
             dispatch({
                 type: GOT_FOLLOWERS,
@@ -174,7 +174,7 @@ export const getFollowersById = (userId) => dispatch => {
 
 export const getFollowersByUsername = (username) => dispatch => {
     dispatch(setGettingUser());
-    axios.get(`/api/users/followers_by_username/${username}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/api/users/followers_by_username/${username}`)
         .then(res => {
             dispatch({
                 type: GOT_FOLLOWERS,
