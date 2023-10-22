@@ -37,7 +37,7 @@ class Compose extends Component {
         const id = info[0];
         const type = info[1];
         this.setState({ id, type });
-        axios.get(`/api/${type}s/compose-data/${id}`)
+        axios.get(`${process.env.REACT_APP_API_URL}/${type}s/compose-data/${id}`)
             .then(res => this.setState({...res.data, fetching: false}))
             .catch(err => this.setState({ fetching: false, error: true }));
     }
@@ -68,7 +68,7 @@ class Compose extends Component {
             currentChapter: this.state.currentChapter
         };
         const destination = isWriting ? 'writings' : 'drafts/edit/';
-        axios.put(`/api/${destination}/${this.state.id}`, newObject)
+        axios.put(`${process.env.REACT_APP_API_URL}/api/${destination}/${this.state.id}`, newObject)
             .then(res => window.location.href = `/edit-compose/${this.state.id}?${this.state.type}`);
     }
 
@@ -96,7 +96,7 @@ class Compose extends Component {
             this.props.setCurrentDraft(object)
         }
         const destination = isWriting ? 'writings' : 'drafts/edit';
-        axios.put(`/api/${destination}/${this.state.id}`, object)
+        axios.put(`${process.env.REACT_APP_API_URL}/api/${destination}/${this.state.id}`, object)
             .then(() => this.props.history.push(`/edit-compose/${this.state.id}?${this.state.type}`));
     }
 

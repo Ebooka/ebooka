@@ -44,7 +44,7 @@ class Compose extends Component {
                 chapters: this.props.currentWriting.chapters ?? [],
             });
             if(id && this.isNovel()) {
-                axios.get(`/api/writings/chapters/${id}/`)
+                axios.get(`${process.env.REACT_APP_API_URL}/api/writings/chapters/${id}/`)
                     .then(res => this.setState({chapters: res.data}))
                     .catch(err => this.setState({chapters: []}))
             }

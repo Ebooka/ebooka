@@ -145,7 +145,7 @@ class Comment extends Component {
         event.preventDefault();
         event.stopPropagation();
         this.setState({likesModalIsOpen: !this.state.likesModalIsOpen});
-        axios.get(`/api/writings/comment/likers/${this.props.current.id}`)
+        axios.get(`${process.env.REACT_APP_API_URL}/api/writings/comment/likers/${this.props.current.id}`)
             .then(res => this.setState({ likes: res.data }));
     }
 

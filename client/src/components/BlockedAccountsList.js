@@ -11,7 +11,7 @@ export class BlockedAccountsList extends Component {
 
     componentDidMount() {
         const id = this.props.id;
-        axios.get(`/api/users/blocked-accounts/${id}`)
+        axios.get(`${process.env.REACT_APP_API_URL}/api/users/blocked-accounts/${id}`)
             .then(res => {
                 this.setState({ blockedAccounts: res.data })
             });

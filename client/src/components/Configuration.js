@@ -21,7 +21,7 @@ class Configuration extends Component {
 
     componentDidMount() {
         const username = window.location.href.split('/profile/')[1].split('/configuration')[0];
-        axios.get(`/api/users/profile_image/${username}`)
+        axios.get(`${process.env.REACT_APP_API_URL}/api/users/profile_image/${username}`)
             .then(res => {
                 this.setState({ url: res.data.profile_image });
             });

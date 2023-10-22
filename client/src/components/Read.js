@@ -61,7 +61,7 @@ class Read extends Component {
         if(this.props.writing.writings && this.props.writing.writings[0].genre === 'Novela' &&
             !this.state.chapters && !this.state.fetched) {
             const id = this.props.writing.writings[0].id;
-            axios.get(`/api/writings/chapters/${id}`)
+            axios.get(`${process.env.REACT_APP_API_URL}/api/writings/chapters/${id}`)
                 .then(res => {
                     let chaptersContent = [];
                     res.data.map(object => {

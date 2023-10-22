@@ -43,7 +43,7 @@ class EditCompose extends Component {
         const type = info[1];
         this.setState({ id, type});
         if(type === 'writing') {
-            axios.get(`/api/writings/compose-data/${id}`)
+            axios.get(`${process.env.REACT_APP_API_URL}/api/writings/compose-data/${id}`)
                 .then(res => this.setState({...res.data, fetching: false}));
         } else {
             this.setState({...this.props.currentDraft, fetching: false});
@@ -90,7 +90,7 @@ class EditCompose extends Component {
 
     componentDidUpdate(prevProps) {
         if (this.state.type === 'writing' && this.state.chapters && this.state.chapters.length > 1 && this.state.genre === 'Novela') {
-            axios.get(`/api/writings/chapters/${this.state.id}`)
+            axios.get(`${process.env.REACT_APP_API_URL}/api/writings/chapters/${this.state.id}`)
                 .then(res => {
                     let chaptersId = [];
                     let chaptersContent = [];
@@ -138,20 +138,20 @@ class EditCompose extends Component {
             chapters: null,
         };
         const destination = isWriting ? 'writings' : 'drafts/edit';
-        await axios.put(`/api/${destination}/${this.state.id}`, newObject);
+        await axios.put(`${process.env.REACT_APP_API_URL}/api/${destination}/${this.state.id}`, newObject);
     }
 
     editChapterContent = async (ids) => {
         ids.map(async (id, idx) => {
             const body = this.state.chapters[idx];
-            await axios.put(`/api/writings/chapters/${id}`, {body: body});
+            await axios.put(`${process.env.REACT_APP_API_URL}/api/writings/chapters/${id}`, {body: body});
         })
     }
     createNewChapters = async (ids, offset) => {
         let chapters = this.state.chapters;
         ids.map(async (id, idx) => {
             const body = this.state.chapters[idx + offset];
-            await axios.post(`/api/writings/chapters`, {body: body, writing_id: this.state.id});
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/writings/chapters`, {body: body, writing_id: this.state.id});
         })
     }
 

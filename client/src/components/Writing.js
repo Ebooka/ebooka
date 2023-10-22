@@ -82,7 +82,7 @@ class Writing extends Component {
 
     componentDidMount() {
         this.setState({originalCommentsCount: this.props.current.comments ? this.props.current.comments.length : 0});
-        axios.get(`/api/users/profile_image/${this.props.current.username}`)
+        axios.get(`${process.env.REACT_APP_API_URL}/api/users/profile_image/${this.props.current.username}`)
             .then(res => {
                 this.setState({ imageURL: res.data.profile_image })
                 let image = document.getElementById(`user-image-${this.props.current.id}`);

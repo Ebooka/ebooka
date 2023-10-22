@@ -44,7 +44,7 @@ class PasswordChange extends Component {
             });
         } else {
             this.setState({loading: true});
-            axios.post('/api/auth/user/change-password', {
+            axios.post(`${process.env.REACT_APP_API_URL}/api/auth/user/change-password`, {
                 password: this.state.password,
                 token: window.location.href.split('/password/')[1]
             })

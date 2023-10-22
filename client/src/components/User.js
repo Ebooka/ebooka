@@ -32,7 +32,7 @@ class User extends Component {
                 window.location.href = `/profile/${username}`;
         }
         if(this.props.user !== prevProps.user && !this.props.auth.user?.blocked_accounts?.includes(this.props.user.id)) {
-            axios.get(`/api/users/profile_image/${username}`)
+            axios.get(`${process.env.REACT_APP_API_URL}/api/users/profile_image/${username}`)
             .then(res => {
                 this.setState({stateUserImage: res.data.profile_image});
             });

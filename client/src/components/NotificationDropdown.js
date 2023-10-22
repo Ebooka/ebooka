@@ -40,7 +40,7 @@ class NotificationDropdown extends Component {
         if(!this.state.opened) {
             /*let icon = document.getElementById('notification-image');
             icon.src = '/assets/notification-empty.png';*/
-            axios.post(`/api/notifications/${this.props.auth.user.id}`).then(res => {
+            axios.post(`${process.env.REACT_APP_API_URL}/api/notifications/${this.props.auth.user.id}`).then(res => {
                 this.setState({opened: true});
                 document.title = 'Escritos';
             });

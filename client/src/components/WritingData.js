@@ -54,7 +54,7 @@ class WritingData extends Component {
 
     getAllComments = (writingId) => {
         this.setState({commentsLoading: true});
-        axios.get(`/api/writings/all-comments/${writingId}`)
+        axios.get(`${process.env.REACT_APP_API_URL}/api/writings/all-comments/${writingId}`)
             .then(res => {
                 let likesPerComment = [];
                 let responsesPerComment = [];

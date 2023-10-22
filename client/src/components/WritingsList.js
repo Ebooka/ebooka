@@ -34,29 +34,29 @@ class WritingsList extends Component {
     componentDidMount() {
         let url;
         if(this.props.subgenre) {
-            url = `/api/writings/get-count-by-subgenre/${this.props.genre}/${this.props.subgenre}`;
+            url = `${process.env.REACT_APP_API_URL}/api/writings/get-count-by-subgenre/${this.props.genre}/${this.props.subgenre}`;
             this.setState({fetchFunction: FETCH_FUNCTIONS.BY_SUBGENRE});
         } else if(this.props.genre) {
-            url = `/api/writings/get-count-by-genre/${this.props.genre}`;
+            url = `${process.env.REACT_APP_API_URL}/api/writings/get-count-by-genre/${this.props.genre}`;
             this.setState({fetchFunction: FETCH_FUNCTIONS.BY_GENRE});
         } else if(this.props.user) {
             if(window.location.search !== undefined && window.location.search !== '') {
                 const filters = this.props.location.search.split('?')[1];
                 const userId = this.props.user.id;
-                url = `/api/writings/get-count-filters-blocked/${filters}/${userId}/`;
+                url = `${process.env.REACT_APP_API_URL}/api/writings/get-count-filters-blocked/${filters}/${userId}/`;
                 this.props.getWritingsWithFiltersAndBlocked(filters, userId, 0);
                 this.setState({ fetchFunction: FETCH_FUNCTIONS.FILTER_AND_BLOCKED })
             } else {
-                url = `/api/writings/get-count-blocked/${this.props.user.id}/`;
+                url = `${process.env.REACT_APP_API_URL}/api/writings/get-count-blocked/${this.props.user.id}/`;
                 this.setState({ fetchFunction: FETCH_FUNCTIONS.BLOCKED_ONLY })
             }
         } else {
             if(window.location.search !== undefined && window.location.search !== '') {
                 const filters = this.props.location.search.split('?')[1];
-                url = `/api/writings/get-count-filters/${filters}/`;
+                url = `${process.env.REACT_APP_API_URL}/api/writings/get-count-filters/${filters}/`;
                 this.setState({ fetchFunction: FETCH_FUNCTIONS.FILTERS_ONLY })
             } else {
-                url = `/api/writings/get-count/`;
+                url = `${process.env.REACT_APP_API_URL}/api/writings/get-count/`;
                 this.setState({ fetchFunction: FETCH_FUNCTIONS.REGULAR })
             }
         }

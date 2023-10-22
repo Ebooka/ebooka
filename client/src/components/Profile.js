@@ -34,7 +34,7 @@ class Profile extends Component {
 
     componentDidMount() {
         const username = window.location.href.split('/profile/')[1];
-        axios.get(`/api/users/profile_image/${username}`)
+        axios.get(`${process.env.REACT_APP_API_URL}/api/users/profile_image/${username}`)
             .then(res => {
                 this.setState({ url: res.data.profile_image });
             });
@@ -71,7 +71,7 @@ class Profile extends Component {
         const reader = new FileReader();
         reader.readAsDataURL(imageInput.files[0]);
         reader.onloadend = () => {
-            axios.post(`/api/users/profile_image/${this.props.auth.user.username}`, { 
+            axios.post(`${process.env.REACT_APP_API_URL}/api/users/profile_image/${this.props.auth.user.username}`, { 
                 userImage: reader.result
             });
             this.setState({ url: reader.result });

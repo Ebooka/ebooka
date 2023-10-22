@@ -11,7 +11,7 @@ class Validate extends Component {
     componentDidMount() {
 
         const token = window.location.href.split('validate/')[1];
-        axios.post('/api/users/validate', {token: token})
+        axios.post(`${process.env.REACT_APP_API_URL}/api/users/validate`, {token: token})
             .then(res => {
                 this.props.dispatch({
                     type: LOGIN_SUCCESS,

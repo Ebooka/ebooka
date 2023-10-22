@@ -15,11 +15,11 @@ class TestImageUpload extends Component {
         reader.readAsDataURL(imageInput.files[0]);
         reader.onloadend = () => {
             previewImg.src = reader.result;
-            axios.post(`/api/users/profile_image/eugedamm`, { 
+            axios.post(`${process.env.REACT_APP_API_URL}/api/users/profile_image/eugedamm`, { 
                 userImage: reader.result
             })
                 .then(res => {
-                    axios.get('/api/users/profile_image/eugedamm')
+                    axios.get(`${process.env.REACT_APP_API_URL}/api/users/profile_image/eugedamm`)
                         .then(res => {
                             let previewImg2 = document.getElementById('preview2');
                             previewImg2.src = res.data.profile_image;

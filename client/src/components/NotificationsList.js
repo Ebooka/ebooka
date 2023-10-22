@@ -45,7 +45,7 @@ class NotificationsList extends Component {
             tags_notif_active: this.state.tags_switch,
             follows_notif_active: this.state.follows_switch,
         };
-        axios.post('/api/users/update-notifications', body)
+        axios.post(`${process.env.REACT_APP_API_URL}/api/users/update-notifications`, body)
             .then(res => {
                 document.getElementById('alert').style.display = 'block';
             });
